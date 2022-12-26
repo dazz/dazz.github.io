@@ -1,0 +1,73 @@
+baseURL = "https://dazz.github.io/"
+languageCode = "en-us"
+title = "Dazz's Dev Log"
+
+theme = "hugo-ficurinia"
+
+author = "dazz"
+copyright = "dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/)."
+
+paginate = 5
+summaryLength = 30
+
+[params]
+    description = "dazz's blog about programming and other cool stuff"
+    author = "dazz"
+    logo = "/logo.svg"
+    favicon = "/favicon.png"
+    faviconIco = "/favicon.ico"
+    appletouch = "/apple-touch-icon.png"
+    svgicon = "/logo.svg"
+    icon512 = "/android-chrome-512x512.png"
+    # commento = "https://cloud.techpills.technology:54321/js/commento.js"
+    cactusCommentsSiteName = "gabmus.org"
+    cactusCommentsServerName = "cactus.chat"
+    cactusCommentsHomeserver = "https://matrix.cactus.chat:8448"
+    
+    imageInArticlePreview = true
+
+    enableShareOnFediverse = true
+
+    enableRelatedArticles = true
+    relatedArticlesNum = 2 
+    forceRedirect = true
+
+[markup]
+    [markup.highlight]
+        codeFences = true
+        guessSyntax = true
+        lineNos = false
+        lineNumbersInTable = false
+        tabWidth = 4
+        style = "dracula"
+    [markup.tableOfContents]
+        endLevel = 5
+        ordered = false
+        startLevel = 1
+
+[menu]
+#    [[menu.main]]
+#        identifier = "archguide"
+#        name = "Arch guide"
+#        url = "/archguide"
+#        weight = 99
+    [[menu.icons]]
+        identifier = "github"
+        name = "GitHub"
+        url = "https://github.com/dazz"
+        weight = 10
+#    [[menu.icons]]
+#        identifier = "gnome"
+#        name = "GNOME GitLab"
+#        url = "https://gitlab.gnome.org/gabmus"
+#        weight = 20
+#    [[menu.icons]]
+#        identifier = "youtube"
+#        name = "YouTube"
+#        url = "https://youtube.com/TechPillsNet"
+#        weight = 30
+#    [[menu.icons]]
+#        identifier = "mastodon"
+#        name = "Mastodon"
+#        url = "https://fosstodon.org/@gabmus"
+#        weight = 40
