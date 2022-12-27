@@ -32,6 +32,10 @@ jobs:
           fetch-depth: 0
           submodules: true
 
+      - name: debug
+        run: ls -la themes/hugo-ficurinia
+
+
       - name: Hugo Deploy GitHub Pages
         uses: benmatselby/hugo-deploy-gh-pages@v2.0.0
         env:
@@ -41,3 +45,4 @@ jobs:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HUGO_ARGS: '-t hugo-ficurinia'
           CNAME: dazz.github.io
+          HUGO_PUBLISH_DIR: public
