@@ -1,7 +1,7 @@
 ---
 title: "Goodbye Jekyll, hello Hugo"
 date: 2022-12-27T17:44:27+01:00
-tags: []
+tags: [jekyll, hugo, blog, github, github-actions, cd, git]
 image: hugo.png
 comments: true
 ---
@@ -21,7 +21,7 @@ There is already a huge list of possible themes and many look promising from the
 * Are there existing installations that are actively used, so they can be used as a reference
 * Is there a reference/documentation on how to install it on the host
 * How do you publish new content, are there examples/documentation?
-* What is the version of the technologies in the deploy chain, old?
+* What is the version of the technologies in the deploy-chain, old?
 
 For every point there is also the question of how complicated each step is.
 
