@@ -76,3 +76,5 @@ If it lives under your own handle you don't need to configure anything more sinc
 
 Straight forward the action will consume the `Dockerfile` build to the target build step that you can define. In docker there is this thing that the repository whre the image will be hosted is also part of the tag. Setting the image to the repository name will create an image with the following tag: `ghcr.io/OWNER/IMAGE_NAME:latest
 Read more here: [pushing container images](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#pushing-container-images)
+
+## Happy shipping \\o/
