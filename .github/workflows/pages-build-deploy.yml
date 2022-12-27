@@ -26,23 +26,36 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      # Step 1 - Checks-out your repository under $GITHUB_WORKSPACE
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
           submodules: true
 
-      - name: debug
-        run: ls -la themes/hugo-ficurinia
+      # Step 2 - Sets up the latest version of Hugo
+      - name: Hugo setup
+        uses: peaceiris/actions-hugo@v2.6.0
+        with:
+          hugo-version: 'latest'
 
+      # Step 3 - Clean and don't fail
+      - name: Clean public directory
+        run: rm -rf public/*
 
-      - name: Hugo Deploy GitHub Pages
-        uses: benmatselby/hugo-deploy-gh-pages@v2.0.0
-        env:
-          HUGO_VERSION: 0.109.0
-          TARGET_REPO: dazz/dazz.github.io
-          TARGET_BRANCH: main
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          HUGO_ARGS: '-t hugo-ficurinia'
-          CNAME: dazz.github.io
-          HUGO_PUBLISH_DIR: public
+      # Step 4 - Builds the site using the latest version of Hugo
+      # Also specifies the theme we want to use
+      - name: Build
+        run: hugo --theme=hugo-ficurinia
+
+      # Step 5 - Create name file
+      - name: Create cname file
+        run: echo 'dazz.github.io' > public/CNAME
+
+      # Step 6 - Push our generated site to our gh-pages branch
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
