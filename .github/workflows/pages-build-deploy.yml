@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -50,13 +50,10 @@ jobs:
       - name: Build
         run: hugo --theme=hugo-ficurinia
 
-      # Step 5 - Create name file
-      - name: Create cname file
-        run: echo 'dazz.github.io' > public/CNAME
-
-      # Step 6 - Push our generated site to our gh-pages branch
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
+      # Step 5 - Push our generated site to our gh-pages branch
+      - name: GitHub Pages action
+        uses: peaceiris/actions-gh-pages@v3.9.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
+          cname: dazz.github.io
