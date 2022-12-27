@@ -1,4 +1,62 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>Dazz's Dev Log</title><link>https://dazz.github.io/</link><description>Recent content on Dazz's Dev Log</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Tue, 27 Dec 2022 17:44:27 +0100</lastBuildDate><atom:link href="https://dazz.github.io/index.xml" rel="self" type="application/rss+xml"/><icon>https://dazz.github.io/logo.svg</icon><item><title>Goodbye Jekyll, hello Hugo</title><link>https://dazz.github.io/posts/2022-12-27_goodbye-jekyl-hello-hugo/</link><pubDate>Tue, 27 Dec 2022 17:44:27 +0100</pubDate><guid>https://dazz.github.io/posts/2022-12-27_goodbye-jekyl-hello-hugo/</guid><description><![CDATA[<p>I started this blog in March 2013 when I was working for ImagineEasy when I had a few ideas to write down on how I&rsquo;d work with Doctrine Repositories. I still like the idea, but I&rsquo;d probably do it a bit different today. The blog and also how I&rsquo;d work with doctrine.</p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>Dazz's Dev Log</title><link>https://dazz.github.io/</link><description>Recent content on Dazz's Dev Log</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Wed, 28 Dec 2022 00:25:38 +0100</lastBuildDate><atom:link href="https://dazz.github.io/index.xml" rel="self" type="application/rss+xml"/><icon>https://dazz.github.io/logo.svg</icon><item><title>Build and push docker images to ghcr.io with GitHub Actions</title><link>https://dazz.github.io/posts/2022-12-28_build-and-push-docker-images-to-ghcr-with-github-actions/</link><pubDate>Wed, 28 Dec 2022 00:25:38 +0100</pubDate><guid>https://dazz.github.io/posts/2022-12-28_build-and-push-docker-images-to-ghcr-with-github-actions/</guid><description><![CDATA[<p>When you host your project code on GitHub and want to release it as a docker image for deployment or just publish it, the way to go are GitHub actions. It’s basically hooks that can start CI/DC workflows on repository events.</p>
+<p>GitHub actions can be used to build and push images to GitHubs Container Registry which are reachable under <a href="https://ghcr.io">https://ghcr.io</a> which is part of the package registry. The package registry is not only for docker images, it can also host quite a few other kinds of packages. In this case we’ll focus on docker images.</p>
+<h2 id="prerequisites"><strong>Prerequisites</strong>:</h2>
+<ul>
+<li>GitHub Repository</li>
+<li>Basic Knowledge about GitHub actions syntax</li>
+<li>Dockerfile</li>
+</ul>
+<h2 id="the-github-workflow">The GitHub Workflow</h2>
+<p>I created a workflow in my repository under <code>.github/workflow/cd.md</code> and added the following:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ff79c6">name</span>: Continuous Delivery
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">on</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">push</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">branches</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#f1fa8c">&#39;main&#39;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">tags</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#f1fa8c">&#39;v*.*.*&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">jobs</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">build</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">name</span>: Buid and push Docker image to GitHub Container registry
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">runs-on</span>: ubuntu-latest
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">permissions</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#ff79c6">packages</span>: write
+</span></span><span style="display:flex;"><span>      <span style="color:#ff79c6">contents</span>: read
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">steps</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#ff79c6">name</span>: Checkout the repository
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">uses</span>: actions/checkout@v3
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#ff79c6">name</span>: Docker Setup Buildx
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">uses</span>: docker/setup-buildx-action@v2.2.1
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#ff79c6">name</span>: Docker Login
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">uses</span>: docker/login-action@v2.1.0
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">registry</span>: ghcr.io
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">username</span>: ${{ github.actor }}
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">password</span>: ${{ secrets.GITHUB_TOKEN }}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#ff79c6">name</span>: Build and push Docker images
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">uses</span>: docker/build-push-action@v3.2.0
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">env</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">REGISTRY</span>: ghcr.io
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">IMAGE_NAME</span>: ${{ github.repository }}
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">context</span>: .
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">file</span>: ./Dockerfile
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">target</span>: final
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">push</span>: <span style="color:#ff79c6">true</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">tags</span>: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+</span></span></code></pre></div><h2 id="lets-go-through-the-important-parts">Let’s go through the important parts:</h2>
+<p><strong>Permissions</strong>: Actions have access to the repo while running. We should always make sure by setting the permissions, that actions have the minimum access they require. See here: <a href="https://docs.github.com/en/actions/security-guides/automatic-token-authentication#permissions-for-the-github_token">permissions for the github_token</a></p>
+<p><strong>Step 1-2: Checkout the code</strong> and Setup docker**</p>
+<p><strong>Step 3: Login to GitHub Container Registry</strong>: This is where the interesting part starts. The <code>github.actor</code> that will be the user that triggered the workflow. For password use <code>secrets.GITHUB_TOKEN</code> which is a temporary token which is automatically generated for this workflow. See here: <a href="https://docs.github.com/en/actions/publishing-packages/publishing-docker-images#publishing-images-to-github-packages">publishing images to github-packages</a></p>
+<p><strong>Step 4: Build and push Docker images</strong>: If the registry that you want to push to belongs to an organization then you will need to add permission to create packages.
+If it lives under your own handle you don&rsquo;t need to configure anything more since you are then the owner already and the <code>secrets.GITHUB_TOKEN</code> has all the permissions granted by that.</p>
+<p>Straight forward the action will consume the <code>Dockerfile</code> build to the target build step that you can define. In docker there is this thing that the repository whre the image will be hosted is also part of the tag. Setting the image to the repository name will create an image with the following tag: `ghcr.io/OWNER/IMAGE_NAME:latest
+Read more here: <a href="https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#pushing-container-images">pushing container images</a></p>
+]]></description><media:thumbnail url="https://dazz.github.io/dockergithub.png"/></item><item><title>Goodbye Jekyll, hello Hugo</title><link>https://dazz.github.io/posts/2022-12-27_goodbye-jekyl-hello-hugo/</link><pubDate>Tue, 27 Dec 2022 17:44:27 +0100</pubDate><guid>https://dazz.github.io/posts/2022-12-27_goodbye-jekyl-hello-hugo/</guid><description><![CDATA[<p>I started this blog in March 2013 when I was working for ImagineEasy when I had a few ideas to write down on how I&rsquo;d work with Doctrine Repositories. I still like the idea, but I&rsquo;d probably do it a bit different today. The blog and also how I&rsquo;d work with doctrine.</p>
 <p>At the time Jekyll was the way to handle a static file blog. Since then, again, a few things have changed. GitHub is now owned by Microsoft and there are GitHub Actions.</p>
 <p>Jekyll still exists, but all in all I think it was a modern choice at a different time. So what&rsquo;s next then? I must admit I did not look far, it was more a Zeitgeist thing that just ran my way.</p>
 <p>Someone mentioned HUGO as a blog that you can easily publish to from Obsidian, I&rsquo;m not planning on using that particular feature, but I looked <a href="https://gohugo.io/about/">HUGO</a> up, and it seems that it is exactly what I was to lazy to look for. A static site generator that uses markdown and can be build by GitHub Actions.</p>
@@ -9,7 +67,7 @@
 <li>Are there existing installations that are actively used, so they can be used as a reference</li>
 <li>Is there a reference/documentation on how to install it on the host</li>
 <li>How do you publish new content, are there examples/documentation?</li>
-<li>What is the version of the technologies in the deploy chain, old?</li>
+<li>What is the version of the technologies in the deploy-chain, old?</li>
 </ul>
 <p>For every point there is also the question of how complicated each step is.</p>
 <p>As a reference, this is what I ended up doing:</p>
@@ -118,6 +176,8 @@
 ]]></description><media:thumbnail url="https://dazz.github.io/hugo.png"/></item><item><title>Hello, world!</title><link>https://dazz.github.io/posts/2022-12-26_hello-world/</link><pubDate>Mon, 26 Dec 2022 21:29:35 +0100</pubDate><guid>https://dazz.github.io/posts/2022-12-26_hello-world/</guid><description><![CDATA[<h2 id="introduction">Introduction</h2>
 <p>This is <strong>bold</strong> text, and this is <em>emphasized</em> text.</p>
 <p>Visit the <a href="https://gohugo.io">Hugo</a> website!</p>
-]]></description></item><item><title/><link>https://dazz.github.io/about/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://dazz.github.io/about/</guid><description><![CDATA[<h2 id="logo">Logo</h2>
-<p><!-- raw HTML omitted -->Bild von catalyststuff<!-- raw HTML omitted --> auf Freepik</p>
+]]></description></item><item><title/><link>https://dazz.github.io/about/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://dazz.github.io/about/</guid><description><![CDATA[<h2 id="references">References</h2>
+<ul>
+<li>Logo: <a href="https://de.freepik.com/vektoren-kostenlos/niedlich-astronaut-arbeitende-mit-computer-karikatur-vektor-symbol-illustration-wissenschafts-technologie-ikonen-konzept-lokalisierter-erstklassiger-vektor-flacher-cartoon-stil_22750865.htm#query=space%20logo&amp;position=19&amp;from_view=search&amp;track=sph">Bild von catalyststuff auf Freepik</a></li>
+</ul>
 ]]></description></item></channel></rss>
