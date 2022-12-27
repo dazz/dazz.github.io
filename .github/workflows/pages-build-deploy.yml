@@ -41,16 +41,24 @@ jobs:
           extended: true
           hugo-version: 'latest'
 
-      # Step 3 - Clean and don't fail
+      # Step 3 - Adds a cache
+      - uses: actions/cache@v2
+        with:
+          path: /tmp/hugo_cache
+          key: ${{ runner.os }}-hugomod-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-hugomod-
+
+      # Step 4 - Clean and don't fail
       - name: Clean public directory
         run: rm -rf public/*
 
-      # Step 4 - Builds the site using the latest version of Hugo
+      # Step 5 - Builds the site using the latest version of Hugo
       # Also specifies the theme we want to use
       - name: Build
-        run: hugo --theme=hugo-ficurinia
+        run: hugo --minify --theme=hugo-ficurinia
 
-      # Step 5 - Push our generated site to our gh-pages branch
+      # Step 6 - Push our generated site to our gh-pages branch
       - name: GitHub Pages action
         uses: peaceiris/actions-gh-pages@v3.9.0
         with:

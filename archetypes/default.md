@@ -1,6 +1,8 @@
 ---
-title: "{{ replace .Name "-" " " | title }}"
+title: "{{ replace (replace .Name "-" " ") "_" " " | title }}"
 date: {{ .Date }}
-draft: true
+tags: []
+image:
+comments: true
 ---
 
