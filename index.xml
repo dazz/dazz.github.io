@@ -1,4 +1,123 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>Dazz's Dev Log</title><link>https://dazz.github.io/</link><description>Recent content on Dazz's Dev Log</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Mon, 26 Dec 2022 21:29:35 +0100</lastBuildDate><atom:link href="https://dazz.github.io/index.xml" rel="self" type="application/rss+xml"/><icon>https://dazz.github.io/logo.svg</icon><item><title>Hello, world!</title><link>https://dazz.github.io/posts/2022-12-26_hello-world/</link><pubDate>Mon, 26 Dec 2022 21:29:35 +0100</pubDate><guid>https://dazz.github.io/posts/2022-12-26_hello-world/</guid><description><![CDATA[<h2 id="introduction">Introduction</h2>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>Dazz's Dev Log</title><link>https://dazz.github.io/</link><description>Recent content on Dazz's Dev Log</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Tue, 27 Dec 2022 17:44:27 +0100</lastBuildDate><atom:link href="https://dazz.github.io/index.xml" rel="self" type="application/rss+xml"/><icon>https://dazz.github.io/logo.svg</icon><item><title>Goodbye Jekyll, hello Hugo</title><link>https://dazz.github.io/posts/2022-12-27_goodbye-jekyl-hello-hugo/</link><pubDate>Tue, 27 Dec 2022 17:44:27 +0100</pubDate><guid>https://dazz.github.io/posts/2022-12-27_goodbye-jekyl-hello-hugo/</guid><description><![CDATA[<p>I started this blog in March 2013 when I was working for ImagineEasy when I had a few ideas to write down on how I&rsquo;d work with Doctrine Repositories. I still like the idea, but I&rsquo;d probably do it a bit different today. The blog and also how I&rsquo;d work with doctrine.</p>
+<p>At the time Jekyll was the way to handle a static file blog. Since then, again, a few things have changed. GitHub is now owned by Microsoft and there are GitHub Actions.</p>
+<p>Jekyll still exists, but all in all I think it was a modern choice at a different time. So what&rsquo;s next then? I must admit I did not look far, it was more a Zeitgeist thing that just ran my way.</p>
+<p>Someone mentioned HUGO as a blog that you can easily publish to from Obsidian, I&rsquo;m not planning on using that particular feature, but I looked <a href="https://gohugo.io/about/">HUGO</a> up, and it seems that it is exactly what I was to lazy to look for. A static site generator that uses markdown and can be build by GitHub Actions.</p>
+<p>There is already a huge list of possible themes and many look promising from the thumbnail, but feature wise there is a huge difference. What to look out for:</p>
+<ul>
+<li>How far is the template deviating from the default, in case you ever want to change the template.</li>
+<li>Which features do you want/need and are they already included, is it complicated to add them  later?</li>
+<li>Are there existing installations that are actively used, so they can be used as a reference</li>
+<li>Is there a reference/documentation on how to install it on the host</li>
+<li>How do you publish new content, are there examples/documentation?</li>
+<li>What is the version of the technologies in the deploy chain, old?</li>
+</ul>
+<p>For every point there is also the question of how complicated each step is.</p>
+<p>As a reference, this is what I ended up doing:</p>
+<h2 id="local-setup">Local setup</h2>
+<h3 id="install-hugo">install hugo</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo apt-get install hugo
+</span></span></code></pre></div><h3 id="create-a-new-site">create a new site</h3>
+<p>see the <a href="https://gohugo.io/getting-started/quick-start/">official Quick Start</a> for more infos.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>hugo new site dazz.github.io
+</span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">cd</span> dazz.github.io
+</span></span><span style="display:flex;"><span>git init
+</span></span></code></pre></div><h3 id="add-a-theme">add a theme</h3>
+<p>Look at all the <a href="https://themes.gohugo.io/tags/blog/">blog themes</a> hugo already has listed.</p>
+<p>I chose <code>hugo-ficurinia</code> as it has the following enabled: tags, categories, fonts I like, simply deploys and looks as promised.</p>
+<p>Add the theme as submodule:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>git submodule add https://gitlab.com/gabmus/hugo-ficurinia themes/hugo-ficurinia
+</span></span></code></pre></div><p>And run a local server to test everything</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>hugo server -t hugo-ficurinia
+</span></span></code></pre></div><h3 id="add-a-blog-post">add a blog post</h3>
+<p>There is probably nothing much to see, so let&rsquo;s add a new post as draft.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>hugo new posts/hello-world/index.md
+</span></span></code></pre></div><p>Make sure to read about how to <a href="https://gohugo.io/content-management/organization/">organize the content</a> in directories.</p>
+<h3 id="run-the-server">run the server</h3>
+<p>And run the server again and also include the draft post</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>hugo server -t hugo-ficurinia --buildDrafts
+</span></span></code></pre></div><p>When you run just <code>hugo -t hugo-ficurinia</code>  the site will be build and dumped to <code>public/</code>. That is what we will later do to deploy the site.</p>
+<p>Time to commit all the changed files and add the remote to push everything</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>git remote add origin git@github.com:dazz/dazz.github.io.git
+</span></span><span style="display:flex;"><span>git push origin main
+</span></span></code></pre></div><p>There will nothing happen yet as we still need to add the github workflow</p>
+<h2 id="deploy-to-github-pages-via-github-actions">Deploy to GitHub pages via GitHub actions</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>mkdir -p .github/workflows
+</span></span><span style="display:flex;"><span>touch .github/workflows/pages-deploy.yml
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># file: .github/workflows/pages-deploy.yml</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">name</span>: <span style="color:#f1fa8c">&#34;Build and Deploy gh-pages&#34;</span>  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">on</span>:  
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">push</span>:  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">branches</span>:  
+</span></span><span style="display:flex;"><span>      - main  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">paths-ignore</span>:  
+</span></span><span style="display:flex;"><span>      - .gitignore  
+</span></span><span style="display:flex;"><span>      - README.md  
+</span></span><span style="display:flex;"><span>      - LICENSE  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  <span style="color:#6272a4"># Allows you to run this workflow manually from the Actions tab  </span>
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">workflow_dispatch</span>:  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">permissions</span>:  
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">contents</span>: write <span style="color:#6272a4"># needed to push to the gh-pages branch</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">pages</span>: write  
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">id-token</span>: write  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#6272a4"># Allow one concurrent deployment  </span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">concurrency</span>:  
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">group</span>: <span style="color:#f1fa8c">&#34;pages&#34;</span>  
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">cancel-in-progress</span>: <span style="color:#ff79c6">true</span>  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">jobs</span>:  
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">build</span>:  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">runs-on</span>: ubuntu-latest  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">steps</span>:  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>      <span style="color:#6272a4"># Step 1 - Checks-out your repository under $GITHUB_WORKSPACE  </span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#ff79c6">name</span>: Checkout  
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">uses</span>: actions/checkout@v3  
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">with</span>:  
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">fetch-depth</span>: <span style="color:#bd93f9">0</span>  
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">submodules</span>: <span style="color:#ff79c6">true</span>  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>      <span style="color:#6272a4"># Step 2 - Sets up the latest version of Hugo  </span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#ff79c6">name</span>: Hugo setup  
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">uses</span>: peaceiris/actions-hugo@v2.6.0  
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">with</span>:  
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">extended</span>: <span style="color:#ff79c6">true</span>  
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">hugo-version</span>: <span style="color:#f1fa8c">&#39;latest&#39;</span>  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>      <span style="color:#6272a4"># Step 3 - Adds a cache  </span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#ff79c6">uses</span>: actions/cache@v2  
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">with</span>:  
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">path</span>: /tmp/hugo_cache  
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">key</span>: ${{ runner.os }}-hugomod-${{ hashFiles(&#39;**/go.sum&#39;) }}  
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">restore-keys</span>: |  
+</span></span><span style="display:flex;"><span>            ${{ runner.os }}-hugomod-  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>      <span style="color:#6272a4"># Step 4 - Clean and don&#39;t fail  </span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#ff79c6">name</span>: Clean public directory  
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">run</span>: rm -rf public/*  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>      <span style="color:#6272a4"># Step 5 - Builds the site using the latest version of Hugo  </span>
+</span></span><span style="display:flex;"><span>      <span style="color:#6272a4"># Also specifies the theme we want to use      </span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#ff79c6">name</span>: Build  
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">run</span>: hugo --minify --theme=hugo-ficurinia  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>      <span style="color:#6272a4"># Step 6 - Push our generated site to our gh-pages branch  </span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#ff79c6">name</span>: GitHub Pages action  
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">uses</span>: peaceiris/actions-gh-pages@v3.9.0  
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">with</span>:  
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">github_token</span>: ${{ secrets.GITHUB_TOKEN }}  
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">publish_dir</span>: ./public  
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">cname</span>: dazz.github.io
+</span></span></code></pre></div><p>Read more about the options you get when using <a href="https://github.com/marketplace/actions/hugo-setup">peaceiris/actions-hugo</a> and <a href="https://github.com/marketplace/actions/github-pages-action">peaceiris/actions-gh-pages</a>.</p>
+<h2 id="customization">Customization</h2>
+<p>Now the customization party can start. All the options are listed in the <code>config.toml</code>.</p>
+<h2 id="happy-blogging-ohttpsdazzgithubio"><a href="https://dazz.github.io">Happy blogging \o/</a></h2>
+]]></description><media:thumbnail url="https://dazz.github.io/hugo.png"/></item><item><title>Hello, world!</title><link>https://dazz.github.io/posts/2022-12-26_hello-world/</link><pubDate>Mon, 26 Dec 2022 21:29:35 +0100</pubDate><guid>https://dazz.github.io/posts/2022-12-26_hello-world/</guid><description><![CDATA[<h2 id="introduction">Introduction</h2>
 <p>This is <strong>bold</strong> text, and this is <em>emphasized</em> text.</p>
 <p>Visit the <a href="https://gohugo.io">Hugo</a> website!</p>
+]]></description></item><item><title/><link>https://dazz.github.io/about/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://dazz.github.io/about/</guid><description><![CDATA[<h2 id="logo">Logo</h2>
+<p><!-- raw HTML omitted -->Bild von catalyststuff<!-- raw HTML omitted --> auf Freepik</p>
 ]]></description></item></channel></rss>
