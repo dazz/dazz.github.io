@@ -1,6 +1,6 @@
 baseURL = "https://dazz.github.io/"
 languageCode = "en-us"
-title = "Dazz's Dev Log"
+title = "DazzLog"
 
 theme = "hugo-ficurinia"
 
@@ -11,7 +11,7 @@ paginate = 5
 summaryLength = 30
 
 [params]
-    description = "dazz's blog about programming and other cool stuff"
+    description = "dazz blog about programming and other cool stuff"
     author = "dazz | Anne-Julia Seitz"
     logo = "/logo.svg"
     favicon = "/favicon.png"
@@ -20,7 +20,7 @@ summaryLength = 30
     svgicon = "/logo.svg"
     icon512 = "/android-chrome-512x512.png"
     # commento = "https://cloud.techpills.technology:54321/js/commento.js"
-    cactusCommentsSiteName = "gabmus.org"
+    cactusCommentsSiteName = "dazzlog"
     cactusCommentsServerName = "cactus.chat"
     cactusCommentsHomeserver = "https://matrix.cactus.chat:8448"
     
