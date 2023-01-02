@@ -2,7 +2,7 @@
 title: "Environment variables in a dockerized Symfony"
 date: 2023-01-02T19:24:18+01:00  
 tags: [docker, docker-compose, ci, cd, symfony, dotenv, env_file]  
-image: claudio-testa-FrlCwXwbwkk-unsplash-1.jpg
+image: amy-humphries-2M_sDJ_agvs-unsplash.jpg
 comments: true
 ---  
 
