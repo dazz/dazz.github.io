@@ -1,5 +1,5 @@
-#baseURL = "https://dazz.github.io/"
-baseURL = "https://blog.dazzlog.de/"
+baseURL = "https://dazz.github.io/"
+#baseURL = "https://blog.dazzlog.de/"
 languageCode = "en-us"
 title = "DazzLog"
 
