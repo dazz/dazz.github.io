@@ -4,6 +4,7 @@ date: 2023-01-02T19:24:18+01:00
 tags: [docker, docker-compose, ci, cd, symfony, dotenv, env_file]  
 image: amy-humphries-2M_sDJ_agvs-unsplash.jpg
 comments: true
+draft: true
 ---  
 
 I have developed a Symfony Web-Application and I run it locally in a dockerized environment with docker-compose. Now this app is going to be deployed to production as a docker container. But in production the handling of environment variables and how they are passed to the container during development is different. I was searching for options and I found there are at least
