@@ -32,6 +32,30 @@ summaryLength = 70
     relatedArticlesNum = 2 
     forceRedirect = true
 
+    # shows a specified single page as a home page, instead of the traditional articles list
+    # requires setting `homeSinglePage`
+    # goes well with extraContentDirs
+    showSinglePageAsHome = false
+    homeSinglePage = "/home"
+
+    paperCards = true  # enable paper card style; default false
+    buttonTags = false  # enable button tag style; default false
+    tagsInArticlePreview = true  # enable tags list in the article preview card
+    gridView = false  # show post list as a grid. goes well with paperCards
+    bigArticleTitle = false  # makes the title in the single article view bigger
+    navtype = "standard"  # changes the style of the pagination, available styles are: "standard", "circles"
+    enableShadow = true  # shows a shadow around some elements
+    menuStyle = "standard"  # changes the style of the main site navigation menu, available styles are: "standard", "buttons"
+
+    enableSearch = true  # enable search page
+    searchbarEverywhere = true  # if the searchbar should be shown in every page; requires enableSearch
+    searchMenuLink = false  # add a search link to the navigation menu; requires enableSearch
+    mobileHamburgerNav = false  # alternative hamburger menu layout for the main nav menu when screen is small
+
+    enableFeatured = false  # enable a particular view for articles marked as featured (featured: true in the article frontmatter)
+
+    underlineTitleLinks = false  # show an underline also for links that are titles
+
 [markup]
     [markup.highlight]
         codeFences = true
@@ -50,7 +74,13 @@ summaryLength = 70
         identifier = "about"
         name = "About"
         url = "/about"
+        weight = 50
+    [[menu.main]]
+        identifier = "imprint"
+        name = "Imprint"
+        url = "/impressum"
         weight = 99
+
     [[menu.icons]]
         identifier = "github"
         name = "GitHub"
