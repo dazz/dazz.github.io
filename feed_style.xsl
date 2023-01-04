@@ -9,7 +9,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
         <meta charset="UTF-8"/>
         
-        <link type="text/css" rel="stylesheet" href="https://blog.dazzlog.de/css/styles.abbd6311bb4b6ca58f8e7398140529245ae0f6428b759fcd830742eee2619eabb900ba9914a9affb82aa9a16a9b9ea727bb315315a976a0db0e7513a5f12c504.css" integrity="sha512-q71jEbtLbKWPjnOYFAUpJFrg9kKLdZ/NgwdC7uJhnqu5ALqZFKmv+4Kqmhapuepye7MVMVqXag2w51E6XxLFBA==" />
+        <link type="text/css" rel="stylesheet" href="https://blog.dazzlog.de/css/styles.6b4a0a93d9648ac780fe78908e63ffa2298154a5e6d1a9845362fcb54e91910da517ada5821a788cc566021b83a9851a885f1b77412ccb2bb23b7cb3da8fb97a.css" integrity="sha512-a0oKk9lkiseA/niQjmP/oimBVKXm0amEU2L8tU6RkQ2lF62lghp4jMVmAhuDqYUaiF8bd0EsyyuyO3yz2o+5eg==" />
         <style>
           .aboutfeeds {
             margin: 24px 0; padding: 12px;
