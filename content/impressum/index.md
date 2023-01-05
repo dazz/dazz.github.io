@@ -1,9 +1,9 @@
 ---
+title: impressum
+showDate: false
 comments: false
+showShare: false
 ---
-
-
-# Impressum
 
 ## Angaben gemäß § 5 TMG
 
@@ -11,7 +11,7 @@ Anne Seitz
 
 Tempelhofer Ufer 1
 
-10965 Berlin
+10961 Berlin
 
 ### Kontakt:
 E-Mail: dazzlog@gmail.com
@@ -21,7 +21,7 @@ Anne Seitz
 
 Tempelhofer Ufer 1
 
-10965 Berlin
+10961 Berlin
 
 ## Haftungsausschluss:
 

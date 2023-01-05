@@ -1,6 +1,10 @@
 ---
+title: about
+showDate: false
 comments: false
+showShare: false
 ---
+
 
 
 

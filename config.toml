@@ -1,5 +1,7 @@
 baseURL = "https://blog.dazzlog.de/"
 languageCode = "en-us"
+defaultContentLanguage = "en"
+
 title = "DazzLog"
 
 theme = "hugo-ficurinia"
@@ -19,18 +21,34 @@ summaryLength = 70
     appletouch = "/apple-touch-icon.png"
     svgicon = "/logo.svg"
     icon512 = "/android-chrome-512x512.png"
+
     # commento = "https://cloud.techpills.technology:54321/js/commento.js"
     cactusCommentsSiteName = "dazzlog"
     cactusCommentsServerName = "cactus.chat"
     cactusCommentsHomeserver = "https://matrix.cactus.chat:8448"
-    
-    imageInArticlePreview = true
+
+    imageInArticlePreview = true  # show images in article preview; default false
+    fitImageInArticlePreview = false  # make article preview images fit the article preview instead of getting cropped
+    articleSummary = true  # show a summary in article preview; default true
 
     enableShareOnFediverse = true
 
+    # redirect to baseURL if current URL host doesn't match
+    # useful if deploying in gitlab pages with custom domain and don't want
+    # the username.gitlab.io/website url to persist
+    # this requires you to set baseURL (see above)
+    forceRedirect = false
+
+    infiniteScrolling = false  # activates infinite scrolling instead of regular pagination
+    enableFooterColumns = true  # activates footer columns, as described below
+    enableJumbotron = false  # enables jumbotron, as described below
+    # related articles will be selected randomly based on tags and shown at
+    # the bottom of the article, after the comments
     enableRelatedArticles = true
-    relatedArticlesNum = 2 
-    forceRedirect = true
+    relatedArticlesNum = 2  # how many related articles to show
+    randomRelated = false  # sorts related articles in random order (randomized at built time)
+
+    contentWidth = "1000px"  # maximum width of the site content, css syntax
 
     # shows a specified single page as a home page, instead of the traditional articles list
     # requires setting `homeSinglePage`
@@ -56,6 +74,10 @@ summaryLength = 70
 
     underlineTitleLinks = false  # show an underline also for links that are titles
 
+    # alternative sidebar layout
+    enableSidebarLayout = false
+    tocInSidebar = true  # if the sidebar is enbabled, show the TOC in the sidebar
+
 [markup]
     [markup.highlight]
         codeFences = true
@@ -75,11 +97,11 @@ summaryLength = 70
         name = "About"
         url = "/about"
         weight = 50
-    [[menu.main]]
-        identifier = "imprint"
-        name = "Imprint"
-        url = "/impressum"
-        weight = 99
+#    [[menu.main]]
+#        identifier = "imprint"
+#        name = "Imprint"
+#        url = "/impressum"
+#        weight = 99
 
     [[menu.icons]]
         identifier = "github"
@@ -96,8 +118,8 @@ summaryLength = 70
 #        name = "YouTube"
 #        url = "https://youtube.com/TechPillsNet"
 #        weight = 30
-#    [[menu.icons]]
-#        identifier = "mastodon"
-#        name = "Mastodon"
-#        url = "https://fosstodon.org/@gabmus"
-#        weight = 40
+    [[menu.icons]]
+        identifier = "mastodon"
+        name = "Mastodon"
+        url = "https://phpc.social/@dazz"
+        weight = 40

@@ -1,0 +1,16 @@
+- title: this.site
+  links:
+    - title: about
+      link: /about
+    - title: impressum
+      link: /impressum
+- title: self.dazz
+  links:
+     - title: my GitHub
+       link: https://github.com/dazz
+     - title: on Medium
+       link: https://medium.com/@dazs
+- title: here.links
+  links:
+    - title: c-base
+      link: https://c-base.org
