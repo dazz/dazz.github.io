@@ -177,21 +177,20 @@ Read more here: <a href="https://docs.github.com/en/packages/working-with-a-gith
 ]]></description><media:thumbnail url="https://blog.dazzlog.de/hugo.png"/></item><item><title>Hello, world!</title><link>https://blog.dazzlog.de/posts/2022-12-26_hello-world/</link><pubDate>Mon, 26 Dec 2022 21:29:35 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2022-12-26_hello-world/</guid><description><![CDATA[<h2 id="introduction">Introduction</h2>
 <p>This is <strong>bold</strong> text, and this is <em>emphasized</em> text.</p>
 <p>Visit the <a href="https://gohugo.io">Hugo</a> website!</p>
-]]></description></item><item><title/><link>https://blog.dazzlog.de/about/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog.dazzlog.de/about/</guid><description><![CDATA[<h2 id="references">References</h2>
+]]></description></item><item><title>about</title><link>https://blog.dazzlog.de/about/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog.dazzlog.de/about/</guid><description><![CDATA[<h2 id="references">References</h2>
 <ul>
 <li>Logo: <a href="https://de.freepik.com/vektoren-kostenlos/niedlich-astronaut-arbeitende-mit-computer-karikatur-vektor-symbol-illustration-wissenschafts-technologie-ikonen-konzept-lokalisierter-erstklassiger-vektor-flacher-cartoon-stil_22750865.htm#query=space%20logo&amp;position=19&amp;from_view=search&amp;track=sph">Bild von catalyststuff auf Freepik</a></li>
 </ul>
-]]></description></item><item><title/><link>https://blog.dazzlog.de/impressum/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog.dazzlog.de/impressum/</guid><description><![CDATA[<h1 id="impressum">Impressum</h1>
-<h2 id="angaben-gemäß--5-tmg">Angaben gemäß § 5 TMG</h2>
+]]></description></item><item><title>impressum</title><link>https://blog.dazzlog.de/impressum/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog.dazzlog.de/impressum/</guid><description><![CDATA[<h2 id="angaben-gemäß--5-tmg">Angaben gemäß § 5 TMG</h2>
 <p>Anne Seitz</p>
 <p>Tempelhofer Ufer 1</p>
-<p>10965 Berlin</p>
+<p>10961 Berlin</p>
 <h3 id="kontakt">Kontakt:</h3>
 <p>E-Mail: <a href="mailto:dazzlog@gmail.com">dazzlog@gmail.com</a></p>
 <h2 id="verantwortlich-für-den-inhalt-nach--55-abs-2-rstv">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV:</h2>
 <p>Anne Seitz</p>
 <p>Tempelhofer Ufer 1</p>
-<p>10965 Berlin</p>
+<p>10961 Berlin</p>
 <h2 id="haftungsausschluss">Haftungsausschluss:</h2>
 <h3 id="haftung-für-inhalte">Haftung für Inhalte</h3>
 <p>Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.</p>
