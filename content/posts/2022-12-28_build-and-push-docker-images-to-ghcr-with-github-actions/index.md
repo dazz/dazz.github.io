@@ -6,9 +6,9 @@ image: dockergithub.png
 comments: true
 ---
 
-When you host your project code on GitHub and want to release it as a docker image for deployment or just publish it, the way to go are GitHub actions. It’s basically hooks that can start CI/DC workflows on repository events.
+When you host your project code on GitHub and want to release it as a docker image for deployment or just publish it, the way to go are GitHub actions. Actions are basically hooks that can start CI/DC workflows on repository events.
 
-GitHub actions can be used to build and push images to GitHubs Container Registry which are reachable under [https://ghcr.io](https://ghcr.io) which is part of the package registry. The package registry is not only for docker images, it can also host quite a few other kinds of packages. In this case we’ll focus on docker images.
+GitHub actions can be used to build and push images to GitHub’s Container Registry which are reachable under https://ghcr.io which is part of the package registry. The package registry is not only for docker images, it can also host quite a few other kinds of packages. In this case we’ll focus on docker images.
 
 ## **Prerequisites**:
 
@@ -64,17 +64,16 @@ jobs:
 ```
 
 ## Let’s go through the important parts:
+**Permissions**: Actions have access to the repo while running. We should always make sure by setting the permissions, that actions have the minimum access they require. See here: permissions for the `github_token`
 
-**Permissions**: Actions have access to the repo while running. We should always make sure by setting the permissions, that actions have the minimum access they require. See here: [permissions for the github_token](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#permissions-for-the-github_token)
+**Step 1–2: Checkout the code and Setup docker**
 
-**Step 1-2: Checkout the code** and Setup docker**
+**Step 3: Login to GitHub Container Registry**: This is where the interesting part starts. `github.actor` is the user that triggers the workflow. For password use `secrets.GITHUB_TOKEN` which is a temporary token which is automatically generated for this workflow. See here: publishing images to github-packages.
 
-**Step 3: Login to GitHub Container Registry**: This is where the interesting part starts. The `github.actor` that will be the user that triggered the workflow. For password use `secrets.GITHUB_TOKEN` which is a temporary token which is automatically generated for this workflow. See here: [publishing images to github-packages](https://docs.github.com/en/actions/publishing-packages/publishing-docker-images#publishing-images-to-github-packages)
+**Step 4: Build and push Docker images**: If the registry that you want to push to belongs to an organization then you will need to add permissions to create packages. If it lives under your own handle you don’t need to configure anything more since you are the owner already and the `secrets.GITHUB_TOKEN` has all the permissions granted.
 
-**Step 4: Build and push Docker images**: If the registry that you want to push to belongs to an organization then you will need to add permission to create packages.
-If it lives under your own handle you don't need to configure anything more since you are then the owner already and the `secrets.GITHUB_TOKEN` has all the permissions granted by that.
+The action will consume the Dockerfile and build the image up to the target build step that you can define. In docker the repository where the image will be hosted is also part of the tag. Setting the image name to the repository name will create an image with the following tag: `ghcr.io/OWNER/IMAGE_NAME:latest`
 
-Straight forward the action will consume the `Dockerfile` build to the target build step that you can define. In docker there is this thing that the repository whre the image will be hosted is also part of the tag. Setting the image to the repository name will create an image with the following tag: `ghcr.io/OWNER/IMAGE_NAME:latest
-Read more here: [pushing container images](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#pushing-container-images)
+Read more here: pushing container images
 
 ## Happy shipping \\o/
