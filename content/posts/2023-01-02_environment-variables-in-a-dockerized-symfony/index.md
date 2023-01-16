@@ -189,7 +189,10 @@ return function (array $context) {
 };
 ```
 
+
+{{< admonition type=symfony title="Symfony Runtime">}}
 See described here: [Configure Symfony Runtime Using Options](https://symfony.com/doc/current/components/runtime.html#using-options)
+{{< /admonition >}}
 
 {{< admonition type=note title="run app only inside container">}}
 By disabling DotEnv we will no longer be able to run the application outside the container (our local machine) unless we set all environment variables there as well. 
