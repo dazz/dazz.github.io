@@ -1,0 +1,13 @@
+{
+	"version": 3,
+	"file": "custom.css",
+	"sourceRoot": "/home/runner/work/dazz.github.io/dazz.github.io",
+	"sources": [
+		"assets/scss/custom.scss"
+	],
+	"sourcesContent": [
+		"$symbols_font: \"Symbols Nerd Font\";\n$base_font_size: 16px;\n$mono_font_mult:  1;\ncode {\n  font-size: $base_font_size * 1.0 * $mono_font_mult;\n}"
+	],
+	"names": [],
+	"mappings": "AAGA,AAAA,IAAI,AAAC,CACH,SAAS,CAAE,IAAuC,CACnD"
+}
