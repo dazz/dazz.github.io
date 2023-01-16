@@ -1,0 +1,43 @@
+{{- $inner := .Inner | .Page.RenderString -}}
+
+{{- $iconMap := dict "note" "&#Xf040;" -}}
+{{- $iconMap  = dict "abstract" "&#Xf03a;" | merge $iconMap -}}
+{{- $iconMap  = dict "info" "&#xf05a;" | merge $iconMap -}}
+{{- $iconMap  = dict "tip" "&#xf400;" | merge $iconMap -}}
+{{- $iconMap  = dict "success" "&#xf058;" | merge $iconMap -}}
+{{- $iconMap  = dict "question" "&#xf128;" | merge $iconMap -}}
+{{- $iconMap  = dict "warning" "&#xf071;" | merge $iconMap -}}
+{{- $iconMap  = dict "failure" "&#xf057;" | merge $iconMap -}}
+{{- $iconMap  = dict "danger" "&#xfb8a;" | merge $iconMap -}}
+{{- $iconMap  = dict "bug" "&#xf188;" | merge $iconMap -}}
+{{- $iconMap  = dict "example" "&#Xf03a;" | merge $iconMap -}}
+{{- $iconMap  = dict "quote" "&#xf10d;" | merge $iconMap -}}
+{{- $iconMap  = dict "symfony" "&#xe756;" | merge $iconMap -}}
+{{- $iconMap  = dict "php" "&#xe73d;" | merge $iconMap -}}
+
+{{- $iconDetails := "fas fa-angle-right fa-fw" -}}
+{{- if .IsNamedParams -}}
+{{- $type := .Get "type" | default "note" -}}
+<div class="details admonition {{ $type }}{{ if .Get `open` | ne false }} open{{ end }}">
+  <div class="details-summary admonition-title">
+    <i class="icon ">{{ index $iconMap $type | default (index $iconMap "note") | safeHTML }}</i> {{ .Get "title" | default ($type) }}<i class="details-icon {{ $iconDetails }}"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">
+      {{- $inner -}}
+    </div>
+  </div>
+</div>
+{{- else -}}
+{{- $type := .Get 0 | default "note" -}}
+<div class="details admonition {{ $type }}{{ if .Get 2 | ne false }} open{{ end }}">
+  <div class="details-summary admonition-title">
+    <i class="icon ">{{ index $iconMap $type | default (index $iconMap "note") | safeHTML }}</i> {{ .Get "title" | default ($type) }}<i class="details-icon {{ $iconDetails }}"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">
+      {{- $inner -}}
+    </div>
+  </div>
+</div>
+{{- end -}}

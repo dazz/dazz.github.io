@@ -1,0 +1,6 @@
+$symbols_font: "Symbols Nerd Font";
+$base_font_size: 16px;
+$mono_font_mult:  {{ .Site.Params.monoFontSizeMultiplier  | default 1.0 }};
+code {
+  font-size: $base_font_size * 1.0 * $mono_font_mult;
+}

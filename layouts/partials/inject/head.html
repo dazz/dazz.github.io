@@ -1,0 +1,5 @@
+{{ $style := resources.Get "/scss/admonition.scss" | resources.ExecuteAsTemplate "/scss/admonition.scss" . | resources.ToCSS (dict "targetPath" "css/admonition.css" "outputStyle" "compressed" "enableSourceMap" "true") | resources.Fingerprint "sha512" }}
+<link type="text/css" rel="stylesheet" href={{ $style.Permalink }} integrity="{{ $style.Data.Integrity }}" />
+
+{{ $style := resources.Get "/scss/custom.scss" | resources.ExecuteAsTemplate "/scss/custom.scss" . | resources.ToCSS (dict "targetPath" "css/custom.css" "outputStyle" "compressed" "enableSourceMap" "true") | resources.Fingerprint "sha512" }}
+<link type="text/css" rel="stylesheet" href={{ $style.Permalink }} integrity="{{ $style.Data.Integrity }}" />
