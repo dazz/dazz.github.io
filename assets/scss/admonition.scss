@@ -36,6 +36,8 @@ $admonition-background-color-map: (
 ) !default;
 
 
+
+
 .admonition {
   position: relative;
   margin: 1rem 0;
@@ -60,11 +62,15 @@ $admonition-background-color-map: (
     padding: .5rem 0;
   }
 
+  i {
+    font-style: normal;
+  }
+
   i.icon {
-    font-size: 0.85rem;
+    font-size: 1.1rem;
     color: map-get($admonition-color-map, 'note');
     position: absolute;
-    top: .6rem;
+    top: .5rem;
     left: .4rem;
   }
 
@@ -103,3 +109,18 @@ $admonition-background-color-map: (
     margin-bottom: .75rem;
   }
 }
+
+$admonition-logo-map: (
+    'symfony': #9e9e9e,
+    'php': #4f5b93,
+    'docker': #448aff,
+) !default;
+
+@each $type, $color in $admonition-logo-map {
+  .admonition.#{$type} i.icon {
+    font-size: 1.5rem;
+    top: 0.3rem;
+    left: 0.2rem;
+  }
+}
+
