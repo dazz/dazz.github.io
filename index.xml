@@ -1,4 +1,315 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>DazzLog</title><link>https://blog.dazzlog.de/</link><description>Recent content on DazzLog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Mon, 02 Jan 2023 19:24:18 +0100</lastBuildDate><atom:link href="https://blog.dazzlog.de/index.xml" rel="self" type="application/rss+xml"/><icon>https://blog.dazzlog.de/logo.svg</icon><item><title>Environment variables in a dockerized Symfony</title><link>https://blog.dazzlog.de/posts/2023-01-02_environment-variables-in-a-dockerized-symfony/</link><pubDate>Mon, 02 Jan 2023 19:24:18 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2023-01-02_environment-variables-in-a-dockerized-symfony/</guid><description><![CDATA[<p>I have developed a <strong>Symfony Web-Application</strong>, and it runs locally in a dockerized environment with docker-compose. This app is going to be deployed to production as a docker container.
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>DazzLog</title><link>https://blog.dazzlog.de/</link><description>Recent content on DazzLog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Fri, 16 Aug 2024 23:42:23 +0100</lastBuildDate><atom:link href="https://blog.dazzlog.de/index.xml" rel="self" type="application/rss+xml"/><icon>https://blog.dazzlog.de/logo.svg</icon><item><title>Dynamic Route loading in a non standard Symfony structure</title><link>https://blog.dazzlog.de/posts/2024-08-16_dynamic-route-loading-symfony/</link><pubDate>Fri, 16 Aug 2024 23:42:23 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2024-08-16_dynamic-route-loading-symfony/</guid><description><![CDATA[<p>When you divert from Symfony&rsquo;s standard structure there are some things that do not work out of the box anymore. One of it is routing.</p>
+<h2 id="default-symfony">Default Symfony</h2>
+<p>If you start a fresh Symfony project you will be presented with the following stricture:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>app/src  
+</span></span><span style="display:flex;"><span>├─ Controller
+</span></span><span style="display:flex;"><span>├─ Entity
+</span></span><span style="display:flex;"><span>├─ Repository
+</span></span><span style="display:flex;"><span>└─ Kernel.php
+</span></span></code></pre></div><p>The routing config looks like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># app/config/routes.yaml</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">controllers</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">resource</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">path</span>: ../src/Controller/
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">namespace</span>: App\Controller
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">type</span>: attribute
+</span></span></code></pre></div><p>So the <code>Controller</code> directory is the place all controllers go you might think first. But When the project gets bigger a different structure might make more sense.</p>
+<h2 id="the-dddclean-architecture-approach">The DDD/Clean Architecture approach</h2>
+<p>If we use a DDD/Clean Architecture approach the structure might look like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>app/src
+</span></span><span style="display:flex;"><span>├─ Blog 
+</span></span><span style="display:flex;"><span>│ ├─ Application
+</span></span><span style="display:flex;"><span>│ │ └─ CreateArticleController.php
+</span></span><span style="display:flex;"><span>│ ├─ Domain
+</span></span><span style="display:flex;"><span>│ │ └─ Article.php
+</span></span><span style="display:flex;"><span>│ └─ Infrastructure
+</span></span><span style="display:flex;"><span>├─ Registration
+</span></span><span style="display:flex;"><span>│ ├─ Application
+</span></span><span style="display:flex;"><span>│ │ ├─ CreateAccountController.php
+</span></span><span style="display:flex;"><span>│ │ ├─ CreateAccountRequest.php
+</span></span><span style="display:flex;"><span>│ │ └─ CreateAccountResponse.php
+</span></span><span style="display:flex;"><span>│ ├─ Domain
+</span></span><span style="display:flex;"><span>│ │ └─ Account.php
+</span></span><span style="display:flex;"><span>│ └─ Infrastructure
+</span></span><span style="display:flex;"><span>└─ Kernel.php
+</span></span></code></pre></div><p>But now every Controller needs to be added to the routing config since the loading expects all controllers in one place.</p>
+<div class="details admonition tip open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf400;</i> tip<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Configs should be kept clean and small</div>
+  </div>
+</div>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># app/config/routes.yaml</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">app_registration_createaccount</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#6272a4"># loads routes from the PHP attributes of the given class</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">resource</span>: App\Registration\CreateAccountController
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">type</span>:     attribute
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">app_blog_createarticle</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#6272a4"># loads routes from the PHP attributes of the given class</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">resource</span>: App\Blog\CreateArticleController
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">type</span>:     attribute
+</span></span></code></pre></div><p>This is not the comfortable way, since we were starting to embrace the <code>Route</code> attribute because it means we do not need to add each route to the routing config in a growing file and developers must not forget to add or update each route which might get annoying during refactoring.</p>
+<h2 id="loading-routes-dynamic">Loading Routes dynamic</h2>
+<p>In Symfony there is a simple way we can solve this: <a href="https://symfony.com/doc/current/routing/custom_route_loader.html">We can create our own loader with a custom service</a>.</p>
+<h2 id="the-implementation">The implementation</h2>
+<div class="details admonition symfony open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xe756;</i> From the Symfony Documentation<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content"><blockquote>
+<p>When the main loader parses this, it tries all registered delegate loaders.</p>
+</blockquote>
+<blockquote>
+<p>If you&rsquo;re using <a href="https://symfony.com/doc/current/service_container.html#services-autoconfigure">autoconfigure</a>, your class should implement the <a href="https://github.com/symfony/symfony/blob/7.1/src/Symfony/Bundle/FrameworkBundle/Routing/RouteLoaderInterface.php" title="Symfony\Bundle\FrameworkBundle\Routing\RouteLoaderInterface">RouteLoaderInterface</a> interface to be tagged automatically.</p>
+</blockquote>
+<blockquote>
+<p>If your service is invokable, you don&rsquo;t need to specify the method to use.</p>
+</blockquote>
+<blockquote>
+<p>Your service doesn&rsquo;t have to extend or implement any special class, but the called method must return a <a href="https://github.com/symfony/symfony/blob/7.1/src/Symfony/Component/Routing/RouteCollection.php" title="Symfony\Component\Routing\RouteCollection">RouteCollection</a> object.</p>
+</blockquote>
+</div>
+  </div>
+</div>
+<p>All good points</p>
+<ul>
+<li>We create an invokable service class</li>
+<li>Implement the <code>RouteLoaderInterface</code></li>
+<li>Let it return a <code>RouteCollection</code></li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>app/src
+</span></span><span style="display:flex;"><span>├─ Blog
+</span></span><span style="display:flex;"><span>│ └─ Application
+</span></span><span style="display:flex;"><span>│   └─ CreateArticleController.php
+</span></span><span style="display:flex;"><span>├─ Registration
+</span></span><span style="display:flex;"><span>│ └─ Application
+</span></span><span style="display:flex;"><span>│   └─ CreateAccountController.php
+</span></span><span style="display:flex;"><span>├─ Shared
+</span></span><span style="display:flex;"><span>│ └─ Application
+</span></span><span style="display:flex;"><span>│   └─ Routing
+</span></span><span style="display:flex;"><span>│     └─ RouteLoader.php &lt;<span style="color:#ff79c6">===</span> here
+</span></span><span style="display:flex;"><span>└─ Kernel.php
+</span></span></code></pre></div><p>The Loader class:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#ff79c6">&lt;?</span>php  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">declare</span>(strict_types<span style="color:#ff79c6">=</span><span style="color:#bd93f9">1</span>);  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">namespace</span> App\Shared\Application\Routing;  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> ReflectionClass;  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> Symfony\Bundle\FrameworkBundle\Routing\RouteLoaderInterface;  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> Symfony\Component\Finder\Finder;  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> Symfony\Component\Routing\Attribute\Route <span style="color:#ff79c6">as</span> RouteAttribute;  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> Symfony\Component\Routing\Route;  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> Symfony\Component\Routing\RouteCollection;  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">class</span> <span style="color:#50fa7b">RouteLoader</span> <span style="color:#ff79c6">implements</span> RouteLoaderInterface  
+</span></span><span style="display:flex;"><span>{  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">private</span> bool <span style="color:#8be9fd;font-style:italic">$isLoaded</span> <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">false</span>;  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">public</span> <span style="color:#ff79c6">function</span> __construct(<span style="color:#ff79c6">private</span> readonly string <span style="color:#8be9fd;font-style:italic">$routeLoaderBaseDirectory</span>)  
+</span></span><span style="display:flex;"><span>    {  
+</span></span><span style="display:flex;"><span>    }  
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">public</span> <span style="color:#ff79c6">function</span> __invoke(mixed <span style="color:#8be9fd;font-style:italic">$resource</span>, string <span style="color:#8be9fd;font-style:italic">$type</span> <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">null</span>)<span style="color:#ff79c6">:</span> RouteCollection  
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">if</span> (<span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">isLoaded</span>) {  
+</span></span><span style="display:flex;"><span>            <span style="color:#ff79c6">throw</span> <span style="color:#ff79c6">new</span> \RuntimeException(<span style="color:#f1fa8c">&#39;Do not add this loader twice.&#39;</span>);
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$routeCollection</span> <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> RouteCollection();  
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$finder</span> <span style="color:#ff79c6">=</span> self<span style="color:#ff79c6">::</span><span style="color:#50fa7b">fromDirectories</span>(
+</span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">routeLoaderBaseDirectory</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">routeLoaderBaseDirectory</span> <span style="color:#ff79c6">.</span> <span style="color:#f1fa8c">&#39;/*/**&#39;</span>,
+</span></span><span style="display:flex;"><span>        );
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">foreach</span> (<span style="color:#8be9fd;font-style:italic">$finder</span> <span style="color:#ff79c6">as</span> <span style="color:#8be9fd;font-style:italic">$file</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">$className</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getClassNameFromFile</span>(<span style="color:#8be9fd;font-style:italic">$file</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getRealPath</span>());
+</span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">$namespace</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getClassNamespaceFromFile</span>(<span style="color:#8be9fd;font-style:italic">$file</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getRealPath</span>());
+</span></span><span style="display:flex;"><span>            <span style="color:#ff79c6">if</span> (<span style="color:#ff79c6">!</span><span style="color:#8be9fd;font-style:italic">$className</span> <span style="color:#ff79c6">||</span> <span style="color:#ff79c6">!</span><span style="color:#8be9fd;font-style:italic">$namespace</span>) {
+</span></span><span style="display:flex;"><span>                <span style="color:#ff79c6">continue</span>;
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">$fullQualifiedClassName</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$namespace</span> <span style="color:#ff79c6">.</span> <span style="color:#f1fa8c">&#39;\\&#39;</span> <span style="color:#ff79c6">.</span> <span style="color:#8be9fd;font-style:italic">$className</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#6272a4">// Use reflection to check for Symfony Route attributes
+</span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>            <span style="color:#8be9fd;font-style:italic">$reflectionClass</span> <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> ReflectionClass(<span style="color:#8be9fd;font-style:italic">$fullQualifiedClassName</span>);
+</span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">$attributes</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getRouteAttributes</span>(<span style="color:#8be9fd;font-style:italic">$reflectionClass</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#6272a4">// Handle class-level attributes for invokable controller classes
+</span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>            <span style="color:#ff79c6">if</span> (<span style="color:#8be9fd;font-style:italic">$reflectionClass</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">hasMethod</span>(<span style="color:#f1fa8c">&#39;__invoke&#39;</span>)) {
+</span></span><span style="display:flex;"><span>                <span style="color:#ff79c6">foreach</span> (<span style="color:#8be9fd;font-style:italic">$attributes</span> <span style="color:#ff79c6">as</span> <span style="color:#8be9fd;font-style:italic">$routeAttribute</span>) {
+</span></span><span style="display:flex;"><span>                    <span style="color:#8be9fd;font-style:italic">$route</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">createRouteFromAttribute</span>(<span style="color:#8be9fd;font-style:italic">$routeAttribute</span>);
+</span></span><span style="display:flex;"><span>                    <span style="color:#8be9fd;font-style:italic">$routeName</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$routeAttribute</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getName</span>() <span style="color:#ff79c6">??</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">generateRouteName</span>(<span style="color:#8be9fd;font-style:italic">$fullQualifiedClassName</span>, <span style="color:#f1fa8c">&#39;__invoke&#39;</span>); 
+</span></span><span style="display:flex;"><span>                    <span style="color:#8be9fd;font-style:italic">$routeCollection</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">add</span>(<span style="color:#8be9fd;font-style:italic">$routeName</span>, <span style="color:#8be9fd;font-style:italic">$route</span>);
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>                <span style="color:#ff79c6">continue</span>; <span style="color:#6272a4">// there should only be a class declaration when invokable
+</span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>            }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>            <span style="color:#6272a4">// Handle method-level attributes
+</span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>            <span style="color:#ff79c6">foreach</span> (<span style="color:#8be9fd;font-style:italic">$reflectionClass</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getMethods</span>() <span style="color:#ff79c6">as</span> <span style="color:#8be9fd;font-style:italic">$method</span>) {
+</span></span><span style="display:flex;"><span>                <span style="color:#ff79c6">foreach</span> (<span style="color:#8be9fd;font-style:italic">$attributes</span> <span style="color:#ff79c6">as</span> <span style="color:#8be9fd;font-style:italic">$routeAttribute</span>) {
+</span></span><span style="display:flex;"><span>                    <span style="color:#8be9fd;font-style:italic">$route</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">createRouteFromAttribute</span>(<span style="color:#8be9fd;font-style:italic">$routeAttribute</span>);
+</span></span><span style="display:flex;"><span>                    <span style="color:#8be9fd;font-style:italic">$routeName</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$routeAttribute</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getName</span>() <span style="color:#ff79c6">??</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">generateRouteName</span>(<span style="color:#8be9fd;font-style:italic">$fullQualifiedClassName</span>, <span style="color:#8be9fd;font-style:italic">$method</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getName</span>());
+</span></span><span style="display:flex;"><span>                    <span style="color:#8be9fd;font-style:italic">$routeCollection</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">add</span>(<span style="color:#8be9fd;font-style:italic">$routeName</span>, <span style="color:#8be9fd;font-style:italic">$route</span>);
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">isLoaded</span> <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">true</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">return</span> <span style="color:#8be9fd;font-style:italic">$routeCollection</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f1fa8c">/**
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c">     * @see https://stackoverflow.com/a/39887697
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c">     */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">private</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">getClassNameFromFile</span>(<span style="color:#8be9fd;font-style:italic">$filePathName</span>)<span style="color:#ff79c6">:</span> string  
+</span></span><span style="display:flex;"><span>    {  
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$contents</span> <span style="color:#ff79c6">=</span> file_get_contents(<span style="color:#8be9fd;font-style:italic">$filePathName</span>);  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$classes</span> <span style="color:#ff79c6">=</span> [];  
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$tokens</span> <span style="color:#ff79c6">=</span> token_get_all(<span style="color:#8be9fd;font-style:italic">$contents</span>);  
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$count</span> <span style="color:#ff79c6">=</span> count(<span style="color:#8be9fd;font-style:italic">$tokens</span>);  
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">for</span> (<span style="color:#8be9fd;font-style:italic">$i</span> <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">2</span>; <span style="color:#8be9fd;font-style:italic">$i</span> <span style="color:#ff79c6">&lt;</span> <span style="color:#8be9fd;font-style:italic">$count</span>; <span style="color:#8be9fd;font-style:italic">$i</span><span style="color:#ff79c6">++</span>) {  
+</span></span><span style="display:flex;"><span>            <span style="color:#ff79c6">if</span> (<span style="color:#8be9fd;font-style:italic">$tokens</span>[<span style="color:#8be9fd;font-style:italic">$i</span> <span style="color:#ff79c6">-</span> <span style="color:#bd93f9">2</span>][<span style="color:#bd93f9">0</span>] <span style="color:#ff79c6">==</span> T_CLASS  
+</span></span><span style="display:flex;"><span>                <span style="color:#ff79c6">&amp;&amp;</span> <span style="color:#8be9fd;font-style:italic">$tokens</span>[<span style="color:#8be9fd;font-style:italic">$i</span> <span style="color:#ff79c6">-</span> <span style="color:#bd93f9">1</span>][<span style="color:#bd93f9">0</span>] <span style="color:#ff79c6">==</span> T_WHITESPACE  
+</span></span><span style="display:flex;"><span>                <span style="color:#ff79c6">&amp;&amp;</span> <span style="color:#8be9fd;font-style:italic">$tokens</span>[<span style="color:#8be9fd;font-style:italic">$i</span>][<span style="color:#bd93f9">0</span>] <span style="color:#ff79c6">==</span> T_STRING  
+</span></span><span style="display:flex;"><span>            ) {  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>                <span style="color:#8be9fd;font-style:italic">$className</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$tokens</span>[<span style="color:#8be9fd;font-style:italic">$i</span>][<span style="color:#bd93f9">1</span>];  
+</span></span><span style="display:flex;"><span>                <span style="color:#8be9fd;font-style:italic">$classes</span>[] <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$className</span>;  
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">return</span> array_pop(<span style="color:#8be9fd;font-style:italic">$classes</span>);  
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">private</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">getClassNamespaceFromFile</span>(<span style="color:#8be9fd;font-style:italic">$filePathName</span>)<span style="color:#ff79c6">:</span> <span style="color:#ff79c6">?</span>string  
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$src</span> <span style="color:#ff79c6">=</span> file_get_contents(<span style="color:#8be9fd;font-style:italic">$filePathName</span>);  
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$tokens</span> <span style="color:#ff79c6">=</span> token_get_all(<span style="color:#8be9fd;font-style:italic">$src</span>);  
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$count</span> <span style="color:#ff79c6">=</span> count(<span style="color:#8be9fd;font-style:italic">$tokens</span>);  
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$i</span> <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">0</span>;  
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$namespace</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#39;&#39;</span>;  
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$namespaceOk</span> <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">false</span>;  
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">while</span> (<span style="color:#8be9fd;font-style:italic">$i</span> <span style="color:#ff79c6">&lt;</span> <span style="color:#8be9fd;font-style:italic">$count</span>) {  
+</span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">$token</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$tokens</span>[<span style="color:#8be9fd;font-style:italic">$i</span>];  
+</span></span><span style="display:flex;"><span>            <span style="color:#ff79c6">if</span> (is_array(<span style="color:#8be9fd;font-style:italic">$token</span>) <span style="color:#ff79c6">&amp;&amp;</span> <span style="color:#8be9fd;font-style:italic">$token</span>[<span style="color:#bd93f9">0</span>] <span style="color:#ff79c6">===</span> T_NAMESPACE) {  
+</span></span><span style="display:flex;"><span>                <span style="color:#6272a4">// Found namespace declaration  
+</span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>                <span style="color:#ff79c6">while</span> (<span style="color:#ff79c6">++</span><span style="color:#8be9fd;font-style:italic">$i</span> <span style="color:#ff79c6">&lt;</span> <span style="color:#8be9fd;font-style:italic">$count</span>) {  
+</span></span><span style="display:flex;"><span>                    <span style="color:#ff79c6">if</span> (<span style="color:#8be9fd;font-style:italic">$tokens</span>[<span style="color:#8be9fd;font-style:italic">$i</span>] <span style="color:#ff79c6">===</span> <span style="color:#f1fa8c">&#39;;&#39;</span>) {  
+</span></span><span style="display:flex;"><span>                        <span style="color:#8be9fd;font-style:italic">$namespaceOk</span> <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">true</span>;  
+</span></span><span style="display:flex;"><span>                        <span style="color:#8be9fd;font-style:italic">$namespace</span> <span style="color:#ff79c6">=</span> trim(<span style="color:#8be9fd;font-style:italic">$namespace</span>);  
+</span></span><span style="display:flex;"><span>                        <span style="color:#ff79c6">break</span>;  
+</span></span><span style="display:flex;"><span>                    }  
+</span></span><span style="display:flex;"><span>                    <span style="color:#8be9fd;font-style:italic">$namespace</span> <span style="color:#ff79c6">.=</span> is_array(<span style="color:#8be9fd;font-style:italic">$tokens</span>[<span style="color:#8be9fd;font-style:italic">$i</span>]) <span style="color:#ff79c6">?</span> <span style="color:#8be9fd;font-style:italic">$tokens</span>[<span style="color:#8be9fd;font-style:italic">$i</span>][<span style="color:#bd93f9">1</span>] <span style="color:#ff79c6">:</span> <span style="color:#8be9fd;font-style:italic">$tokens</span>[<span style="color:#8be9fd;font-style:italic">$i</span>];  
+</span></span><span style="display:flex;"><span>                }  
+</span></span><span style="display:flex;"><span>                <span style="color:#ff79c6">break</span>;  
+</span></span><span style="display:flex;"><span>            }  
+</span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">$i</span><span style="color:#ff79c6">++</span>;  
+</span></span><span style="display:flex;"><span>        }  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">return</span> <span style="color:#8be9fd;font-style:italic">$namespaceOk</span> <span style="color:#ff79c6">?</span> <span style="color:#8be9fd;font-style:italic">$namespace</span> <span style="color:#ff79c6">:</span> <span style="color:#ff79c6">null</span>;  
+</span></span><span style="display:flex;"><span>    }  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">private</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">createRouteFromAttribute</span>(RouteAttribute <span style="color:#8be9fd;font-style:italic">$routeAttribute</span>)<span style="color:#ff79c6">:</span> Route  
+</span></span><span style="display:flex;"><span>    {        <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">new</span> Route(  
+</span></span><span style="display:flex;"><span>            path<span style="color:#ff79c6">:</span> <span style="color:#8be9fd;font-style:italic">$routeAttribute</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getPath</span>(),  
+</span></span><span style="display:flex;"><span>            defaults<span style="color:#ff79c6">:</span> <span style="color:#8be9fd;font-style:italic">$routeAttribute</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getDefaults</span>(),  
+</span></span><span style="display:flex;"><span>            requirements<span style="color:#ff79c6">:</span> <span style="color:#8be9fd;font-style:italic">$routeAttribute</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getRequirements</span>(),  
+</span></span><span style="display:flex;"><span>            options<span style="color:#ff79c6">:</span> <span style="color:#8be9fd;font-style:italic">$routeAttribute</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getOptions</span>(),  
+</span></span><span style="display:flex;"><span>            host<span style="color:#ff79c6">:</span> <span style="color:#8be9fd;font-style:italic">$routeAttribute</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getHost</span>(),  
+</span></span><span style="display:flex;"><span>            schemes<span style="color:#ff79c6">:</span> <span style="color:#8be9fd;font-style:italic">$routeAttribute</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getSchemes</span>(),  
+</span></span><span style="display:flex;"><span>            methods<span style="color:#ff79c6">:</span> <span style="color:#8be9fd;font-style:italic">$routeAttribute</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getMethods</span>(),  
+</span></span><span style="display:flex;"><span>            condition<span style="color:#ff79c6">:</span> <span style="color:#8be9fd;font-style:italic">$routeAttribute</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getCondition</span>()  
+</span></span><span style="display:flex;"><span>        );  
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f1fa8c">/**  
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c">     * @return RouteAttribute[]  
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c">     */</span>  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">private</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">getRouteAttributes</span>(ReflectionClass <span style="color:#8be9fd;font-style:italic">$reflectionClass</span>)<span style="color:#ff79c6">:</span> <span style="color:#ff79c6">array</span>  
+</span></span><span style="display:flex;"><span>    {  
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">return</span> array_map(fn(\ReflectionAttribute <span style="color:#8be9fd;font-style:italic">$attribute</span>) <span style="color:#ff79c6">=&gt;</span> <span style="color:#8be9fd;font-style:italic">$attribute</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">newInstance</span>(), <span style="color:#8be9fd;font-style:italic">$reflectionClass</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getAttributes</span>(RouteAttribute<span style="color:#ff79c6">::</span><span style="color:#50fa7b">class</span>));  
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">private</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">generateRouteName</span>(string <span style="color:#8be9fd;font-style:italic">$className</span>, string <span style="color:#8be9fd;font-style:italic">$methodName</span>)<span style="color:#ff79c6">:</span> string  
+</span></span><span style="display:flex;"><span>    {  
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$routeName</span> <span style="color:#ff79c6">=</span> strtolower(str_replace(  
+</span></span><span style="display:flex;"><span>            [<span style="color:#f1fa8c">&#39;\\&#39;</span>, <span style="color:#f1fa8c">&#39;Controller&#39;</span>, <span style="color:#f1fa8c">&#39;Application_&#39;</span>],  
+</span></span><span style="display:flex;"><span>            [<span style="color:#f1fa8c">&#39;_&#39;</span>, <span style="color:#f1fa8c">&#39;&#39;</span>, <span style="color:#f1fa8c">&#39;&#39;</span>],  
+</span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">$className</span>)  
+</span></span><span style="display:flex;"><span>        );  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">if</span> (<span style="color:#8be9fd;font-style:italic">$methodName</span> <span style="color:#ff79c6">===</span> <span style="color:#f1fa8c">&#39;__invoke&#39;</span>) {  
+</span></span><span style="display:flex;"><span>            <span style="color:#ff79c6">return</span> <span style="color:#8be9fd;font-style:italic">$routeName</span>;  
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">return</span> <span style="color:#8be9fd;font-style:italic">$routeName</span> <span style="color:#ff79c6">.</span> <span style="color:#f1fa8c">&#39;_&#39;</span> <span style="color:#ff79c6">.</span> <span style="color:#8be9fd;font-style:italic">$methodName</span>;  
+</span></span><span style="display:flex;"><span>    }  
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">private</span> <span style="color:#ff79c6">static</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">fromDirectories</span>(string <span style="color:#8be9fd;font-style:italic">$dir</span>, string <span style="color:#ff79c6">...</span><span style="color:#8be9fd;font-style:italic">$moreDirs</span>)<span style="color:#ff79c6">:</span> Finder  
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">return</span> (<span style="color:#ff79c6">new</span> Finder())<span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">in</span>(<span style="color:#8be9fd;font-style:italic">$dir</span>)<span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">in</span>(<span style="color:#8be9fd;font-style:italic">$moreDirs</span>)<span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">files</span>()<span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">name</span>(<span style="color:#f1fa8c">&#39;*Controller.php&#39;</span>)<span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">sortByName</span>()<span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">followLinks</span>();  
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Add the class in the routing config:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># app/config/routing.yaml</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">controllers</span>:  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">resource</span>: App\Shared\Application\Routing\RouteLoader  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">type</span>: service
+</span></span></code></pre></div><p>One thing still left to do is make the path with the <code>$routeLoaderBaseDirectory</code> in the service configuration autowirable.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># app/config/services.yaml</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">parameters</span>:  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">services</span>:  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">_defaults</span>:  
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">autowire</span>: <span style="color:#ff79c6">true</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">autoconfigure</span>: <span style="color:#ff79c6">true</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">bind</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#ff79c6">string $routeLoaderBaseDirectory</span>: <span style="color:#f1fa8c">&#39;%kernel.project_dir%/src&#39;</span>
+</span></span></code></pre></div><h2 id="controller">Controller</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#ff79c6">namespace</span> App\Registration\Application;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> Symfony\Component\HttpFoundation\Request;
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> Symfony\Component\HttpKernel\Attribute\AsController;
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> Symfony\Component\Routing\Attribute\Route;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6272a4">#[AsController] # to make it autowirable
+</span></span></span><span style="display:flex;"><span><span style="color:#6272a4">#[Route(
+</span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>    path<span style="color:#ff79c6">:</span> <span style="color:#f1fa8c">&#39;/registration/createaccount&#39;</span>,
+</span></span><span style="display:flex;"><span>    name<span style="color:#ff79c6">:</span> <span style="color:#f1fa8c">&#39;app_registration_createaccount&#39;</span>,
+</span></span><span style="display:flex;"><span>    methods<span style="color:#ff79c6">:</span> [Request<span style="color:#ff79c6">::</span><span style="color:#50fa7b">METHOD_POST</span>]
+</span></span><span style="display:flex;"><span>)]
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">final</span> readonly <span style="color:#ff79c6">class</span> <span style="color:#50fa7b">CreateAccountController</span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">public</span> <span style="color:#ff79c6">function</span> __invoke(CreateAccountRequest <span style="color:#8be9fd;font-style:italic">$request</span>)<span style="color:#ff79c6">:</span> CreateAccountResponse
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#6272a4">// create account logic
+</span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>        <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">new</span> CreateAccountResponse();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h2 id="binconsole-debugrouter"><code>bin/console debug:router</code></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>&gt; bin/console debug:router
+</span></span><span style="display:flex;"><span> -------------------------------- -------- -------- ------ ----------------------------- 
+</span></span><span style="display:flex;"><span>  Name                             Method   Scheme   Host   Path                         
+</span></span><span style="display:flex;"><span> -------------------------------- -------- -------- ------ ----------------------------- 
+</span></span><span style="display:flex;"><span>  app_blog_createarticle           POST     ANY      ANY    /blog/article  
+</span></span><span style="display:flex;"><span>  app_registration_createaccount   POST     ANY      ANY    /registration/account
+</span></span><span style="display:flex;"><span> -------------------------------- -------- -------- ------ -----------------------------
+</span></span></code></pre></div><h2 id="happy-loading-routes-everyone">Happy loading routes everyone!</h2>
+<h4 id="more-sources">More sources</h4>
+<ul>
+<li><a href="https://gist.github.com/dazz/151ed59887dc0299c4f462c33b701c94">gist.github.com/dazz RouteLoader.php</a></li>
+<li><a href="https://tomasvotruba.com/blog/2-tricks-to-get-your-symfony-configs-lines-to-minimum">tomasvotruba.com - 2 Tricks to get your Symfony configs lines to minimum</a></li>
+</ul>
+]]></description><media:thumbnail url="https://blog.dazzlog.de/loading-route-in-a-symphonical-way.webp"/></item><item><title>Environment variables in a dockerized Symfony</title><link>https://blog.dazzlog.de/posts/2023-01-02_environment-variables-in-a-dockerized-symfony/</link><pubDate>Mon, 02 Jan 2023 19:24:18 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2023-01-02_environment-variables-in-a-dockerized-symfony/</guid><description><![CDATA[<p>I have developed a <strong>Symfony Web-Application</strong>, and it runs locally in a dockerized environment with docker-compose. This app is going to be deployed to production as a docker container.
 In production the handling of environment variables and how they are passed to the container during development is different.</p>
 <h2 id="12-factor-app">12 Factor App</h2>
 <p>A few points from the <a href="https://12factor.net">12factor methodology</a>:</p>
@@ -29,7 +340,7 @@ In production the handling of environment variables and how they are passed to t
 <li>Passed from/set in <code>compose.yaml</code> service’s configuration, from the <a href="https://docs.docker.com/compose/envvars-precedence/../../compose/compose-file#env_file">env_file key</a>.</li>
 <li>Passed from/set in Container Image in the <a href="https://docs.docker.com/engine/reference/builder#env">ENV directive</a>.</li>
 </ol>
-<p>from <a href="https://docs.docker.com/compose/envvars-precedence/">https://docs.docker.com/compose/envvars-precedence/</a></div>
+<p>from <a href="https://docs.docker.com/compose/envvars-precedence/">https://docs.docker.com/compose/envvars-precedence/</a></p></div>
   </div>
 </div>
 <h1 id="how-to-deal-with-environment-variables-in-a-dockerized-symfony">How to deal with environment variables in a dockerized Symfony</h1>
@@ -70,7 +381,7 @@ If you don&rsquo;t know that and put the web apps <code>.env</code> file in the 
 <h3 id="the-directory-tree">The directory tree</h3>
 <p>To ease the separation of infrastructure and code the application code moves into the <code>./app</code> directory to be completely separate from the code/config that defines the infrastructure.
 You see there is no <code>.env</code> file left from Symfony. All variables have now moved to the env files inside the <code>devops/env</code> directory.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>.
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-gdscript3" data-lang="gdscript3"><span style="display:flex;"><span><span style="color:#ff79c6">.</span>
 </span></span><span style="display:flex;"><span>├── app
 </span></span><span style="display:flex;"><span>│   ├── assets
 </span></span><span style="display:flex;"><span>│   ├── bin
@@ -79,32 +390,32 @@ You see there is no <code>.env</code> file left from Symfony. All variables have
 </span></span><span style="display:flex;"><span>│   ├── migrations
 </span></span><span style="display:flex;"><span>│   ├── node_modules
 </span></span><span style="display:flex;"><span>│   ├── public
-</span></span><span style="display:flex;"><span>│   │   └── index.php
+</span></span><span style="display:flex;"><span>│   │   └── index<span style="color:#ff79c6">.</span>php
 </span></span><span style="display:flex;"><span>│   ├── src
 </span></span><span style="display:flex;"><span>│   ├── templates
 </span></span><span style="display:flex;"><span>│   ├── tests
-</span></span><span style="display:flex;"><span>│   ├── var
+</span></span><span style="display:flex;"><span>│   ├── <span style="color:#ff79c6">var</span>
 </span></span><span style="display:flex;"><span>│   ├── vendor
-</span></span><span style="display:flex;"><span>│   ├── composer.json
-</span></span><span style="display:flex;"><span>│   ├── composer.lock
+</span></span><span style="display:flex;"><span>│   ├── composer<span style="color:#ff79c6">.</span>json
+</span></span><span style="display:flex;"><span>│   ├── composer<span style="color:#ff79c6">.</span>lock
 </span></span><span style="display:flex;"><span>│   ├── Makefile
-</span></span><span style="display:flex;"><span>│   ├── package.json
-</span></span><span style="display:flex;"><span>│   ├── symfony.lock
-</span></span><span style="display:flex;"><span>│   ├── webpack.config.js
-</span></span><span style="display:flex;"><span>│   └── yarn.lock
+</span></span><span style="display:flex;"><span>│   ├── package<span style="color:#ff79c6">.</span>json
+</span></span><span style="display:flex;"><span>│   ├── symfony<span style="color:#ff79c6">.</span>lock
+</span></span><span style="display:flex;"><span>│   ├── webpack<span style="color:#ff79c6">.</span>config<span style="color:#ff79c6">.</span>js
+</span></span><span style="display:flex;"><span>│   └── yarn<span style="color:#ff79c6">.</span>lock
 </span></span><span style="display:flex;"><span>├── devops
 </span></span><span style="display:flex;"><span>│   ├── database
 </span></span><span style="display:flex;"><span>│   ├── docker
 </span></span><span style="display:flex;"><span>│   │   └── frankenphp
 </span></span><span style="display:flex;"><span>│   │        └── Dockerfile
 </span></span><span style="display:flex;"><span>│   └── env
-</span></span><span style="display:flex;"><span>│       ├── app.env
-</span></span><span style="display:flex;"><span>│       └── database.env
-</span></span><span style="display:flex;"><span>├── CONTRIBUTING.md
-</span></span><span style="display:flex;"><span>├── docker-compose.prod.yml
-</span></span><span style="display:flex;"><span>├── docker-compose.yml
+</span></span><span style="display:flex;"><span>│       ├── app<span style="color:#ff79c6">.</span>env
+</span></span><span style="display:flex;"><span>│       └── database<span style="color:#ff79c6">.</span>env
+</span></span><span style="display:flex;"><span>├── CONTRIBUTING<span style="color:#ff79c6">.</span>md
+</span></span><span style="display:flex;"><span>├── docker<span style="color:#ff79c6">-</span>compose<span style="color:#ff79c6">.</span>prod<span style="color:#ff79c6">.</span>yml
+</span></span><span style="display:flex;"><span>├── docker<span style="color:#ff79c6">-</span>compose<span style="color:#ff79c6">.</span>yml
 </span></span><span style="display:flex;"><span>├── Makefile
-</span></span><span style="display:flex;"><span>└── README.md
+</span></span><span style="display:flex;"><span>└── README<span style="color:#ff79c6">.</span>md
 </span></span></code></pre></div><h2 id="the-docker-composeyml">The docker-compose.yml</h2>
 <p>Each service gets its own <code>env_file</code> where we can configure the sensitive data for each service.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ff79c6">version</span>: <span style="color:#f1fa8c">&#39;3.9&#39;</span>  
@@ -578,6 +889,14 @@ Der Nutzung von im Rahmen der Impressumspflicht veröffentlichten Kontaktdaten d
 <div class="details admonition php open">
   <div class="details-summary admonition-title">
     <i class="icon ">&#xe73d;</i> This is a php<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Lorem Ipsum</div>
+  </div>
+</div>
+<div class="details admonition docker open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf308;</i> This is a docker<i class="details-icon fas fa-angle-right fa-fw"></i>
   </div>
   <div class="details-content">
     <div class="admonition-content">Lorem Ipsum</div>
