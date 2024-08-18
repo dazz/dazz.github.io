@@ -3,7 +3,7 @@ title: about
 showDate: false
 comments: false
 showShare: false
-tags: [dazz, symfony]
+tags: [dazz, symfony, berlin]
 ---
 
 I love programming and most parts of it is trying to figure out how things can be used to make the life easier for everyone.

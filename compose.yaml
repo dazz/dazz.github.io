@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  hugo:
+    image: "klakegg/hugo:ext-alpine"
+    ports:
+      - "1313:1313"  # Expose the Hugo development server on port 1313
+    volumes:
+      - ".:/src"  # Mount the current directory to /src inside the container
+    command: server --bind 0.0.0.0 -D  # Run the Hugo development server
+
