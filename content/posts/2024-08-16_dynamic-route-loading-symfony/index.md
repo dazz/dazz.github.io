@@ -189,101 +189,10 @@ class RouteLoader implements RouteLoaderInterface
         return $routeCollection;
     }
 
-    /**
-     * @see https://stackoverflow.com/a/39887697
-     */
-    private function getClassNameFromFile($filePathName): string  
-    {  
-        $contents = file_get_contents($filePathName);  
-  
-        $classes = [];  
-        $tokens = token_get_all($contents);  
-        $count = count($tokens);  
-        for ($i = 2; $i < $count; $i++) {  
-            if ($tokens[$i - 2][0] == T_CLASS  
-                && $tokens[$i - 1][0] == T_WHITESPACE  
-                && $tokens[$i][0] == T_STRING  
-            ) {  
-  
-                $className = $tokens[$i][1];  
-                $classes[] = $className;  
-            }
-        }
-
-        return array_pop($classes);  
-    }
-
-    private function getClassNamespaceFromFile($filePathName): ?string  
-    {
-        $src = file_get_contents($filePathName);  
-
-        $tokens = token_get_all($src);  
-        $count = count($tokens);  
-        $i = 0;  
-        $namespace = '';  
-        $namespaceOk = false;  
-        while ($i < $count) {  
-            $token = $tokens[$i];  
-            if (is_array($token) && $token[0] === T_NAMESPACE) {  
-                // Found namespace declaration  
-                while (++$i < $count) {  
-                    if ($tokens[$i] === ';') {  
-                        $namespaceOk = true;  
-                        $namespace = trim($namespace);  
-                        break;  
-                    }  
-                    $namespace .= is_array($tokens[$i]) ? $tokens[$i][1] : $tokens[$i];  
-                }  
-                break;  
-            }  
-            $i++;  
-        }  
-  
-        return $namespaceOk ? $namespace : null;  
-    }  
-  
-    private function createRouteFromAttribute(RouteAttribute $routeAttribute): Route  
-    {        return new Route(  
-            path: $routeAttribute->getPath(),  
-            defaults: $routeAttribute->getDefaults(),  
-            requirements: $routeAttribute->getRequirements(),  
-            options: $routeAttribute->getOptions(),  
-            host: $routeAttribute->getHost(),  
-            schemes: $routeAttribute->getSchemes(),  
-            methods: $routeAttribute->getMethods(),  
-            condition: $routeAttribute->getCondition()  
-        );  
-    }
-
-    /**  
-     * @return RouteAttribute[]  
-     */  
-    private function getRouteAttributes(ReflectionClass $reflectionClass): array  
-    {  
-        return array_map(fn(\ReflectionAttribute $attribute) => $attribute->newInstance(), $reflectionClass->getAttributes(RouteAttribute::class));  
-    }
-  
-    private function generateRouteName(string $className, string $methodName): string  
-    {  
-        $routeName = strtolower(str_replace(  
-            ['\\', 'Controller', 'Application_'],  
-            ['_', '', ''],  
-            $className)  
-        );  
-  
-        if ($methodName === '__invoke') {  
-            return $routeName;  
-        }
-
-        return $routeName . '_' . $methodName;  
-    }  
-
-    private static function fromDirectories(string $dir, string ...$moreDirs): Finder  
-    {
-        return (new Finder())->in($dir)->in($moreDirs)->files()->name('*Controller.php')->sortByName()->followLinks();  
-    }
+    // ...
 }
 ```
+See full [gist.github.com/dazz of RouteLoader.php](https://gist.github.com/dazz/151ed59887dc0299c4f462c33b701c94)
 
 Add the class in the routing config:
 
