@@ -5,7 +5,7 @@ tags:
   - s6-overlay
   - docker
   - devops
-image: 
+image: s6-overlay.webp
 comments: true
 draft: false
 ---
@@ -21,10 +21,11 @@ ADD https://github.com/just-containers/s6-overlay/releases/download/3.2.0.0/s6-o
 
 ## Update dependencies
 
-When adding the s6-overlay sources to in a `Dockerfile` we want to make sure that we get notified when a new version is available so we can always be up-to-date with all our libraries. This can be achieved by adding a section to our [Renovate](https://github.com/renovatebot/renovate) or [Dependabot](https://github.com/dependabot) config, a rule to match
+When adding the s6-overlay sources to in a `Dockerfile` we want to make sure that we get notified when a new version 
+is available, so we can always be up-to-date with all our libraries. This can be achieved by adding a section to our [Renovate](https://github.com/renovatebot/renovate) or [Dependabot](https://github.com/dependabot) config, a rule to match
 
 ## Version checker know about Docker `FROM`
-If we would leverage the `FROM` of docker to include our sources we would not need to add anything. I already use the way of loading sources via images in several places:
+If we leverage the `FROM` of docker to include our sources we would not need to add anything. I already use the way of loading sources via images in several places:
 
 ### include composer
 ```Dockerfile
