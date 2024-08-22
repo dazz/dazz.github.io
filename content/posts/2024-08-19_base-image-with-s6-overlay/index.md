@@ -95,7 +95,7 @@ docker pull hakindazz/s6-overlay-base:3.2.0.0
 ```
 
 ## Include via docker `FROM`
-The best part: You can now include the versioned sources via docker `FROM`:
+The best part: You can now include the versioned sources via docker `--from`:
 
 ```Dockerfile
 FROM hakindazz/s6-overlay-base AS s6-overlay
@@ -110,6 +110,7 @@ ENTRYPOINT ["/init"]
 
 ### Some sources:
 - https://github.com/just-containers/s6-overlay
+- https://github.com/dazz/s6-overlay-base
 - https://hub.docker.com/r/hakindazz/s6-overlay-base
 - https://github.com/dependabot
 - https://docs.renovatebot.com/modules/datasource/github-releases/
