@@ -97,11 +97,11 @@ summaryLength = 70
         name = "About"
         url = "/about"
         weight = 50
-#    [[menu.main]]
-#        identifier = "imprint"
-#        name = "Imprint"
-#        url = "/impressum"
-#        weight = 99
+    [[menu.main]]
+        identifier = "talks"
+        name = "Talks"
+        url = "/talks"
+        weight = 40
 
     [[menu.icons]]
         identifier = "github"
