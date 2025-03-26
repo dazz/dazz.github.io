@@ -1,7 +1,7 @@
 {{- $inner := .Inner | .Page.RenderString -}}
 
 {{- $iconMap := dict "note" "&#Xf040;" -}}
-{{- $iconMap  = dict "abstract" "&#Xf03a;" | merge $iconMap -}}
+{{- $iconMap  = dict "abstract" "&#xf15c;" | merge $iconMap -}}
 {{- $iconMap  = dict "info" "&#xf05a;" | merge $iconMap -}}
 {{- $iconMap  = dict "tip" "&#xf400;" | merge $iconMap -}}
 {{- $iconMap  = dict "success" "&#xf058;" | merge $iconMap -}}
@@ -15,6 +15,7 @@
 {{- $iconMap  = dict "symfony" "&#xe756;" | merge $iconMap -}}
 {{- $iconMap  = dict "php" "&#xe73d;" | merge $iconMap -}}
 {{- $iconMap  = dict "docker" "&#xf308;" | merge $iconMap -}}
+{{- $iconMap  = dict "tldr" "&#xf259;" | merge $iconMap -}}
 
 {{- $iconDetails := "fas fa-angle-right fa-fw" -}}
 {{- if .IsNamedParams -}}

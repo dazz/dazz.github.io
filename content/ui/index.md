@@ -67,3 +67,7 @@ Lorem Ipsum
 {{< admonition type=docker title="This is a docker" >}}
 Lorem Ipsum
 {{< /admonition >}}
+
+{{< admonition type=tldr title="This is a tldr;" >}}
+Lorem Ipsum
+{{< /admonition >}}
