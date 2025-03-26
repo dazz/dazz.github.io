@@ -5,6 +5,7 @@ tags: [docker, docker-compose, ci, cd, symfony, dotenv, env_file]
 image: amy-humphries-2M_sDJ_agvs-unsplash.jpg
 comments: true
 draft: false
+toc: true
 ---  
 
 I have developed a **Symfony Web-Application**, and it runs locally in a dockerized environment with docker-compose. This app is going to be deployed to production as a docker container. 
