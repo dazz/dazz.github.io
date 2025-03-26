@@ -1,1 +1,132 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ui on DazzLog</title><link>https://blog.dazzlog.de/tags/ui/</link><description>Recent content in Ui on DazzLog</description><generator>Hugo</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><atom:link href="https://blog.dazzlog.de/tags/ui/index.xml" rel="self" type="application/rss+xml"/><item><title>ui</title><link>https://blog.dazzlog.de/ui/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog.dazzlog.de/ui/</guid><description>Admonition &amp;#Xf040; This is a note Use the note shortcode when you want to draw attention to information subtly. note is intended to be less of an interruption in content than is warning. &amp;#Xf03a; This is a abstract Lorem Ipsum &amp;#xf05a; This is an info Lorem Ipsum &amp;#xf400; This is a tip Use the tip shortcode when you want to give the reader advice. tip, like note, is intended to be less of an interruption in content than is warning.</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>Ui on DazzLog</title><link>https://blog.dazzlog.de/tags/ui/</link><description>Recent content in Ui on DazzLog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><atom:link href="https://blog.dazzlog.de/tags/ui/index.xml" rel="self" type="application/rss+xml"/><icon>https://blog.dazzlog.de/logo.svg</icon><item><title>ui</title><link>https://blog.dazzlog.de/ui/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog.dazzlog.de/ui/</guid><description><![CDATA[<h2 id="admonition">Admonition</h2>
+<div class="details admonition note open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#Xf040;</i> This is a note<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Use the note shortcode when you want to draw attention to information subtly. note is intended to be less of an interruption in content than is warning.</div>
+  </div>
+</div>
+<div class="details admonition abstract open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf15c;</i> This is a abstract<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Lorem Ipsum</div>
+  </div>
+</div>
+<div class="details admonition info open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf05a;</i> This is an info<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Lorem Ipsum</div>
+  </div>
+</div>
+<div class="details admonition tip open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf400;</i> This is a tip<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Use the tip shortcode when you want to give the reader advice. tip, like note, is intended to be less of an interruption in content than is warning.</div>
+  </div>
+</div>
+<div class="details admonition success open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf058;</i> This is a success<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Lorem Ipsum</div>
+  </div>
+</div>
+<div class="details admonition question open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf128;</i> This is a question<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Lorem Ipsum</div>
+  </div>
+</div>
+<div class="details admonition warning open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf071;</i> This is an warning<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Use the warning shortcode when you want to draw the user’s attention to something important. A good usage example is for articulating breaking changes in Hugo versions, known bugs, or templating “gotchas.”</div>
+  </div>
+</div>
+<div class="details admonition failure open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf057;</i> This is a failure<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Lorem Ipsum</div>
+  </div>
+</div>
+<div class="details admonition danger open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xfb8a;</i> This is danger<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Lorem Ipsum</div>
+  </div>
+</div>
+<div class="details admonition bug open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf188;</i> This is a bug<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Lorem Ipsum</div>
+  </div>
+</div>
+<div class="details admonition example open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#Xf03a;</i> This is an example<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Lorem Ipsum</div>
+  </div>
+</div>
+<div class="details admonition quote open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf10d;</i> This is a quote<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Lorem Ipsum</div>
+  </div>
+</div>
+<div class="details admonition symfony open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xe756;</i> This is a symfony<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Lorem Ipsum</div>
+  </div>
+</div>
+<div class="details admonition php open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xe73d;</i> This is a php<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Lorem Ipsum</div>
+  </div>
+</div>
+<div class="details admonition docker open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf308;</i> This is a docker<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Lorem Ipsum</div>
+  </div>
+</div>
+<div class="details admonition tldr open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf259;</i> This is a tldr;<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Lorem Ipsum</div>
+  </div>
+</div>
+<h2 id="fontawesome-cheat-sheet">FontAwesome cheat sheet</h2>
+<p><a href="https://forkaweso.me/Fork-Awesome/cheatsheet/">https://forkaweso.me/Fork-Awesome/cheatsheet/</a></p>
+]]></description></item></channel></rss>

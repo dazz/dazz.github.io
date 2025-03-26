@@ -1,3 +1,147 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>S6-Overlay on DazzLog</title><link>https://blog.dazzlog.de/tags/s6-overlay/</link><description>Recent content in S6-Overlay on DazzLog</description><generator>Hugo</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Mon, 19 Aug 2024 23:42:23 +0100</lastBuildDate><atom:link href="https://blog.dazzlog.de/tags/s6-overlay/index.xml" rel="self" type="application/rss+xml"/><item><title>Build your own s6-overlay base image</title><link>https://blog.dazzlog.de/posts/2024-08-19_base-image-with-s6-overlay/</link><pubDate>Mon, 19 Aug 2024 23:42:23 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2024-08-19_base-image-with-s6-overlay/</guid><description>S6-overlay is a container-focused process manager that offers end-to-end management of the container&amp;rsquo;s lifecycle, from initialization to graceful shutdown.
-To make use of s6-overlay we need to add the binaries to our container by adding, extracting and then moving them to the directory where they are expected.
-ADD https://github.com/just-containers/s6-overlay/releases/download/3.2.0.0/s6-overlay-noarch.tar.xz /tmp ADD https://github.com/just-containers/s6-overlay/releases/download/3.2.0.0/s6-overlay-x86_64.tar.xz /tmp Update dependencies When adding the s6-overlay sources to in a Dockerfile we want to make sure that we get notified when a new version is available, so we can always be up-to-date with all our libraries.</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>S6-Overlay on DazzLog</title><link>https://blog.dazzlog.de/tags/s6-overlay/</link><description>Recent content in S6-Overlay on DazzLog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Fri, 06 Dec 2024 23:42:23 +0100</lastBuildDate><atom:link href="https://blog.dazzlog.de/tags/s6-overlay/index.xml" rel="self" type="application/rss+xml"/><icon>https://blog.dazzlog.de/logo.svg</icon><item><title>Manage s6-overlay setup with s6-cli</title><link>https://blog.dazzlog.de/posts/2024-12-06_s6-cli/</link><pubDate>Fri, 06 Dec 2024 23:42:23 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2024-12-06_s6-cli/</guid><description><![CDATA[<p>I developed a small cli in golang to ease creating, validating and documenting services that s6 supervises.</p>
+<ul>
+<li>The repo: <a href="https://github.com/dazz/s6-cli">https://github.com/dazz/s6-cli</a></li>
+<li>The docker image: <a href="https://hub.docker.com/repository/docker/hakindazz/s6-cli">https://hub.docker.com/repository/docker/hakindazz/s6-cli</a></li>
+</ul>
+<h2 id="usage">Usage</h2>
+<p>You do not need to install anything, just execute the binary via docker</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run -it --rm hakindazz/s6-cli <span style="color:#8be9fd;font-style:italic">help</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>COMMANDS:
+</span></span><span style="display:flex;"><span>   create, c   create a service
+</span></span><span style="display:flex;"><span>   remove, rm  remove a service
+</span></span><span style="display:flex;"><span>   lint, l     lint directories and files
+</span></span><span style="display:flex;"><span>   mermaid, m  document s6 service dependencies in mermaid syntax
+</span></span><span style="display:flex;"><span>   help, h     Shows a list of commands or <span style="color:#8be9fd;font-style:italic">help</span> <span style="color:#ff79c6">for</span> one <span style="color:#8be9fd;font-style:italic">command</span>
+</span></span></code></pre></div><h2 id="create-a-service-with-s6-cli">Create a service with s6-cli</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run -it --rm -v ./:/etc/s6-overlay hakindazz/s6-cli create oneshot init-dependencies
+</span></span></code></pre></div><p>Here is the file / directory structure it creates:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
+</span></span><span style="display:flex;"><span>├── init-dependencies
+</span></span><span style="display:flex;"><span>│   ├── dependencies.d
+</span></span><span style="display:flex;"><span>│   │    ├── base
+</span></span><span style="display:flex;"><span>│   │    └── svc-php-fpm
+</span></span><span style="display:flex;"><span>│   ├── <span style="color:#8be9fd;font-style:italic">type</span>
+</span></span><span style="display:flex;"><span>│   └── up
+</span></span><span style="display:flex;"><span>└── scripts
+</span></span><span style="display:flex;"><span>        └── init-dependencies
+</span></span></code></pre></div><ul>
+<li>The <code>base</code> dependency is added by <code>s6-cli</code></li>
+<li>Adding <code>base</code> as default dependency tells s6-rc to only start a service when all the base services are ready, and it prevents race conditions</li>
+</ul>
+<h2 id="use-s6-cli-in-your-ci">Use s6-cli in your CI</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run -it --rm -v .:/etc/s6-overlay hakindazz/s6-cli lint
+</span></span></code></pre></div><p>It will tell you when it does not find any issue</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>s6-cli: lint found no issues
+</span></span></code></pre></div><p>Or list the findings so you can fix them before you deploy.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>s6-cli: lint found issues with services in /etc/s6-overlay/s6-rc.d
+</span></span><span style="display:flex;"><span>- svc-lint-me
+</span></span><span style="display:flex;"><span>  - <span style="color:#8be9fd;font-style:italic">type</span> file <span style="color:#ff79c6">for</span> <span style="color:#f1fa8c">&#34;svc-lint-me&#34;</span> does not end with a newline
+</span></span><span style="display:flex;"><span>  - invalid <span style="color:#8be9fd;font-style:italic">type</span> in svc-lint-me/type file specified
+</span></span></code></pre></div><h2 id="document-your-setup-with-mermaid">Document your setup with mermaid</h2>
+<p>You can use the <code>mermaid</code> command to output the dependency graph between the services:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run -it --rm -v .:/etc/s6-overlay hakindazz/s6-cli mermaid
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>```mermaid
+</span></span><span style="display:flex;"><span>graph TD;
+</span></span><span style="display:flex;"><span>    user --&gt; init-dependencies
+</span></span><span style="display:flex;"><span>    user --&gt; init-migrations
+</span></span><span style="display:flex;"><span>    user --&gt; svc-nginx
+</span></span><span style="display:flex;"><span>    init-migrations --&gt; init-directories
+</span></span><span style="display:flex;"><span>    svc-php-fpm --&gt; init-directories
+</span></span><span style="display:flex;"><span>    svc-nginx --&gt; init-nginx
+</span></span><span style="display:flex;"><span>    svc-nginx --&gt; svc-php-fpm
+</span></span></code></pre></div><p>Which will result in this mermaid</p>
+<div class="mermaid">
+    
+graph TD;
+user --> init-dependencies
+user --> init-migrations
+user --> svc-nginx
+init-migrations --> init-directories
+svc-php-fpm --> init-directories
+svc-nginx --> init-nginx
+svc-nginx --> svc-php-fpm
+
+</div>
+
+<script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({ startOnLoad: true, theme: "dark" });
+</script>
+]]></description></item><item><title>Build your own s6-overlay base image</title><link>https://blog.dazzlog.de/posts/2024-08-19_base-image-with-s6-overlay/</link><pubDate>Mon, 19 Aug 2024 23:42:23 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2024-08-19_base-image-with-s6-overlay/</guid><description><![CDATA[<p>S6-overlay is a container-focused process manager that offers end-to-end management of the container&rsquo;s lifecycle, from initialization to graceful shutdown.</p>
+<p>To make use of s6-overlay we need to add the binaries to our container by adding, extracting and then moving them to the directory where they are expected.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">ADD</span> https://github.com/just-containers/s6-overlay/releases/download/3.2.0.0/s6-overlay-noarch.tar.xz /tmp  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">ADD</span> https://github.com/just-containers/s6-overlay/releases/download/3.2.0.0/s6-overlay-x86_64.tar.xz /tmp
+</span></span></code></pre></div><h2 id="update-dependencies">Update dependencies</h2>
+<p>When adding the s6-overlay sources to in a <code>Dockerfile</code> we want to make sure that we get notified when a new version
+is available, so we can always be up-to-date with all our libraries. This can be achieved by adding a section to our <a href="https://github.com/renovatebot/renovate">Renovate</a> or <a href="https://github.com/dependabot">Dependabot</a> config, a rule to match</p>
+<h2 id="version-checker-know-about-docker-from">Version checker know about Docker <code>FROM</code></h2>
+<p>If we leverage the <code>FROM</code> of docker to include our sources we would not need to add anything. I already use the way of loading sources via images in several places:</p>
+<h3 id="include-composer">include composer</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">FROM</span><span style="color:#f1fa8c"> composer:2.7.7 AS composer</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">COPY</span> --from<span style="color:#ff79c6">=</span>composer /usr/bin/composer /usr/bin/composer
+</span></span></code></pre></div><h3 id="include-extension-installer">include extension-installer</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">FROM</span><span style="color:#f1fa8c"> mlocati/php-extension-installer:2.2.16 AS php-extension-installer</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">COPY</span> --from<span style="color:#ff79c6">=</span>php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">RUN</span> install-php-extensions <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>  xdebug <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>  zip <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>;
+</span></span></code></pre></div><p>But there is no base image for s6-overlay from justcontainers/s6-overlay . There are some other vendors, but they are opinionated and do more things that are helpful to their case.</p>
+<h2 id="build-your-own-s6-overlay-base-image">Build your own s6-overlay base image</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">FROM</span><span style="color:#f1fa8c"> alpine:3 AS s6</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">ARG</span> TARGETARCH
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">ARG</span> TARGETVARIANT
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">ARG</span> S6_RELEASE
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">RUN</span> apk add --no-cache curl jq <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>    <span style="color:#ff79c6">&amp;&amp;</span> <span style="color:#ff79c6">if</span> <span style="color:#ff79c6">[</span> -z <span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">S6_RELEASE</span><span style="color:#f1fa8c">}</span> <span style="color:#ff79c6">]</span>; <span style="color:#ff79c6">then</span> <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>         <span style="color:#8be9fd;font-style:italic">S6_RELEASE</span><span style="color:#ff79c6">=</span><span style="color:#ff79c6">$(</span>curl -s https://api.github.com/repos/just-containers/s6-overlay/releases/latest | jq -r <span style="color:#f1fa8c">&#39;.tag_name&#39;</span> | cut -c2-<span style="color:#ff79c6">)</span>; <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>       <span style="color:#ff79c6">fi</span> <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>    <span style="color:#ff79c6">&amp;&amp;</span> <span style="color:#8be9fd;font-style:italic">S6_PLATFORM</span><span style="color:#ff79c6">=</span><span style="color:#ff79c6">$(case</span> <span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">TARGETARCH</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">/</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">TARGETVARIANT</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">&#34;</span> in <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>         <span style="color:#f1fa8c">&#34;arm/v7&#34;</span><span style="color:#ff79c6">)</span>   <span style="color:#8be9fd;font-style:italic">echo</span> <span style="color:#f1fa8c">&#34;armhf&#34;</span>;; <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>         <span style="color:#f1fa8c">&#34;arm64/&#34;</span><span style="color:#ff79c6">)</span>   <span style="color:#8be9fd;font-style:italic">echo</span> <span style="color:#f1fa8c">&#34;aarch64&#34;</span>;; <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>         *<span style="color:#ff79c6">)</span>          <span style="color:#8be9fd;font-style:italic">echo</span> <span style="color:#f1fa8c">&#34;x86_64&#34;</span>;; <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>       <span style="color:#ff79c6">esac</span><span style="color:#ff79c6">)</span> <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>    <span style="color:#ff79c6">&amp;&amp;</span> <span style="color:#8be9fd;font-style:italic">echo</span> <span style="color:#f1fa8c">&#34;Using s6 release </span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">S6_RELEASE</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c"> platform </span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">S6_PLATFORM</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">&#34;</span> <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>    <span style="color:#ff79c6">&amp;&amp;</span> curl -sSL <span style="color:#f1fa8c">&#34;https://github.com/just-containers/s6-overlay/releases/download/v</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">S6_RELEASE</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">/s6-overlay-noarch.tar.xz&#34;</span> -o <span style="color:#f1fa8c">&#34;/tmp/s6-overlay-noarch.tar.xz&#34;</span> <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>    <span style="color:#ff79c6">&amp;&amp;</span> curl -sSL <span style="color:#f1fa8c">&#34;https://github.com/just-containers/s6-overlay/releases/download/v</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">S6_RELEASE</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">/s6-overlay-</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">S6_PLATFORM</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">.tar.xz&#34;</span> -o <span style="color:#f1fa8c">&#34;/tmp/s6-overlay-</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">S6_PLATFORM</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">.tar.xz&#34;</span> <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>    <span style="color:#ff79c6">&amp;&amp;</span> curl -sSL <span style="color:#f1fa8c">&#34;https://github.com/just-containers/s6-overlay/releases/download/v</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">S6_RELEASE</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">/s6-overlay-noarch.tar.xz.sha256&#34;</span> -o <span style="color:#f1fa8c">&#34;/tmp/s6-overlay-noarch.tar.xz.sha256&#34;</span> <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>    <span style="color:#ff79c6">&amp;&amp;</span> curl -sSL <span style="color:#f1fa8c">&#34;https://github.com/just-containers/s6-overlay/releases/download/v</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">S6_RELEASE</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">/s6-overlay-</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">S6_PLATFORM</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">.tar.xz.sha256&#34;</span> -o <span style="color:#f1fa8c">&#34;/tmp/s6-overlay-</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">S6_PLATFORM</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">.tar.xz.sha256&#34;</span> <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>    <span style="color:#ff79c6">&amp;&amp;</span> <span style="color:#8be9fd;font-style:italic">cd</span> /tmp <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>    <span style="color:#ff79c6">&amp;&amp;</span> sha256sum -c s6-overlay-noarch.tar.xz.sha256 <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>    <span style="color:#ff79c6">&amp;&amp;</span> sha256sum -c s6-overlay-<span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">S6_PLATFORM</span><span style="color:#f1fa8c">}</span>.tar.xz.sha256 <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>    <span style="color:#ff79c6">&amp;&amp;</span> mkdir -p /s6/root <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>    <span style="color:#ff79c6">&amp;&amp;</span> tar -C /s6/root -Jxpf /tmp/s6-overlay-noarch.tar.xz <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>    <span style="color:#ff79c6">&amp;&amp;</span> tar -C /s6/root -Jxpf /tmp/s6-overlay-<span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">S6_PLATFORM</span><span style="color:#f1fa8c">}</span>.tar.xz
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">FROM</span><span style="color:#f1fa8c"> scratch</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">COPY</span> --from<span style="color:#ff79c6">=</span>s6 /s6/root /s6/root
+</span></span></code></pre></div><p>It</p>
+<ul>
+<li>downloads for the specified architecture</li>
+<li>asserts the checksum!</li>
+<li>uses a fresh layer to copy everything</li>
+</ul>
+<p>This can be built with:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>docker build --no-cache --build-arg <span style="color:#8be9fd;font-style:italic">S6_RELEASE</span><span style="color:#ff79c6">=</span>3.2.0.0 -t hakindazz/s6-overlay-base:3.2.0.0 .
+</span></span></code></pre></div><p>Or you can pull the image to check it out:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker pull hakindazz/s6-overlay-base:3.2.0.0
+</span></span></code></pre></div><h2 id="include-via-docker-from">Include via docker <code>FROM</code></h2>
+<p>The best part: You can now include the versioned sources via docker <code>--from</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">FROM</span><span style="color:#f1fa8c"> hakindazz/s6-overlay-base AS s6-overlay</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">FROM</span><span style="color:#f1fa8c"> alpine3</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">COPY</span> --from<span style="color:#ff79c6">=</span>s6-overlay /s6/root /
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">ENTRYPOINT</span> [<span style="color:#f1fa8c">&#34;/init&#34;</span>]
+</span></span></code></pre></div><h2 id="happy-image-building">Happy image building!!!</h2>
+<h3 id="some-sources">Some sources:</h3>
+<ul>
+<li><a href="https://github.com/just-containers/s6-overlay">https://github.com/just-containers/s6-overlay</a></li>
+<li><a href="https://github.com/dazz/s6-overlay-base">https://github.com/dazz/s6-overlay-base</a></li>
+<li><a href="https://hub.docker.com/r/hakindazz/s6-overlay-base">https://hub.docker.com/r/hakindazz/s6-overlay-base</a></li>
+<li><a href="https://github.com/dependabot">https://github.com/dependabot</a></li>
+<li><a href="https://docs.renovatebot.com/modules/datasource/github-releases/">https://docs.renovatebot.com/modules/datasource/github-releases/</a></li>
+</ul>
+]]></description><media:thumbnail url="https://blog.dazzlog.de/s6-overlay.webp"/></item></channel></rss>

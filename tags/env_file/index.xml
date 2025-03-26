@@ -1,3 +1,262 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Env_file on DazzLog</title><link>https://blog.dazzlog.de/tags/env_file/</link><description>Recent content in Env_file on DazzLog</description><generator>Hugo</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Mon, 02 Jan 2023 19:24:18 +0100</lastBuildDate><atom:link href="https://blog.dazzlog.de/tags/env_file/index.xml" rel="self" type="application/rss+xml"/><item><title>Environment variables in a dockerized Symfony</title><link>https://blog.dazzlog.de/posts/2023-01-02_environment-variables-in-a-dockerized-symfony/</link><pubDate>Mon, 02 Jan 2023 19:24:18 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2023-01-02_environment-variables-in-a-dockerized-symfony/</guid><description>I have developed a Symfony Web-Application, and it runs locally in a dockerized environment with docker-compose. This app is going to be deployed to production as a docker container. In production the handling of environment variables and how they are passed to the container during development is different.
-12 Factor App A few points from the 12factor methodology:
-III. Config: Store config in the environment since env vars are easy to change between deploys without changing any code X.</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>Env_file on DazzLog</title><link>https://blog.dazzlog.de/tags/env_file/</link><description>Recent content in Env_file on DazzLog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Mon, 02 Jan 2023 19:24:18 +0100</lastBuildDate><atom:link href="https://blog.dazzlog.de/tags/env_file/index.xml" rel="self" type="application/rss+xml"/><icon>https://blog.dazzlog.de/logo.svg</icon><item><title>Environment variables in a dockerized Symfony</title><link>https://blog.dazzlog.de/posts/2023-01-02_environment-variables-in-a-dockerized-symfony/</link><pubDate>Mon, 02 Jan 2023 19:24:18 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2023-01-02_environment-variables-in-a-dockerized-symfony/</guid><description><![CDATA[<p>I have developed a <strong>Symfony Web-Application</strong>, and it runs locally in a dockerized environment with docker-compose. This app is going to be deployed to production as a docker container.
+In production the handling of environment variables and how they are passed to the container during development is different.</p>
+<h2 id="12-factor-app">12 Factor App</h2>
+<p>A few points from the <a href="https://12factor.net">12factor methodology</a>:</p>
+<ul>
+<li><a href="https://12factor.net/config">III. Config</a>: Store config in the environment since env vars are easy to change between deploys without changing any code</li>
+<li><a href="https://12factor.net/dev-prod-parity">X. Dev/prod parity</a>: Keep development, staging, and production as similar as possible</li>
+</ul>
+<p>I was searching for options how to handle the differences how environment variables are passed and I found there are at least</p>
+<h2 id="7-ways-to-pass-environment-variables-to-a-container">7 ways to pass environment variables to a container</h2>
+<ol>
+<li><code>ENV</code> in dockerfile</li>
+<li>Dockerfile args passed at build time to <code>ENV</code></li>
+<li>ENV passing in docker run as option</li>
+<li>Env_file in docker run as option</li>
+<li>Environment variables in <code>docker-compose.yml</code></li>
+<li>Env_file in docker compose for each service</li>
+<li><code>.env</code> in docker compose substitutes variables in <code>docker-compose.yml</code></li>
+</ol>
+<p>And there is even more. If variables are passed to a container there is an order of precedence as follows:</p>
+<div class="details admonition tip open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf400;</i> Order of Precedence<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content"><ol>
+<li>Passed from the command line <a href="https://docs.docker.com/compose/envvars-precedence/../../engine/reference/commandline/compose_run#options"><code>docker compose run --env &lt;KEY[=[VAL]]&gt;</code></a>.</li>
+<li>Passed from/set in <code>compose.yaml</code> service’s configuration, from the <a href="https://docs.docker.com/compose/envvars-precedence/../../compose/compose-file#environment">environment key</a>.</li>
+<li>Passed from/set in <code>compose.yaml</code> service’s configuration, from the <a href="https://docs.docker.com/compose/envvars-precedence/../../compose/compose-file#env_file">env_file key</a>.</li>
+<li>Passed from/set in Container Image in the <a href="https://docs.docker.com/engine/reference/builder#env">ENV directive</a>.</li>
+</ol>
+<p>from <a href="https://docs.docker.com/compose/envvars-precedence/">https://docs.docker.com/compose/envvars-precedence/</a></p></div>
+  </div>
+</div>
+<h1 id="how-to-deal-with-environment-variables-in-a-dockerized-symfony">How to deal with environment variables in a dockerized Symfony</h1>
+<h2 id="the-goal">The goal</h2>
+<p>All services regardless of which technology they use, should have one streamlined way of how the environment variables should be passed to the application.</p>
+<h2 id="the-big-picture">The big picture</h2>
+<ul>
+<li>We use multiple services which all need to work together</li>
+<li>Services run in docker container</li>
+<li>We deploy and run services in different compositions for each environment</li>
+<li>Each service has their own sensitive data</li>
+<li>Each service might be a different technology or has a different tech stack</li>
+</ul>
+<h2 id="steps-towards-the-goal">Steps towards the goal</h2>
+<ul>
+<li>The infrastructure config should be kept in env files but not in the same directory as the application</li>
+<li>Each service gets its own env file to be completely independent of each other, and it gets explicitly set</li>
+<li>During development each service gets the env variables passed via env file (<code>env_file</code> in docker-compose)</li>
+<li>Every project that has a <code>docker-compose.yml</code> moves the application into an <code>app</code> directory to separate the application from its infrastructure configuration</li>
+<li>We remove the DotEnv component from symfony and define each environment variable that we expect as parameter so the app tells us instantly when a key-value pair is missing</li>
+<li>In development credentials can be added to the VCS</li>
+<li>In all other envs the credentials can be either stored and linked on the server or be read from a vault</li>
+</ul>
+<h2 id="the-implementation">The implementation</h2>
+<p>In Symfony the DotEnv component is default installed and enabled in the frontcontroller, so when a new app is created there is always a <code>.env</code> file at the project root created with it. <a href="https://symfony.com/doc/current/configuration.html#configuring-environment-variables-in-env-files">Read more in the documentation.</a></p>
+<p>It is not the same <code>.env</code> that <code>docker-compose.yml</code> expects.
+<div class="details admonition warning open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf071;</i> Symfony DotEnv and Docker Compose use the same file name .env<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Docker compose is also using a file named  <code>.env</code> to replace the variables in the <code>docker-compose.yml</code> if it is located in the same directory.
+If you don&rsquo;t know that and put the web apps <code>.env</code> file in the same place then you accidentally might overwrite variables when you think you just updated a variable for the Symfony application.</div>
+  </div>
+</div></p>
+<p>We have two different stacks here that both want to use the <code>.env</code> file and both might, but not at the same time, obviously.</p>
+<p>Since we want to use config variables explicitly and not by accident the Symfony DotEnv component is going to be removed and all config is moved inside environment variable files that are passed into the container.</p>
+<h3 id="the-directory-tree">The directory tree</h3>
+<p>To ease the separation of infrastructure and code the application code moves into the <code>./app</code> directory to be completely separate from the code/config that defines the infrastructure.
+You see there is no <code>.env</code> file left from Symfony. All variables have now moved to the env files inside the <code>devops/env</code> directory.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-gdscript3" data-lang="gdscript3"><span style="display:flex;"><span><span style="color:#ff79c6">.</span>
+</span></span><span style="display:flex;"><span>├── app
+</span></span><span style="display:flex;"><span>│   ├── assets
+</span></span><span style="display:flex;"><span>│   ├── bin
+</span></span><span style="display:flex;"><span>│   ├── ci
+</span></span><span style="display:flex;"><span>│   ├── config
+</span></span><span style="display:flex;"><span>│   ├── migrations
+</span></span><span style="display:flex;"><span>│   ├── node_modules
+</span></span><span style="display:flex;"><span>│   ├── public
+</span></span><span style="display:flex;"><span>│   │   └── index<span style="color:#ff79c6">.</span>php
+</span></span><span style="display:flex;"><span>│   ├── src
+</span></span><span style="display:flex;"><span>│   ├── templates
+</span></span><span style="display:flex;"><span>│   ├── tests
+</span></span><span style="display:flex;"><span>│   ├── <span style="color:#ff79c6">var</span>
+</span></span><span style="display:flex;"><span>│   ├── vendor
+</span></span><span style="display:flex;"><span>│   ├── composer<span style="color:#ff79c6">.</span>json
+</span></span><span style="display:flex;"><span>│   ├── composer<span style="color:#ff79c6">.</span>lock
+</span></span><span style="display:flex;"><span>│   ├── Makefile
+</span></span><span style="display:flex;"><span>│   ├── package<span style="color:#ff79c6">.</span>json
+</span></span><span style="display:flex;"><span>│   ├── symfony<span style="color:#ff79c6">.</span>lock
+</span></span><span style="display:flex;"><span>│   ├── webpack<span style="color:#ff79c6">.</span>config<span style="color:#ff79c6">.</span>js
+</span></span><span style="display:flex;"><span>│   └── yarn<span style="color:#ff79c6">.</span>lock
+</span></span><span style="display:flex;"><span>├── devops
+</span></span><span style="display:flex;"><span>│   ├── database
+</span></span><span style="display:flex;"><span>│   ├── docker
+</span></span><span style="display:flex;"><span>│   │   └── frankenphp
+</span></span><span style="display:flex;"><span>│   │        └── Dockerfile
+</span></span><span style="display:flex;"><span>│   └── env
+</span></span><span style="display:flex;"><span>│       ├── app<span style="color:#ff79c6">.</span>env
+</span></span><span style="display:flex;"><span>│       └── database<span style="color:#ff79c6">.</span>env
+</span></span><span style="display:flex;"><span>├── CONTRIBUTING<span style="color:#ff79c6">.</span>md
+</span></span><span style="display:flex;"><span>├── docker<span style="color:#ff79c6">-</span>compose<span style="color:#ff79c6">.</span>prod<span style="color:#ff79c6">.</span>yml
+</span></span><span style="display:flex;"><span>├── docker<span style="color:#ff79c6">-</span>compose<span style="color:#ff79c6">.</span>yml
+</span></span><span style="display:flex;"><span>├── Makefile
+</span></span><span style="display:flex;"><span>└── README<span style="color:#ff79c6">.</span>md
+</span></span></code></pre></div><h2 id="the-docker-composeyml">The docker-compose.yml</h2>
+<p>Each service gets its own <code>env_file</code> where we can configure the sensitive data for each service.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ff79c6">version</span>: <span style="color:#f1fa8c">&#39;3.9&#39;</span>  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">services</span>:  
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">app</span>:  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">image</span>: ghcr.io/c-base/cbag3:dev-latest  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">build</span>:  
+</span></span><span style="display:flex;"><span>      <span style="color:#ff79c6">dockerfile</span>: ./devops/docker/frankenphp/Dockerfile  
+</span></span><span style="display:flex;"><span>      <span style="color:#ff79c6">target</span>: dev  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">env_file</span>: ./devops/env/app.env  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">ports</span>:  
+</span></span><span style="display:flex;"><span>      - <span style="color:#bd93f9">80</span>:<span style="color:#bd93f9">80</span>  
+</span></span><span style="display:flex;"><span>      - <span style="color:#bd93f9">443</span>:<span style="color:#bd93f9">443</span>  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">volumes</span>:  
+</span></span><span style="display:flex;"><span>      - <span style="color:#f1fa8c">&#39;./app:/app&#39;</span>  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">database</span>:  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">image</span>: postgres:alpine  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">container_name</span>: database  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">env_file</span>: ./devops/env/database.env  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">ports</span>:  
+</span></span><span style="display:flex;"><span>      - <span style="color:#bd93f9">15432</span>:<span style="color:#bd93f9">5432</span>  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">volumes</span>:  
+</span></span><span style="display:flex;"><span>      - ./devops/database:/var/lib/postgresql
+</span></span></code></pre></div><div class="details admonition tip open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf400;</i> tip<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">the <code>.env</code> file can be used with docker compose to configure variables inside the <code>docker-compose.yml</code></div>
+  </div>
+</div>
+<h2 id="disable-dotenv-in-frontcontroller--and-console">Disable DotEnv in frontcontroller  and console</h2>
+<p>The DotEnv component is disabled since all environment variables have already passed to the container.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#6272a4"># app/public/index.php
+</span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span><span style="color:#ff79c6">&lt;?</span>php  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> Cbase\App\Kernel;  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">$_SERVER</span>[<span style="color:#f1fa8c">&#39;APP_RUNTIME_OPTIONS&#39;</span>][<span style="color:#f1fa8c">&#39;disable_dotenv&#39;</span>] <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">true</span>; 
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">require_once</span> dirname(__DIR__)<span style="color:#ff79c6">.</span><span style="color:#f1fa8c">&#39;/vendor/autoload_runtime.php&#39;</span>;  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">return</span> <span style="color:#ff79c6">function</span> (<span style="color:#ff79c6">array</span> <span style="color:#8be9fd;font-style:italic">$context</span>) {  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">new</span> Kernel(<span style="color:#8be9fd;font-style:italic">$context</span>[<span style="color:#f1fa8c">&#39;APP_ENV&#39;</span>], (bool) <span style="color:#8be9fd;font-style:italic">$context</span>[<span style="color:#f1fa8c">&#39;APP_DEBUG&#39;</span>]);  
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#6272a4"># app/bin/console
+</span></span></span><span style="display:flex;"><span><span style="color:#6272a4">#!/usr/bin/env php  
+</span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span><span style="color:#ff79c6">&lt;?</span>php  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> Cbase\App\Kernel;  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> Symfony\Bundle\FrameworkBundle\Console\Application;  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">$_SERVER</span>[<span style="color:#f1fa8c">&#39;APP_RUNTIME_OPTIONS&#39;</span>][<span style="color:#f1fa8c">&#39;disable_dotenv&#39;</span>] <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">true</span>;  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">require_once</span> dirname(__DIR__) <span style="color:#ff79c6">.</span> <span style="color:#f1fa8c">&#39;/vendor/autoload_runtime.php&#39;</span>;  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">return</span> <span style="color:#ff79c6">function</span> (<span style="color:#ff79c6">array</span> <span style="color:#8be9fd;font-style:italic">$context</span>) {  
+</span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">$kernel</span> <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> Kernel(<span style="color:#8be9fd;font-style:italic">$context</span>[<span style="color:#f1fa8c">&#39;APP_ENV&#39;</span>], (bool) <span style="color:#8be9fd;font-style:italic">$context</span>[<span style="color:#f1fa8c">&#39;APP_DEBUG&#39;</span>]);  
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">new</span> Application(<span style="color:#8be9fd;font-style:italic">$kernel</span>);  
+</span></span><span style="display:flex;"><span>};
+</span></span></code></pre></div><div class="details admonition symfony open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xe756;</i> Symfony Runtime<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">See described here: <a href="https://symfony.com/doc/current/components/runtime.html#using-options">Configure Symfony Runtime Using Options</a></div>
+  </div>
+</div>
+<div class="details admonition note open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#Xf040;</i> run app only inside container<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">By disabling DotEnv we will no longer be able to run the application outside the container (our local machine) unless we set all environment variables there as well.</div>
+  </div>
+</div>
+<div class="details admonition note open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#Xf040;</i> keep DotEnv for tests<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">For now, we leave the DotEnv for the tests since those environment variables won&rsquo;t change regardless of where they are executed, and they will be executed in the dev container. We could change that by running the tests in their own container, but for now keep the <code>.env.test</code>.</div>
+  </div>
+</div>
+<h2 id="dont-forget-to-add-the-parameters-in-servicesyml">Don&rsquo;t forget to add the parameters in <code>services.yml</code></h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># app/config/services.yaml</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">parameters</span>:  
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">images.upload.directory</span>: <span style="color:#f1fa8c">&#39;%env(resolve:IMAGES_UPLOAD_DIRECTORY)%&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">services</span>:  
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">_defaults</span>:  
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">autowire</span>: <span style="color:#ff79c6">true</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">autoconfigure</span>: <span style="color:#ff79c6">true</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">bind</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#ff79c6">string $imagesUploadDirectory</span>: <span style="color:#f1fa8c">&#39;%images.upload.directory%&#39;</span>
+</span></span></code></pre></div><p>Since every environment has its own env_file there is the danger of forgetting to add an environment variable to the other environments.</p>
+<div class="details admonition tip open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf400;</i> tip<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">In order to fail early we load the environment variable at the start of the application, by binding it.
+If we do not bind parameters to variables but just bin them to a service we might miss that we forgot to set an
+environment variable in the env file since the service might not be loaded in every request.</div>
+  </div>
+</div>
+<h2 id="run-docker--container-in-production-with-env-file">Run docker  container in production with env-file</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat devops/env/app.env
+</span></span><span style="display:flex;"><span><span style="color:#6272a4"># This is a comment</span>
+</span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">IMAGES_UPLOAD_DIRECTORY</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;%kernel.project_dir%/var/uploads&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>docker run --env-file devops/env/app.env app env | grep -E <span style="color:#f1fa8c">&#39;IMAGES&#39;</span>
+</span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">IMAGES_UPLOAD_DIRECTORY</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;%kernel.project_dir%/var/uploads&#34;</span>
+</span></span></code></pre></div><p>Read more about it in the <a href="https://docs.docker.com/engine/reference/commandline/run/#-set-environment-variables--e---env---env-file">docker documentation</a>.</p>
+<h2 id="migration-path">Migration Path</h2>
+<p>There is a migration path for projects that use already many config yaml files and want to migrate to environment
+variables.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># config/my-app.yaml</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">parameters</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">images.upload.directory</span>: <span style="color:#f1fa8c">&#39;%kernel.project_dir%/var/uploads&#39;</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># config/services.yaml</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">parameters</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">env(IMAGES_UPLOAD_DIRECTORY)</span>: <span style="color:#f1fa8c">&#39;%images.upload.directory%&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">services</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">_defaults</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">bind</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#ff79c6">string $imagesUploadDirectory</span>: <span style="color:#f1fa8c">&#39;%env(resolve:IMAGES_UPLOAD_DIRECTORY)%&#39;</span>
+</span></span></code></pre></div><ol>
+<li>the configuration processor looks up if there is an environment variable <code>IMAGES_UPLOAD_DIRECTORY</code></li>
+<li>if that is the case, it will be taken,</li>
+<li>otherwise if it is not found <code>'%images.upload.directory%'</code> will be set to the environment variable.</li>
+<li>the <code>'%env(resolve:IMAGES_UPLOAD_DIRECTORY)%'</code> is bound to a variable <code>$imagesUploadDirectory</code></li>
+</ol>
+<p>Read more about configuration processors in the <a href="https://symfony.com/doc/current/configuration/env_var_processors.html">Symfony documentation about &ldquo;Environment Variable Processors&rdquo;</a>.</p>
+<p>This would result in the following migration path:</p>
+<ol>
+<li>Make it possible to set variables via environment variables</li>
+<li>Make sure all environments set the corresponding variables</li>
+<li>Remove many quirky unnecessary config files</li>
+<li>win</li>
+</ol>
+<h2 id="conclusion">Conclusion</h2>
+<p>We removed the DotEnv from Symfony and will miss out on all the functionality that came with it, but chose using the <code>env_file</code> as it can be used for running a container, and it can be configured in the <code>docker-compose.yml</code>.
+The environment configs can be dumped from secret vaults regardless of the tech-stack that the cloud has to offer or kept in a shared directory that won&rsquo;t change between deployments.
+There will be <strong>one</strong> explicit way of how each service will get configuration regardless of their environment or tech stack.
+Also, we learned that there is a simple way in Symfony to migrate to environment variables.</p>
+<h2 id="happy-continuously-deploying-everyone">Happy continuously deploying everyone</h2>
+<h4 id="more-sources">More sources</h4>
+<ul>
+<li><a href="https://rotempinchevskiboguslavsky.medium.com/environment-variables-in-container-vs-docker-compose-file-2426b2ec7d8b">Environment Variables in Container vs. Docker Compose File</a></li>
+</ul>
+]]></description><media:thumbnail url="https://blog.dazzlog.de/amy-humphries-2M_sDJ_agvs-unsplash.jpg"/></item></channel></rss>

@@ -1,4 +1,73 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>DazzLog</title><link>https://blog.dazzlog.de/</link><description>Recent content on DazzLog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Mon, 19 Aug 2024 23:42:23 +0100</lastBuildDate><atom:link href="https://blog.dazzlog.de/index.xml" rel="self" type="application/rss+xml"/><icon>https://blog.dazzlog.de/logo.svg</icon><item><title>Build your own s6-overlay base image</title><link>https://blog.dazzlog.de/posts/2024-08-19_base-image-with-s6-overlay/</link><pubDate>Mon, 19 Aug 2024 23:42:23 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2024-08-19_base-image-with-s6-overlay/</guid><description><![CDATA[<p>S6-overlay is a container-focused process manager that offers end-to-end management of the container&rsquo;s lifecycle, from initialization to graceful shutdown.</p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>DazzLog</title><link>https://blog.dazzlog.de/</link><description>Recent content on DazzLog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Wed, 26 Mar 2025 23:42:23 +0100</lastBuildDate><atom:link href="https://blog.dazzlog.de/index.xml" rel="self" type="application/rss+xml"/><icon>https://blog.dazzlog.de/logo.svg</icon><item><title>Manage s6-overlay setup with s6-cli</title><link>https://blog.dazzlog.de/posts/2024-12-06_s6-cli/</link><pubDate>Fri, 06 Dec 2024 23:42:23 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2024-12-06_s6-cli/</guid><description><![CDATA[<p>I developed a small cli in golang to ease creating, validating and documenting services that s6 supervises.</p>
+<ul>
+<li>The repo: <a href="https://github.com/dazz/s6-cli">https://github.com/dazz/s6-cli</a></li>
+<li>The docker image: <a href="https://hub.docker.com/repository/docker/hakindazz/s6-cli">https://hub.docker.com/repository/docker/hakindazz/s6-cli</a></li>
+</ul>
+<h2 id="usage">Usage</h2>
+<p>You do not need to install anything, just execute the binary via docker</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run -it --rm hakindazz/s6-cli <span style="color:#8be9fd;font-style:italic">help</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>COMMANDS:
+</span></span><span style="display:flex;"><span>   create, c   create a service
+</span></span><span style="display:flex;"><span>   remove, rm  remove a service
+</span></span><span style="display:flex;"><span>   lint, l     lint directories and files
+</span></span><span style="display:flex;"><span>   mermaid, m  document s6 service dependencies in mermaid syntax
+</span></span><span style="display:flex;"><span>   help, h     Shows a list of commands or <span style="color:#8be9fd;font-style:italic">help</span> <span style="color:#ff79c6">for</span> one <span style="color:#8be9fd;font-style:italic">command</span>
+</span></span></code></pre></div><h2 id="create-a-service-with-s6-cli">Create a service with s6-cli</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run -it --rm -v ./:/etc/s6-overlay hakindazz/s6-cli create oneshot init-dependencies
+</span></span></code></pre></div><p>Here is the file / directory structure it creates:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
+</span></span><span style="display:flex;"><span>├── init-dependencies
+</span></span><span style="display:flex;"><span>│   ├── dependencies.d
+</span></span><span style="display:flex;"><span>│   │    ├── base
+</span></span><span style="display:flex;"><span>│   │    └── svc-php-fpm
+</span></span><span style="display:flex;"><span>│   ├── <span style="color:#8be9fd;font-style:italic">type</span>
+</span></span><span style="display:flex;"><span>│   └── up
+</span></span><span style="display:flex;"><span>└── scripts
+</span></span><span style="display:flex;"><span>        └── init-dependencies
+</span></span></code></pre></div><ul>
+<li>The <code>base</code> dependency is added by <code>s6-cli</code></li>
+<li>Adding <code>base</code> as default dependency tells s6-rc to only start a service when all the base services are ready, and it prevents race conditions</li>
+</ul>
+<h2 id="use-s6-cli-in-your-ci">Use s6-cli in your CI</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run -it --rm -v .:/etc/s6-overlay hakindazz/s6-cli lint
+</span></span></code></pre></div><p>It will tell you when it does not find any issue</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>s6-cli: lint found no issues
+</span></span></code></pre></div><p>Or list the findings so you can fix them before you deploy.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>s6-cli: lint found issues with services in /etc/s6-overlay/s6-rc.d
+</span></span><span style="display:flex;"><span>- svc-lint-me
+</span></span><span style="display:flex;"><span>  - <span style="color:#8be9fd;font-style:italic">type</span> file <span style="color:#ff79c6">for</span> <span style="color:#f1fa8c">&#34;svc-lint-me&#34;</span> does not end with a newline
+</span></span><span style="display:flex;"><span>  - invalid <span style="color:#8be9fd;font-style:italic">type</span> in svc-lint-me/type file specified
+</span></span></code></pre></div><h2 id="document-your-setup-with-mermaid">Document your setup with mermaid</h2>
+<p>You can use the <code>mermaid</code> command to output the dependency graph between the services:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run -it --rm -v .:/etc/s6-overlay hakindazz/s6-cli mermaid
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>```mermaid
+</span></span><span style="display:flex;"><span>graph TD;
+</span></span><span style="display:flex;"><span>    user --&gt; init-dependencies
+</span></span><span style="display:flex;"><span>    user --&gt; init-migrations
+</span></span><span style="display:flex;"><span>    user --&gt; svc-nginx
+</span></span><span style="display:flex;"><span>    init-migrations --&gt; init-directories
+</span></span><span style="display:flex;"><span>    svc-php-fpm --&gt; init-directories
+</span></span><span style="display:flex;"><span>    svc-nginx --&gt; init-nginx
+</span></span><span style="display:flex;"><span>    svc-nginx --&gt; svc-php-fpm
+</span></span></code></pre></div><p>Which will result in this mermaid</p>
+<div class="mermaid">
+    
+graph TD;
+user --> init-dependencies
+user --> init-migrations
+user --> svc-nginx
+init-migrations --> init-directories
+svc-php-fpm --> init-directories
+svc-nginx --> init-nginx
+svc-nginx --> svc-php-fpm
+
+</div>
+
+<script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({ startOnLoad: true, theme: "dark" });
+</script>
+]]></description></item><item><title>Build your own s6-overlay base image</title><link>https://blog.dazzlog.de/posts/2024-08-19_base-image-with-s6-overlay/</link><pubDate>Mon, 19 Aug 2024 23:42:23 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2024-08-19_base-image-with-s6-overlay/</guid><description><![CDATA[<p>S6-overlay is a container-focused process manager that offers end-to-end management of the container&rsquo;s lifecycle, from initialization to graceful shutdown.</p>
 <p>To make use of s6-overlay we need to add the binaries to our container by adding, extracting and then moving them to the directory where they are expected.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">ADD</span> https://github.com/just-containers/s6-overlay/releases/download/3.2.0.0/s6-overlay-noarch.tar.xz /tmp  
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">ADD</span> https://github.com/just-containers/s6-overlay/releases/download/3.2.0.0/s6-overlay-x86_64.tar.xz /tmp
@@ -75,227 +144,7 @@ is available, so we can always be up-to-date with all our libraries. This can be
 <li><a href="https://github.com/dependabot">https://github.com/dependabot</a></li>
 <li><a href="https://docs.renovatebot.com/modules/datasource/github-releases/">https://docs.renovatebot.com/modules/datasource/github-releases/</a></li>
 </ul>
-]]></description><media:thumbnail url="https://blog.dazzlog.de/s6-overlay.webp"/></item><item><title>Dynamic Route loading in a non standard Symfony structure</title><link>https://blog.dazzlog.de/posts/2024-08-16_dynamic-route-loading-symfony/</link><pubDate>Fri, 16 Aug 2024 23:42:23 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2024-08-16_dynamic-route-loading-symfony/</guid><description><![CDATA[<p>When you divert from Symfony&rsquo;s standard structure there are some things that do not work out of the box anymore. One of it is routing.</p>
-<h2 id="default-symfony">Default Symfony</h2>
-<p>If you start a fresh Symfony project you will be presented with the following stricture:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>app/src  
-</span></span><span style="display:flex;"><span>├─ Controller
-</span></span><span style="display:flex;"><span>├─ Entity
-</span></span><span style="display:flex;"><span>├─ Repository
-</span></span><span style="display:flex;"><span>└─ Kernel.php
-</span></span></code></pre></div><p>The routing config looks like this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># app/config/routes.yaml</span>
-</span></span><span style="display:flex;"><span><span style="color:#ff79c6">controllers</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">resource</span>:
-</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">path</span>: ../src/Controller/
-</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">namespace</span>: App\Controller
-</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">type</span>: attribute
-</span></span></code></pre></div><p>So the <code>Controller</code> directory is the place all controllers go you might think first. But When the project gets bigger a different structure might make more sense.</p>
-<h2 id="the-dddclean-architecture-approach">The DDD/Clean Architecture approach</h2>
-<p>If we use a DDD/Clean Architecture approach the structure might look like this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>app/src
-</span></span><span style="display:flex;"><span>├─ Blog 
-</span></span><span style="display:flex;"><span>│ ├─ Application
-</span></span><span style="display:flex;"><span>│ │ └─ CreateArticleController.php
-</span></span><span style="display:flex;"><span>│ ├─ Domain
-</span></span><span style="display:flex;"><span>│ │ └─ Article.php
-</span></span><span style="display:flex;"><span>│ └─ Infrastructure
-</span></span><span style="display:flex;"><span>├─ Registration
-</span></span><span style="display:flex;"><span>│ ├─ Application
-</span></span><span style="display:flex;"><span>│ │ ├─ CreateAccountController.php
-</span></span><span style="display:flex;"><span>│ │ ├─ CreateAccountRequest.php
-</span></span><span style="display:flex;"><span>│ │ └─ CreateAccountResponse.php
-</span></span><span style="display:flex;"><span>│ ├─ Domain
-</span></span><span style="display:flex;"><span>│ │ └─ Account.php
-</span></span><span style="display:flex;"><span>│ └─ Infrastructure
-</span></span><span style="display:flex;"><span>└─ Kernel.php
-</span></span></code></pre></div><p>But now every Controller needs to be added to the routing config since the loading expects all controllers in one place.</p>
-<div class="details admonition tip open">
-  <div class="details-summary admonition-title">
-    <i class="icon ">&#xf400;</i> tip<i class="details-icon fas fa-angle-right fa-fw"></i>
-  </div>
-  <div class="details-content">
-    <div class="admonition-content">Configs should be kept clean and small</div>
-  </div>
-</div>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># app/config/routes.yaml</span>
-</span></span><span style="display:flex;"><span><span style="color:#ff79c6">app_registration_createaccount</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#6272a4"># loads routes from the PHP attributes of the given class</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">resource</span>: App\Registration\CreateAccountController
-</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">type</span>:     attribute
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#ff79c6">app_blog_createarticle</span>:
-</span></span><span style="display:flex;"><span>    <span style="color:#6272a4"># loads routes from the PHP attributes of the given class</span>
-</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">resource</span>: App\Blog\CreateArticleController
-</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">type</span>:     attribute
-</span></span></code></pre></div><p>This is not the comfortable way, since we were starting to embrace the <code>Route</code> attribute because it means we do not need to add each route to the routing config in a growing file and developers must not forget to add or update each route which might get annoying during refactoring.</p>
-<h2 id="loading-routes-dynamic">Loading Routes dynamic</h2>
-<p>In Symfony there is a simple way we can solve this: <a href="https://symfony.com/doc/current/routing/custom_route_loader.html">We can create our own loader with a custom service</a>.</p>
-<h2 id="the-implementation">The implementation</h2>
-<div class="details admonition symfony open">
-  <div class="details-summary admonition-title">
-    <i class="icon ">&#xe756;</i> From the Symfony Documentation<i class="details-icon fas fa-angle-right fa-fw"></i>
-  </div>
-  <div class="details-content">
-    <div class="admonition-content"><blockquote>
-<p>When the main loader parses this, it tries all registered delegate loaders.</p>
-</blockquote>
-<blockquote>
-<p>If you&rsquo;re using <a href="https://symfony.com/doc/current/service_container.html#services-autoconfigure">autoconfigure</a>, your class should implement the <a href="https://github.com/symfony/symfony/blob/7.1/src/Symfony/Bundle/FrameworkBundle/Routing/RouteLoaderInterface.php" title="Symfony\Bundle\FrameworkBundle\Routing\RouteLoaderInterface">RouteLoaderInterface</a> interface to be tagged automatically.</p>
-</blockquote>
-<blockquote>
-<p>If your service is invokable, you don&rsquo;t need to specify the method to use.</p>
-</blockquote>
-<blockquote>
-<p>Your service doesn&rsquo;t have to extend or implement any special class, but the called method must return a <a href="https://github.com/symfony/symfony/blob/7.1/src/Symfony/Component/Routing/RouteCollection.php" title="Symfony\Component\Routing\RouteCollection">RouteCollection</a> object.</p>
-</blockquote>
-</div>
-  </div>
-</div>
-<p>All good points</p>
-<ul>
-<li>We create an invokable service class</li>
-<li>Implement the <code>RouteLoaderInterface</code></li>
-<li>Let it return a <code>RouteCollection</code></li>
-</ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>app/src
-</span></span><span style="display:flex;"><span>├─ Blog
-</span></span><span style="display:flex;"><span>│ └─ Application
-</span></span><span style="display:flex;"><span>│   └─ CreateArticleController.php
-</span></span><span style="display:flex;"><span>├─ Registration
-</span></span><span style="display:flex;"><span>│ └─ Application
-</span></span><span style="display:flex;"><span>│   └─ CreateAccountController.php
-</span></span><span style="display:flex;"><span>├─ Shared
-</span></span><span style="display:flex;"><span>│ └─ Application
-</span></span><span style="display:flex;"><span>│   └─ Routing
-</span></span><span style="display:flex;"><span>│     └─ RouteLoader.php &lt;<span style="color:#ff79c6">===</span> here
-</span></span><span style="display:flex;"><span>└─ Kernel.php
-</span></span></code></pre></div><p>The Loader class:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#ff79c6">&lt;?</span>php  
-</span></span><span style="display:flex;"><span>  
-</span></span><span style="display:flex;"><span><span style="color:#ff79c6">declare</span>(strict_types<span style="color:#ff79c6">=</span><span style="color:#bd93f9">1</span>);  
-</span></span><span style="display:flex;"><span>  
-</span></span><span style="display:flex;"><span><span style="color:#ff79c6">namespace</span> App\Shared\Application\Routing;  
-</span></span><span style="display:flex;"><span>  
-</span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> ReflectionClass;  
-</span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> Symfony\Bundle\FrameworkBundle\Routing\RouteLoaderInterface;  
-</span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> Symfony\Component\Finder\Finder;  
-</span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> Symfony\Component\Routing\Attribute\Route <span style="color:#ff79c6">as</span> RouteAttribute;  
-</span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> Symfony\Component\Routing\Route;  
-</span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> Symfony\Component\Routing\RouteCollection;  
-</span></span><span style="display:flex;"><span>  
-</span></span><span style="display:flex;"><span><span style="color:#ff79c6">class</span> <span style="color:#50fa7b">RouteLoader</span> <span style="color:#ff79c6">implements</span> RouteLoaderInterface  
-</span></span><span style="display:flex;"><span>{  
-</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">private</span> bool <span style="color:#8be9fd;font-style:italic">$isLoaded</span> <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">false</span>;  
-</span></span><span style="display:flex;"><span>  
-</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">public</span> <span style="color:#ff79c6">function</span> __construct(<span style="color:#ff79c6">private</span> readonly string <span style="color:#8be9fd;font-style:italic">$routeLoaderBaseDirectory</span>)  
-</span></span><span style="display:flex;"><span>    {  
-</span></span><span style="display:flex;"><span>    }  
-</span></span><span style="display:flex;"><span> 
-</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">public</span> <span style="color:#ff79c6">function</span> __invoke(mixed <span style="color:#8be9fd;font-style:italic">$resource</span>, string <span style="color:#8be9fd;font-style:italic">$type</span> <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">null</span>)<span style="color:#ff79c6">:</span> RouteCollection  
-</span></span><span style="display:flex;"><span>    {
-</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">if</span> (<span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">isLoaded</span>) {  
-</span></span><span style="display:flex;"><span>            <span style="color:#ff79c6">throw</span> <span style="color:#ff79c6">new</span> \RuntimeException(<span style="color:#f1fa8c">&#39;Do not add this loader twice.&#39;</span>);
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$routeCollection</span> <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> RouteCollection();  
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$finder</span> <span style="color:#ff79c6">=</span> self<span style="color:#ff79c6">::</span><span style="color:#50fa7b">fromDirectories</span>(
-</span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">routeLoaderBaseDirectory</span>,
-</span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">routeLoaderBaseDirectory</span> <span style="color:#ff79c6">.</span> <span style="color:#f1fa8c">&#39;/*/**&#39;</span>,
-</span></span><span style="display:flex;"><span>        );
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">foreach</span> (<span style="color:#8be9fd;font-style:italic">$finder</span> <span style="color:#ff79c6">as</span> <span style="color:#8be9fd;font-style:italic">$file</span>) {
-</span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">$className</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getClassNameFromFile</span>(<span style="color:#8be9fd;font-style:italic">$file</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getRealPath</span>());
-</span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">$namespace</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getClassNamespaceFromFile</span>(<span style="color:#8be9fd;font-style:italic">$file</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getRealPath</span>());
-</span></span><span style="display:flex;"><span>            <span style="color:#ff79c6">if</span> (<span style="color:#ff79c6">!</span><span style="color:#8be9fd;font-style:italic">$className</span> <span style="color:#ff79c6">||</span> <span style="color:#ff79c6">!</span><span style="color:#8be9fd;font-style:italic">$namespace</span>) {
-</span></span><span style="display:flex;"><span>                <span style="color:#ff79c6">continue</span>;
-</span></span><span style="display:flex;"><span>            }
-</span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">$fullQualifiedClassName</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$namespace</span> <span style="color:#ff79c6">.</span> <span style="color:#f1fa8c">&#39;\\&#39;</span> <span style="color:#ff79c6">.</span> <span style="color:#8be9fd;font-style:italic">$className</span>;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>            <span style="color:#6272a4">// Use reflection to check for Symfony Route attributes
-</span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>            <span style="color:#8be9fd;font-style:italic">$reflectionClass</span> <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> ReflectionClass(<span style="color:#8be9fd;font-style:italic">$fullQualifiedClassName</span>);
-</span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">$attributes</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getRouteAttributes</span>(<span style="color:#8be9fd;font-style:italic">$reflectionClass</span>);
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>            <span style="color:#6272a4">// Handle class-level attributes for invokable controller classes
-</span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>            <span style="color:#ff79c6">if</span> (<span style="color:#8be9fd;font-style:italic">$reflectionClass</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">hasMethod</span>(<span style="color:#f1fa8c">&#39;__invoke&#39;</span>)) {
-</span></span><span style="display:flex;"><span>                <span style="color:#ff79c6">foreach</span> (<span style="color:#8be9fd;font-style:italic">$attributes</span> <span style="color:#ff79c6">as</span> <span style="color:#8be9fd;font-style:italic">$routeAttribute</span>) {
-</span></span><span style="display:flex;"><span>                    <span style="color:#8be9fd;font-style:italic">$route</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">createRouteFromAttribute</span>(<span style="color:#8be9fd;font-style:italic">$routeAttribute</span>);
-</span></span><span style="display:flex;"><span>                    <span style="color:#8be9fd;font-style:italic">$routeName</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$routeAttribute</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getName</span>() <span style="color:#ff79c6">??</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">generateRouteName</span>(<span style="color:#8be9fd;font-style:italic">$fullQualifiedClassName</span>, <span style="color:#f1fa8c">&#39;__invoke&#39;</span>); 
-</span></span><span style="display:flex;"><span>                    <span style="color:#8be9fd;font-style:italic">$routeCollection</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">add</span>(<span style="color:#8be9fd;font-style:italic">$routeName</span>, <span style="color:#8be9fd;font-style:italic">$route</span>);
-</span></span><span style="display:flex;"><span>                }
-</span></span><span style="display:flex;"><span>                <span style="color:#ff79c6">continue</span>; <span style="color:#6272a4">// there should only be a class declaration when invokable
-</span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>            }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>            <span style="color:#6272a4">// Handle method-level attributes
-</span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>            <span style="color:#ff79c6">foreach</span> (<span style="color:#8be9fd;font-style:italic">$reflectionClass</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getMethods</span>() <span style="color:#ff79c6">as</span> <span style="color:#8be9fd;font-style:italic">$method</span>) {
-</span></span><span style="display:flex;"><span>                <span style="color:#ff79c6">foreach</span> (<span style="color:#8be9fd;font-style:italic">$attributes</span> <span style="color:#ff79c6">as</span> <span style="color:#8be9fd;font-style:italic">$routeAttribute</span>) {
-</span></span><span style="display:flex;"><span>                    <span style="color:#8be9fd;font-style:italic">$route</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">createRouteFromAttribute</span>(<span style="color:#8be9fd;font-style:italic">$routeAttribute</span>);
-</span></span><span style="display:flex;"><span>                    <span style="color:#8be9fd;font-style:italic">$routeName</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$routeAttribute</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getName</span>() <span style="color:#ff79c6">??</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">generateRouteName</span>(<span style="color:#8be9fd;font-style:italic">$fullQualifiedClassName</span>, <span style="color:#8be9fd;font-style:italic">$method</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">getName</span>());
-</span></span><span style="display:flex;"><span>                    <span style="color:#8be9fd;font-style:italic">$routeCollection</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">add</span>(<span style="color:#8be9fd;font-style:italic">$routeName</span>, <span style="color:#8be9fd;font-style:italic">$route</span>);
-</span></span><span style="display:flex;"><span>                }
-</span></span><span style="display:flex;"><span>            }
-</span></span><span style="display:flex;"><span>        }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">isLoaded</span> <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">true</span>;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">return</span> <span style="color:#8be9fd;font-style:italic">$routeCollection</span>;
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span>    <span style="color:#6272a4">// ...
-</span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>}
-</span></span></code></pre></div><p>See full <a href="https://gist.github.com/dazz/151ed59887dc0299c4f462c33b701c94">gist.github.com/dazz of RouteLoader.php</a></p>
-<p>Add the class in the routing config:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># app/config/routing.yaml</span>
-</span></span><span style="display:flex;"><span><span style="color:#ff79c6">controllers</span>:  
-</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">resource</span>: App\Shared\Application\Routing\RouteLoader  
-</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">type</span>: service
-</span></span></code></pre></div><p>One thing still left to do is make the path with the <code>$routeLoaderBaseDirectory</code> in the service configuration autowirable.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># app/config/services.yaml</span>
-</span></span><span style="display:flex;"><span><span style="color:#ff79c6">parameters</span>:  
-</span></span><span style="display:flex;"><span>  
-</span></span><span style="display:flex;"><span><span style="color:#ff79c6">services</span>:  
-</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">_defaults</span>:  
-</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">autowire</span>: <span style="color:#ff79c6">true</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">autoconfigure</span>: <span style="color:#ff79c6">true</span>
-</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">bind</span>:
-</span></span><span style="display:flex;"><span>            <span style="color:#ff79c6">string $routeLoaderBaseDirectory</span>: <span style="color:#f1fa8c">&#39;%kernel.project_dir%/src&#39;</span>
-</span></span></code></pre></div><h2 id="controller">Controller</h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#ff79c6">namespace</span> App\Registration\Application;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> Symfony\Component\HttpFoundation\Request;
-</span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> Symfony\Component\HttpKernel\Attribute\AsController;
-</span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> Symfony\Component\Routing\Attribute\Route;
-</span></span><span style="display:flex;"><span>
-</span></span><span style="display:flex;"><span><span style="color:#6272a4">#[AsController] # to make it autowirable
-</span></span></span><span style="display:flex;"><span><span style="color:#6272a4">#[Route(
-</span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>    path<span style="color:#ff79c6">:</span> <span style="color:#f1fa8c">&#39;/registration/createaccount&#39;</span>,
-</span></span><span style="display:flex;"><span>    name<span style="color:#ff79c6">:</span> <span style="color:#f1fa8c">&#39;app_registration_createaccount&#39;</span>,
-</span></span><span style="display:flex;"><span>    methods<span style="color:#ff79c6">:</span> [Request<span style="color:#ff79c6">::</span><span style="color:#50fa7b">METHOD_POST</span>]
-</span></span><span style="display:flex;"><span>)]
-</span></span><span style="display:flex;"><span><span style="color:#ff79c6">final</span> readonly <span style="color:#ff79c6">class</span> <span style="color:#50fa7b">CreateAccountController</span>
-</span></span><span style="display:flex;"><span>{
-</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">public</span> <span style="color:#ff79c6">function</span> __invoke(CreateAccountRequest <span style="color:#8be9fd;font-style:italic">$request</span>)<span style="color:#ff79c6">:</span> CreateAccountResponse
-</span></span><span style="display:flex;"><span>    {
-</span></span><span style="display:flex;"><span>        <span style="color:#6272a4">// create account logic
-</span></span></span><span style="display:flex;"><span><span style="color:#6272a4"></span>        <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">new</span> CreateAccountResponse();
-</span></span><span style="display:flex;"><span>    }
-</span></span><span style="display:flex;"><span>}
-</span></span></code></pre></div><h2 id="binconsole-debugrouter"><code>bin/console debug:router</code></h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>&gt; bin/console debug:router
-</span></span><span style="display:flex;"><span> -------------------------------- -------- -------- ------ ----------------------------- 
-</span></span><span style="display:flex;"><span>  Name                             Method   Scheme   Host   Path                         
-</span></span><span style="display:flex;"><span> -------------------------------- -------- -------- ------ ----------------------------- 
-</span></span><span style="display:flex;"><span>  app_blog_createarticle           POST     ANY      ANY    /blog/article  
-</span></span><span style="display:flex;"><span>  app_registration_createaccount   POST     ANY      ANY    /registration/account
-</span></span><span style="display:flex;"><span> -------------------------------- -------- -------- ------ -----------------------------
-</span></span></code></pre></div><h2 id="happy-loading-routes-everyone">Happy loading routes everyone!</h2>
-<h4 id="more-sources">More sources</h4>
-<ul>
-<li><a href="https://gist.github.com/dazz/151ed59887dc0299c4f462c33b701c94">gist.github.com/dazz RouteLoader.php</a></li>
-<li><a href="https://tomasvotruba.com/blog/2-tricks-to-get-your-symfony-configs-lines-to-minimum">tomasvotruba.com - 2 Tricks to get your Symfony configs lines to minimum</a></li>
-</ul>
-]]></description><media:thumbnail url="https://blog.dazzlog.de/loading-route-in-a-symphonical-way.webp"/></item><item><title>Environment variables in a dockerized Symfony</title><link>https://blog.dazzlog.de/posts/2023-01-02_environment-variables-in-a-dockerized-symfony/</link><pubDate>Mon, 02 Jan 2023 19:24:18 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2023-01-02_environment-variables-in-a-dockerized-symfony/</guid><description><![CDATA[<p>I have developed a <strong>Symfony Web-Application</strong>, and it runs locally in a dockerized environment with docker-compose. This app is going to be deployed to production as a docker container.
+]]></description><media:thumbnail url="https://blog.dazzlog.de/s6-overlay.webp"/></item><item><title>Environment variables in a dockerized Symfony</title><link>https://blog.dazzlog.de/posts/2023-01-02_environment-variables-in-a-dockerized-symfony/</link><pubDate>Mon, 02 Jan 2023 19:24:18 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2023-01-02_environment-variables-in-a-dockerized-symfony/</guid><description><![CDATA[<p>I have developed a <strong>Symfony Web-Application</strong>, and it runs locally in a dockerized environment with docker-compose. This app is going to be deployed to production as a docker container.
 In production the handling of environment variables and how they are passed to the container during development is different.</p>
 <h2 id="12-factor-app">12 Factor App</h2>
 <p>A few points from the <a href="https://12factor.net">12factor methodology</a>:</p>
@@ -730,13 +579,15 @@ Also, we learned that there is a simple way in Symfony to migrate to environment
 </span></span></code></pre></div><p>Read more about the options you get when using <a href="https://github.com/marketplace/actions/hugo-setup">peaceiris/actions-hugo</a> and <a href="https://github.com/marketplace/actions/github-pages-action">peaceiris/actions-gh-pages</a>.</p>
 <h2 id="customization">Customization</h2>
 <p>Now the customization party can start. All the options are listed in the <code>config.toml</code>.</p>
-<h2 id="happy-blogging-ohttpsdazzgithubio"><a href="https://dazz.github.io">Happy blogging \o/</a></h2>
+<h2 id="happy-blogging-o"><a href="https://dazz.github.io">Happy blogging \o/</a></h2>
 ]]></description><media:thumbnail url="https://blog.dazzlog.de/hugo.png"/></item><item><title>Hello, world!</title><link>https://blog.dazzlog.de/posts/2022-12-26_hello-world/</link><pubDate>Mon, 26 Dec 2022 21:29:35 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2022-12-26_hello-world/</guid><description><![CDATA[<h2 id="introduction">Introduction</h2>
 <p>This is <strong>bold</strong> text, and this is <em>emphasized</em> text.</p>
 <p>Visit the <a href="https://gohugo.io">Hugo</a> website!</p>
 ]]></description></item><item><title>about</title><link>https://blog.dazzlog.de/about/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog.dazzlog.de/about/</guid><description><![CDATA[<p>I love programming and most parts of it is trying to figure out how things can be used to make the life easier for everyone.</p>
-<p>Symfony is making my life easier since 2012, and I&rsquo;m now the organizer of the Symfony Usergroup Berlin.</p>
-<p>I&rsquo;m member of c-base the crashed space station in berlin and there I experiment with all the other carbon based beings how to interact in a future compatible style.</p>
+<p>Symfony is making my life easier since 2012, and since 2021 I&rsquo;m the organizer of the Symfony User Group Berlin.</p>
+<p>I&rsquo;m member of c-base, the crashed space station in berlin and there I experiment with all the other carbon based
+beings how to interact in a future compatible way.</p>
+<p><a href="/talks/">Sometimes I talk at conferences</a> about things I discover and think they might be useful for others.</p>
 <h2 id="references">References</h2>
 <ul>
 <li>Logo: <a href="https://de.freepik.com/vektoren-kostenlos/niedlich-astronaut-arbeitende-mit-computer-karikatur-vektor-symbol-illustration-wissenschafts-technologie-ikonen-konzept-lokalisierter-erstklassiger-vektor-flacher-cartoon-stil_22750865.htm#query=space%20logo&amp;position=19&amp;from_view=search&amp;track=sph">Bild von catalyststuff auf Freepik</a></li>
@@ -767,6 +618,36 @@ Der Nutzung von im Rahmen der Impressumspflicht veröffentlichten Kontaktdaten d
 <h3 id="google-adsense">Google AdSense</h3>
 <p>Diese Website benutzt Google Adsense, einen Webanzeigendienst der Google Inc., USA (&lsquo;&lsquo;Google&rsquo;&rsquo;). Google Adsense verwendet sog. &lsquo;&lsquo;Cookies&rsquo;&rsquo; (Textdateien), die auf Ihrem Computer gespeichert werden und die eine Analyse der Benutzung der Website durch Sie ermöglicht. Google Adsense verwendet auch sog. &lsquo;&lsquo;Web Beacons&rsquo;&rsquo; (kleine unsichtbare Grafiken) zur Sammlung von Informationen. Durch die Verwendung des Web Beacons können einfache Aktionen wie der Besucherverkehr auf der Webseite aufgezeichnet und gesammelt werden. Die durch den Cookie und/oder Web Beacon erzeugten Informationen über Ihre Benutzung dieser Website (einschließlich Ihrer IP-Adresse) werden an einen Server von Google in den USA übertragen und dort gespeichert. Google wird diese Informationen benutzen, um Ihre Nutzung der Website im Hinblick auf die Anzeigen auszuwerten, um Reports über die Websiteaktivitäten und Anzeigen für die Websitebetreiber zusammenzustellen und um weitere mit der Websitenutzung und der Internetnutzung verbundene Dienstleistungen zu erbringen. Auch wird Google diese Informationen gegebenenfalls an Dritte übertragen, sofern dies gesetzlich vorgeschrieben oder soweit Dritte diese Daten im Auftrag von Google verarbeiten. Google wird in keinem Fall Ihre IP-Adresse mit anderen Daten der Google in Verbindung bringen. Das Speichern von Cookies auf Ihrer Festplatte und die Anzeige von Web Beacons können Sie verhindern, indem Sie in Ihren Browser-Einstellungen &lsquo;&lsquo;keine Cookies akzeptieren&rsquo;&rsquo; wählen (Im MS Internet-Explorer unter &lsquo;&lsquo;Extras &gt; Internetoptionen &gt; Datenschutz &gt; Einstellung&rsquo;&rsquo;; im Firefox unter &lsquo;&lsquo;Extras &gt; Einstellungen &gt; Datenschutz &gt; Cookies&rsquo;&rsquo;); wir weisen Sie jedoch darauf hin, dass Sie in diesem Fall gegebenenfalls nicht sämtliche Funktionen dieser Website voll umfänglich nutzen können. Durch die Nutzung dieser Website erklären Sie sich mit der Bearbeitung der über Sie erhobenen Daten durch Google in der zuvor beschriebenen Art und Weise und zu dem zuvor benannten Zweck einverstanden.</p>
 <p>Website Impressum erstellt durch impressum-generator.de von der Kanzlei Hasselbach</p>
+]]></description></item><item><title>talks</title><link>https://blog.dazzlog.de/talks/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog.dazzlog.de/talks/</guid><description><![CDATA[<h2 id="2025">2025</h2>
+<ul>
+<li><a href="https://live.symfony.com/2025-berlin/">SymfonyLive Berlin 2025</a> – <a href="https://live.symfony.com/2025-berlin/schedule/running-symfony-in-a-multi-process-container">Running Symfony in a Multi-Process Container</a></li>
+</ul>
+<h2 id="2024">2024</h2>
+<ul>
+<li><a href="https://live.symfony.com/2024-vienna-con/">SymfonyCon Vienna 2024</a> – <a href="https://live.symfony.com/2024-vienna-con/schedule/running-symfony-in-a-multi-process-container">Running Symfony in a Multi-Process Container</a></li>
+<li><a href="https://phpdd.org/">#PHPDD24</a> – <a href="https://phpdd.org/#speaker-7">Running PHP-Applications in a Multi-Process Container</a></li>
+<li><a href="https://www.meetup.com/de-DE/sfugberlin">Symfony User Group Berlin</a> - <a href="https://www.meetup.com/de-DE/sfugberlin/events/303072411">s6-overlay: Symfony in a Multi-Process container</a></li>
+</ul>
+<h2 id="2023">2023</h2>
+<ul>
+<li><a href="https://live.symfony.com/2023-brussels-con/">SymfonyCon Brussels 2023</a> – From Chaos to Control: Exception Handling in Symfony</li>
+<li><a href="https://live.symfony.com/2023-berlin/">SymfonyLive Berlin 2023</a> – <a href="https://speakerdeck.com/dazz/von-chaos-zu-kontrolle-exception-handling-in-symfony">Von Chaos zu Kontrolle: Exception Handling in
+Symfony</a></li>
+<li><a href="https://www.meetup.com/de-DE/sfugberlin">Symfony User Group Berlin</a> - <a href="https://www.meetup.com/de-DE/sfugberlin/events/296791213">From Chaos to Control: Exception Handling in Symfony</a></li>
+</ul>
+<h2 id="2018">2018</h2>
+<ul>
+<li><a href="https://live.symfony.com/2018-berlin/">SymfonyLive Berlin 2018</a> – <a href="https://speakerdeck.com/dazz/wie-man-dinge-gut-benennt">Wie man Dinge gut benennt: Naming things
+considered hard</a></li>
+</ul>
+<h2 id="2015">2015</h2>
+<ul>
+<li>PHPUK15 – <a href="https://speakerdeck.com/dazz/naming-things">Naming things – The art of writing meaningful code</a></li>
+</ul>
+<h2 id="2014">2014</h2>
+<ul>
+<li><a href="https://www.bephpug.de/">BePhpUg</a> – <a href="https://speakerdeck.com/dazz/nomen-est-omen-naming-things-considered-hard">Nomen est Omen - Naming things considered hard</a></li>
+</ul>
 ]]></description></item><item><title>ui</title><link>https://blog.dazzlog.de/ui/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog.dazzlog.de/ui/</guid><description><![CDATA[<h2 id="admonition">Admonition</h2>
 <div class="details admonition note open">
   <div class="details-summary admonition-title">
@@ -778,7 +659,7 @@ Der Nutzung von im Rahmen der Impressumspflicht veröffentlichten Kontaktdaten d
 </div>
 <div class="details admonition abstract open">
   <div class="details-summary admonition-title">
-    <i class="icon ">&#Xf03a;</i> This is a abstract<i class="details-icon fas fa-angle-right fa-fw"></i>
+    <i class="icon ">&#xf15c;</i> This is a abstract<i class="details-icon fas fa-angle-right fa-fw"></i>
   </div>
   <div class="details-content">
     <div class="admonition-content">Lorem Ipsum</div>
@@ -888,4 +769,14 @@ Der Nutzung von im Rahmen der Impressumspflicht veröffentlichten Kontaktdaten d
     <div class="admonition-content">Lorem Ipsum</div>
   </div>
 </div>
+<div class="details admonition tldr open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf259;</i> This is a tldr;<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Lorem Ipsum</div>
+  </div>
+</div>
+<h2 id="fontawesome-cheat-sheet">FontAwesome cheat sheet</h2>
+<p><a href="https://forkaweso.me/Fork-Awesome/cheatsheet/">https://forkaweso.me/Fork-Awesome/cheatsheet/</a></p>
 ]]></description></item></channel></rss>

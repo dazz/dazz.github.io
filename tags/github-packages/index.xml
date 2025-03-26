@@ -1,2 +1,59 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Github-Packages on DazzLog</title><link>https://blog.dazzlog.de/tags/github-packages/</link><description>Recent content in Github-Packages on DazzLog</description><generator>Hugo</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Wed, 28 Dec 2022 00:25:38 +0100</lastBuildDate><atom:link href="https://blog.dazzlog.de/tags/github-packages/index.xml" rel="self" type="application/rss+xml"/><item><title>Build and push docker images to ghcr.io with GitHub Actions</title><link>https://blog.dazzlog.de/posts/2022-12-28_build-and-push-docker-images-to-ghcr-with-github-actions/</link><pubDate>Wed, 28 Dec 2022 00:25:38 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2022-12-28_build-and-push-docker-images-to-ghcr-with-github-actions/</guid><description>When you host your project code on GitHub and want to release it as a docker image for deployment or just publish it, the way to go are GitHub actions. Actions are basically hooks that can start CI/DC workflows on repository events.
-GitHub actions can be used to build and push images to GitHub’s Container Registry which are reachable under https://ghcr.io which is part of the package registry. The package registry is not only for docker images, it can also host quite a few other kinds of packages.</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>Github-Packages on DazzLog</title><link>https://blog.dazzlog.de/tags/github-packages/</link><description>Recent content in Github-Packages on DazzLog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Wed, 28 Dec 2022 00:25:38 +0100</lastBuildDate><atom:link href="https://blog.dazzlog.de/tags/github-packages/index.xml" rel="self" type="application/rss+xml"/><icon>https://blog.dazzlog.de/logo.svg</icon><item><title>Build and push docker images to ghcr.io with GitHub Actions</title><link>https://blog.dazzlog.de/posts/2022-12-28_build-and-push-docker-images-to-ghcr-with-github-actions/</link><pubDate>Wed, 28 Dec 2022 00:25:38 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2022-12-28_build-and-push-docker-images-to-ghcr-with-github-actions/</guid><description><![CDATA[<p>When you host your project code on GitHub and want to release it as a docker image for deployment or just publish it, the way to go are GitHub actions. Actions are basically hooks that can start CI/DC workflows on repository events.</p>
+<p>GitHub actions can be used to build and push images to GitHub’s Container Registry which are reachable under <a href="https://ghcr.io">https://ghcr.io</a> which is part of the package registry. The package registry is not only for docker images, it can also host quite a few other kinds of packages. In this case we’ll focus on docker images.</p>
+<h2 id="prerequisites"><strong>Prerequisites</strong>:</h2>
+<ul>
+<li>GitHub Repository</li>
+<li>Basic Knowledge about GitHub actions syntax</li>
+<li>Dockerfile</li>
+</ul>
+<h2 id="the-github-workflow">The GitHub Workflow</h2>
+<p>I created a workflow in my repository under <code>.github/workflow/cd.md</code> and added the following:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ff79c6">name</span>: Continuous Delivery
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">on</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">push</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">branches</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#f1fa8c">&#39;main&#39;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">tags</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#f1fa8c">&#39;v*.*.*&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">jobs</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">build</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">name</span>: Buid and push Docker image to GitHub Container registry
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">runs-on</span>: ubuntu-latest
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">permissions</span>:
+</span></span><span style="display:flex;"><span>      <span style="color:#ff79c6">packages</span>: write
+</span></span><span style="display:flex;"><span>      <span style="color:#ff79c6">contents</span>: read
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">steps</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#ff79c6">name</span>: Checkout the repository
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">uses</span>: actions/checkout@v3
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#ff79c6">name</span>: Docker Setup Buildx
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">uses</span>: docker/setup-buildx-action@v2.2.1
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#ff79c6">name</span>: Docker Login
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">uses</span>: docker/login-action@v2.1.0
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">registry</span>: ghcr.io
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">username</span>: ${{ github.actor }}
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">password</span>: ${{ secrets.GITHUB_TOKEN }}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      - <span style="color:#ff79c6">name</span>: Build and push Docker images
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">uses</span>: docker/build-push-action@v3.2.0
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">env</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">REGISTRY</span>: ghcr.io
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">IMAGE_NAME</span>: ${{ github.repository }}
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">with</span>:
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">context</span>: .
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">file</span>: ./Dockerfile
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">target</span>: final
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">push</span>: <span style="color:#ff79c6">true</span>
+</span></span><span style="display:flex;"><span>          <span style="color:#ff79c6">tags</span>: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+</span></span></code></pre></div><h2 id="lets-go-through-the-important-parts">Let’s go through the important parts:</h2>
+<p><strong>Permissions</strong>: Actions have access to the repo while running. We should always make sure by setting the permissions, that actions have the minimum access they require. See here: permissions for the <code>github_token</code></p>
+<p><strong>Step 1–2: Checkout the code and Setup docker</strong></p>
+<p><strong>Step 3: Login to GitHub Container Registry</strong>: This is where the interesting part starts. <code>github.actor</code> is the user that triggers the workflow. For password use <code>secrets.GITHUB_TOKEN</code> which is a temporary token which is automatically generated for this workflow. See here: publishing images to github-packages.</p>
+<p><strong>Step 4: Build and push Docker images</strong>: If the registry that you want to push to belongs to an organization then you will need to add permissions to create packages. If it lives under your own handle you don’t need to configure anything more since you are the owner already and the <code>secrets.GITHUB_TOKEN</code> has all the permissions granted.</p>
+<p>The action will consume the Dockerfile and build the image up to the target build step that you can define. In docker the repository where the image will be hosted is also part of the tag. Setting the image name to the repository name will create an image with the following tag: <code>ghcr.io/OWNER/IMAGE_NAME:latest</code></p>
+<p>Read more here: pushing container images</p>
+<h2 id="happy-shipping-o">Happy shipping \o/</h2>
+]]></description><media:thumbnail url="https://blog.dazzlog.de/dockergithub.png"/></item></channel></rss>
