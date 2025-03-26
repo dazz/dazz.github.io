@@ -32,6 +32,7 @@ summaryLength = 70
     articleSummary = true  # show a summary in article preview; default true
 
     enableShareOnFediverse = true
+    tocBeforeImage = false  # show the table of contents before the main article image; default false
 
     # redirect to baseURL if current URL host doesn't match
     # useful if deploying in gitlab pages with custom domain and don't want
@@ -75,7 +76,7 @@ summaryLength = 70
     underlineTitleLinks = false  # show an underline also for links that are titles
 
     # alternative sidebar layout
-    enableSidebarLayout = false
+    enableSidebarLayout = true
     tocInSidebar = true  # if the sidebar is enbabled, show the TOC in the sidebar
 
 [markup]
@@ -89,7 +90,7 @@ summaryLength = 70
     [markup.tableOfContents]
         endLevel = 5
         ordered = false
-        startLevel = 1
+        startLevel = 2
 
 [menu]
     [[menu.main]]
