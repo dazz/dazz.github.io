@@ -1,4 +1,438 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>Posts on DazzLog</title><link>https://blog.dazzlog.de/posts/</link><description>Recent content in Posts on DazzLog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Wed, 26 Mar 2025 23:42:23 +0100</lastBuildDate><atom:link href="https://blog.dazzlog.de/posts/index.xml" rel="self" type="application/rss+xml"/><icon>https://blog.dazzlog.de/logo.svg</icon><item><title>Manage s6-overlay setup with s6-cli</title><link>https://blog.dazzlog.de/posts/2024-12-06_s6-cli/</link><pubDate>Fri, 06 Dec 2024 23:42:23 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2024-12-06_s6-cli/</guid><description><![CDATA[<p>I developed a small cli in golang to ease creating, validating and documenting services that s6 supervises.</p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>Posts on DazzLog</title><link>https://blog.dazzlog.de/posts/</link><description>Recent content in Posts on DazzLog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Wed, 26 Mar 2025 20:42:23 +0100</lastBuildDate><atom:link href="https://blog.dazzlog.de/posts/index.xml" rel="self" type="application/rss+xml"/><icon>https://blog.dazzlog.de/logo.svg</icon><item><title>Mastering Multi-Process Containers: Running PHP Applications with s6-overlay</title><link>https://blog.dazzlog.de/posts/2025-03-26_running-php-in-a-multi-process-container/</link><pubDate>Wed, 26 Mar 2025 20:42:23 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2025-03-26_running-php-in-a-multi-process-container/</guid><description><![CDATA[<h2 id="the-dockerized-development-setup">The Dockerized Development Setup</h2>
+<p>Containerization has completely changed how we build and deploy PHP applications. With Docker, you can make sure that your production environment behaves just like your local setup, which means fewer surprises when you go live.</p>
+<p>In this post, we&rsquo;re diving into running Symfony in a container that runs multiple processes using s6-overlay. We&rsquo;ll explain why having more than one process in a container can be important, how this idea is different from Docker&rsquo;s usual “one process per container” rule, and how s6-overlay makes it easier to run everything together.</p>
+<p>Whether you&rsquo;re new to s6-overlay or looking to improve your container setup, this guide walks you through practical, step-by-step tips to help you run your Symfony apps more smoothly. Enjoy discovering a simpler, more flexible way to work with containers!</p>
+<h2 id="why-two-containers">Why Two Containers?</h2>
+<p>Typically, a Dockerized PHP development environment consists of:</p>
+<ul>
+<li><strong>PHP-FPM Container:</strong> Runs the PHP application.</li>
+<li><strong>NGINX Container:</strong> Serves static files and proxies requests to PHP-FPM.</li>
+</ul>
+<p>And the <code>docker-compose.yaml</code> looks like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># docker-compose.yaml</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">services</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">app</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">image</span>: php:8.4.1-fpm-alpine
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">volumes</span>:
+</span></span><span style="display:flex;"><span>      - ./app:/var/www/html
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">nginx</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">image</span>: nginx:latest
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">ports</span>:
+</span></span><span style="display:flex;"><span>      - <span style="color:#f1fa8c">&#34;8000:80&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">volumes</span>:
+</span></span><span style="display:flex;"><span>      - ./app/public:/var/www/html/public
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">depends_on</span>:
+</span></span><span style="display:flex;"><span>      - app
+</span></span></code></pre></div><p>This setup is common, it comes because of two primary reasons:</p>
+<ul>
+<li>
+<p><strong>Lack of a Built-in Web Server:</strong><br>
+PHP does not include a production-grade HTTP server. Unlike languages like Go or Ruby, PHP relies on external servers (NGINX/Apache) to manage HTTP requests.</p>
+</li>
+<li>
+<p><strong>Docker’s “One Process per Container” Mantra:</strong><br>
+Docker traditionally encourages running a single process per container. The reason for that I will explain a bit
+further down. This leads to separate containers for each service, complicating inter-process communication and health
+monitoring.</p>
+</li>
+</ul>
+<div class="mermaid">
+    
+sequenceDiagram
+    participant Client
+    participant NGINX
+    participant PHP-FPM
+
+    Client->>NGINX: Send HTTP Request (e.g., /index.php)
+    NGINX->>PHP-FPM: Forward Request via FastCGI
+    PHP-FPM->>PHP-FPM: Process PHP Script
+    PHP-FPM->>NGINX: Return Output (HTML, JSON, etc.)
+    NGINX->>Client: Send HTTP Response
+
+</div>
+
+<script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({ startOnLoad: true, theme: "dark" });
+</script>
+<h2 id="why-is-it-a-problem-running-two-containers">Why is it a problem running two containers?</h2>
+<p>When you rely on PHP to build the assets and the webserver needs to have the assets in order to serve them then
+there is a build-time dependency between those to images that you want to deploy.</p>
+<p>You do NOT want to use container volumes in production, it&rsquo;s unreliable what will be in the volume. I had started
+experiments after a colleague stated that and he was right.</p>
+<p>The solution when running with two container I came up with was that the webserver image copies the assets from the
+php image. It always felt hacky and not like the best way to solve.</p>
+<h2 id="overcoming-the-one-process-per-container-constraint">Overcoming the One Process Per Container Constraint</h2>
+<h3 id="understanding-container-isolation">Understanding Container Isolation</h3>
+<div class="details admonition tldr open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf259;</i> tldr;<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">In Docker containers, the first process (PID 1) is responsible for handling system signals and managing child processes. If <code>PID 1</code> doesn&rsquo;t properly handle termination signals like <code>SIGTERM</code>, it can lead to issues such as zombie processes—completed processes that remain in the process table, potentially causing resource exhaustion.</div>
+  </div>
+</div>
+<p>Containers provide isolation by encapsulating an application&rsquo;s filesystem, networking, and process tree. In Docker, the first process started within a container is assigned process ID 1 (PID 1). This process becomes the init process for the container, responsible for handling system signals and managing child processes.</p>
+<p>Docker relies on sending signals like <code>SIGTERM</code> and <code>SIGKILL</code> to the container&rsquo;s <code>PID 1</code> to manage lifecycle events such as stopping or restarting the container. However, if the process running as PID 1 isn&rsquo;t designed to handle these signals properly, it may not terminate gracefully upon receiving a termination signal. This can lead to issues like zombie processes—processes that have completed execution but still have an entry in the process table because their parent hasn&rsquo;t acknowledged their termination. Zombie processes can accumulate over time, leading to resource exhaustion and degraded system performance.</p>
+<p>To mitigate these issues, it&rsquo;s important to ensure that the process running as PID 1 in your container can handle system signals appropriately and manage child processes effectively. One approach is to use a minimal init system or an init-like process as PID 1. These init systems are designed to forward signals to child processes and reap zombie processes, ensuring proper process management within the container. For instance, using the exec command in shell scripts can replace the shell process with the intended application process, ensuring it becomes PID 1 and can handle signals directly.</p>
+<p>Alternatively, Docker provides the &ndash;init flag, which runs an init process as PID 1. This init process is responsible for forwarding signals and reaping zombie processes, thereby improving the container&rsquo;s process management.</p>
+<p>By addressing the PID 1 signal handling and zombie reaping issues, you can ensure that your containerized applications are more robust, responsive to lifecycle events, and free from resource leaks caused by lingering zombie processes.</p>
+<div class="mermaid">
+    
+sequenceDiagram
+    participant Host as Docker Host
+    participant Container as Docker Container
+    participant PID1 as PID 1 Process
+    participant Child as Child Process
+
+    Host->>Container: docker stop app
+    Container->>PID1: SIGTERM
+    alt PID1 handles SIGTERM
+        PID1->>Child: Forward SIGTERM
+        Child->>PID1: Termination Acknowledgment
+        PID1->>Container: Exit
+    else PID1 does not handle SIGTERM
+        Note right of PID1: Child processes may become zombies
+        Host->>Container: SIGKILL after timeout
+        Container->>PID1: SIGKILL
+        PID1->>Child: Terminate abruptly
+    end
+
+</div>
+
+<script type="module">
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({ startOnLoad: true, theme: "dark" });
+</script>
+<p>What you see here is that when you execute the <code>docker stop</code> command, Docker initiates a graceful shutdown process
+for the specified container. It first sends the <code>SIGTERM</code> signal to the main process inside the container, allowing the application to perform necessary cleanup operations. Docker then waits for a default grace period of 10 seconds. If the process does not terminate within this timeframe, Docker sends the <code>SIGKILL</code> signal to forcefully stop the container.</p>
+<h3 id="the-role-of-s6-overlay">The Role of s6-overlay</h3>
+<div class="details admonition abstract open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf15c;</i> s6-overlay<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content"><blockquote>
+<p>s6-overlay is an easy-to-install (just extract a tarball or two!) set of scripts and utilities allowing you to use existing Docker images while using s6 as a pid 1 for your container and process supervisor for your services.</p></blockquote>
+<p><a href="https://github.com/just-containers/s6-overlay">https://github.com/just-containers/s6-overlay</a></p>
+</div>
+  </div>
+</div>
+<ul>
+<li>
+<p><strong>Providing Proper PID 1 Functionality:</strong><br>
+It ensures that all child processes are managed and that signals are handled gracefully.</p>
+</li>
+<li>
+<p><strong>Versatile Process Management:</strong><br>
+It can supervise both long-running daemons and one-off tasks within the same container.</p>
+</li>
+<li>
+<p><strong>Enabling Dependency and Sequence Control:</strong><br>
+Services can be started or stopped in a controlled order, reducing race conditions and ensuring stability.</p>
+</li>
+<li>
+<p><strong>Facilitating Log Management and Environment Templating:</strong><br>
+Built-in support for logging and easy integration of environment variables makes configuration a breeze.</p>
+</li>
+</ul>
+<h2 id="setting-up-s6-overlay">Setting Up s6-overlay</h2>
+<h3 id="installation">Installation</h3>
+<p>The installation of s6-overlay is straightforward. In your Dockerfile, you typically add and extract two tarballs (one for noarch and one for your architecture). For example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dockerfile" data-lang="dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">FROM</span><span style="color:#f1fa8c"> busybox</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">ARG</span> <span style="color:#8be9fd;font-style:italic">RELEASE_PATH</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;https://github.com/just-containers/s6-overlay/releases/download/v3.2.0.2&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">ADD</span> <span style="color:#8be9fd;font-style:italic">$RELEASE_PATH</span>/s6-overlay-noarch.tar.xz /tmp
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">RUN</span> tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">ADD</span> <span style="color:#8be9fd;font-style:italic">$RELEASE_PATH</span>/s6-overlay-x86_64.tar.xz /tmp
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">RUN</span> tar -C / -Jxpf /tmp/s6-overlay-x86_64.tar.xz
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">ENTRYPOINT</span> [<span style="color:#f1fa8c">&#34;/init&#34;</span>]
+</span></span></code></pre></div><p>Here, <code>/init</code> becomes the container’s entrypoint and will be responsible for process supervision.</p>
+<h3 id="basic-usage">Basic Usage</h3>
+<p>With s6-overlay installed, your container’s command can be defined in two ways:</p>
+<div class="details admonition info open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf05a;</i> Using ENTRYPOINT with `/init`<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">This enables s6-overlay to take over process supervision right from startup.</div>
+  </div>
+</div>
+<div class="details admonition info open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf05a;</i> Using `CMD` for your Application<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">You can set your command (e.g., running PHP scripts) with CMD. This allows you to override the default behavior while still benefiting from s6-overlay’s supervision.</div>
+  </div>
+</div>
+<p>For example:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dockerfile" data-lang="dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">ENTRYPOINT</span> [<span style="color:#f1fa8c">&#34;/init&#34;</span>]
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">CMD</span> [<span style="color:#f1fa8c">&#34;php&#34;</span>, <span style="color:#f1fa8c">&#34;bin/console&#34;</span>, <span style="color:#f1fa8c">&#34;horizon:work&#34;</span>]
+</span></span></code></pre></div><p>In this configuration, even if you override the command, s6-overlay will continue to manage your process lifecycle.</p>
+<h2 id="service-types-in-s6-overlay">Service Types in s6-overlay</h2>
+<p>s6-overlay supports three service types that let you control how processes run within your container:</p>
+<ol>
+<li><strong>Oneshot</strong>: Runs once and exits (e.g., initialization tasks).</li>
+<li><strong>Longrun</strong>: Supervised by s6 (e.g., NGINX or PHP-FPM).</li>
+<li><strong>Bundle</strong>: Groups related services together.</li>
+</ol>
+<p>Let&rsquo;s look into all of them next:</p>
+<h3 id="1-oneshot">1. Oneshot</h3>
+<ul>
+<li><strong>Purpose:</strong> Run a task once (e.g., initialization or migration scripts).</li>
+<li><strong>Configuration Files:</strong>
+<ul>
+<li><code>type</code> (contains “oneshot”)</li>
+<li><code>up</code> (path to the script)</li>
+</ul>
+</li>
+<li><strong>Behavior:</strong> The service runs, completes its task, and then exits.</li>
+</ul>
+<h3 id="2-longrun">2. Longrun</h3>
+<ul>
+<li><strong>Purpose:</strong> Manage long-running processes (daemons such as PHP-FPM or NGINX).</li>
+<li><strong>Configuration Files:</strong>
+<ul>
+<li><code>type</code> (contains “longrun”)</li>
+<li><code>run</code> (executable command/script)</li>
+</ul>
+</li>
+<li><strong>Behavior:</strong> s6-overlay supervises these processes and automatically restarts them if they exit unexpectedly.</li>
+</ul>
+<h3 id="3-bundle">3. Bundle</h3>
+<ul>
+<li><strong>Purpose:</strong> Group related services so they can be started or stopped together.</li>
+<li><strong>Configuration Files:</strong>
+<ul>
+<li><code>type</code> (contains “bundle”)</li>
+<li><code>contents.d</code> (directory listing the grouped services)</li>
+</ul>
+</li>
+<li><strong>Behavior:</strong> Bundles allow you to manage multiple services as a single unit.</li>
+</ul>
+<h2 id="a-step-by-step-example-running-php-fpm-and-nginx">A Step-by-Step Example: Running PHP-FPM and NGINX</h2>
+<h3 id="1-directory-structure">1. Directory Structure</h3>
+<p>Create the service root directory:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>mkdir -p /etc/s6-overlay/s6-rc.d
+</span></span></code></pre></div><p>Then add the <code>user</code> bundle, which s6-overlay expects and uses as the entry point for all service configurations:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
+</span></span><span style="display:flex;"><span>└── user
+</span></span><span style="display:flex;"><span>    ├── contents.d <span style="color:#6272a4"># Directory for service files</span>
+</span></span><span style="display:flex;"><span>    └── <span style="color:#8be9fd;font-style:italic">type</span>  <span style="color:#6272a4"># File contains string &#34;bundle&#34;</span>
+</span></span></code></pre></div><h3 id="2-defining-the-php-fpm-service">2. Defining the PHP-FPM Service</h3>
+<p>Create the PHP-FPM service configuration:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
+</span></span><span style="display:flex;"><span>├── svc-php-fpm
+</span></span><span style="display:flex;"><span>│   ├── run
+</span></span><span style="display:flex;"><span>│   └── <span style="color:#8be9fd;font-style:italic">type</span>  <span style="color:#6272a4"># Contains &#34;longrun&#34;</span>
+</span></span><span style="display:flex;"><span>└── user
+</span></span><span style="display:flex;"><span>    └── contents.d
+</span></span><span style="display:flex;"><span>        └── svc-php-fpm
+</span></span></code></pre></div><p>And in <code>/etc/s6-overlay/s6-rc.d/svc-php-fpm/run</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/execlineb -P
+</span></span></span><span style="display:flex;"><span><span style="color:#ff79c6"></span>/usr/local/sbin/php-fpm --nodaemonize
+</span></span></code></pre></div><h3 id="3-defining-the-nginx-service">3. Defining the NGINX Service</h3>
+<p>Set up the NGINX service with a dependency on PHP-FPM:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
+</span></span><span style="display:flex;"><span>├── svc-nginx
+</span></span><span style="display:flex;"><span>│   ├── dependencies.d
+</span></span><span style="display:flex;"><span>│   │   └── svc-php-fpm
+</span></span><span style="display:flex;"><span>│   ├── run
+</span></span><span style="display:flex;"><span>│   └── <span style="color:#8be9fd;font-style:italic">type</span>  <span style="color:#6272a4"># Contains &#34;longrun&#34;</span>
+</span></span><span style="display:flex;"><span>└── user
+</span></span><span style="display:flex;"><span>    └── contents.d
+</span></span><span style="display:flex;"><span>        └── svc-nginx
+</span></span></code></pre></div><p>And the content of <code>/etc/s6-overlay/s6-rc.d/svc-nginx/run</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/execlineb -P
+</span></span></span><span style="display:flex;"><span><span style="color:#ff79c6"></span>nginx -g <span style="color:#f1fa8c">&#34;daemon off;&#34;</span>
+</span></span></code></pre></div><p>This ensures that NGINX only starts after PHP-FPM is running.</p>
+<h3 id="4-running-the-container">4. Running the Container</h3>
+<p>Once the configuration is in place, launch your container:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run --name s6-demo -d -p 8000:80 s6-demo
+</span></span></code></pre></div><p>Use <code>docker stop</code> to gracefully shut down your container. s6-overlay will handle the shutdown by invoking any configured <code>finish</code> scripts to perform cleanup or adjust exit codes.</p>
+<h2 id="s6-programs">s6 programs</h2>
+<p>Below is an overview of several key s6 programs that come with installing s6-overlay.</p>
+<h3 id="execlineb">execlineb</h3>
+<p>Execlineb is a minimalistic command interpreter that is part of the s6 suite, designed specifically for process supervision and container management. Unlike traditional shells (such as Bash or sh), execlineb is not a full-featured scripting language but rather a purpose-built tool optimized for:</p>
+<ul>
+<li>Deterministic Process Management: It emphasizes predictable execution and precise control over processes.</li>
+<li>Low Overhead: It’s lightweight, making it ideal for container environments where efficiency is key.</li>
+<li>Reliability: With minimal dependencies and a straightforward design, execlineb helps prevent unexpected behavior in critical system scripts.</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/execlineb -P
+</span></span></span><span style="display:flex;"><span><span style="color:#ff79c6"></span><span style="color:#6272a4"># Using the -P flag preserves the environment variables</span>
+</span></span><span style="display:flex;"><span>s6-setuidgid www-data
+</span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">exec</span> /usr/local/sbin/php-fpm --nodaemonize
+</span></span></code></pre></div><p>Read more about it here: <a href="https://skarnet.org/software/execline/">https://skarnet.org/software/execline/</a></p>
+<h3 id="with-contenv"><code>with-contenv</code></h3>
+<p>The <code>with-contenv</code> command is designed to &ldquo;inject&rdquo; the container’s environment variables into the execution context. In containerized environments, it ensures that any environment variables set at the container level are available to the script.</p>
+<p>Opposed to when you do not set it the program you execute will not kow about environment variables of the container.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/with-contenv sh
+</span></span></span><span style="display:flex;"><span><span style="color:#ff79c6"></span>env
+</span></span></code></pre></div><h3 id="s6-setuidgid"><code>s6-setuidgid</code></h3>
+<p>Always drop root privileges before running your service. In <code>execlineb</code>, you can do this as follows:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/execlineb -P
+</span></span></span><span style="display:flex;"><span><span style="color:#ff79c6"></span>s6-setuidgid www-data myservice
+</span></span></code></pre></div><p>Or in a shell script:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/bin/sh
+</span></span></span><span style="display:flex;"><span><span style="color:#ff79c6"></span><span style="color:#8be9fd;font-style:italic">exec</span> s6-setuidgid www-data myservice
+</span></span></code></pre></div><p>Read more about it here: <a href="https://skarnet.org/software/s6/s6-setuidgid.html">https://skarnet.org/software/s6/s6-setuidgid.html</a></p>
+<h2 id="customizing-behavior-with-environment-variables">Customizing Behavior with Environment Variables</h2>
+<p>s6-overlay offers a range of environment variables for fine-tuning its behavior, such as:</p>
+<ul>
+<li><code>S6_BEHAVIOUR_IF_STAGE2_FAILS</code></li>
+<li><code>S6_CMD_WAIT_FOR_SERVICES_MAXTIME</code></li>
+<li><code>S6_KILL_GRACETIME</code></li>
+<li><code>S6_LOGGING</code></li>
+<li>&hellip;and many more.</li>
+</ul>
+<p>These allow you to adapt the container’s behavior to your specific needs.</p>
+<h2 id="automating-tasks-with-recipes">Automating Tasks with Recipes</h2>
+<p>After establishing your basic setup, you might want to extend functionality with additional recipes:</p>
+<h3 id="database-migrations">Database Migrations</h3>
+<p>Define an oneshot service to run your migration scripts:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
+</span></span><span style="display:flex;"><span>├── init-migrations
+</span></span><span style="display:flex;"><span>│   ├── <span style="color:#8be9fd;font-style:italic">type</span>  <span style="color:#6272a4"># Contains &#34;oneshot&#34;</span>
+</span></span><span style="display:flex;"><span>│   └── up
+</span></span><span style="display:flex;"><span>└── scripts
+</span></span><span style="display:flex;"><span>  └── init-migrations
+</span></span></code></pre></div><p>And in the migration script:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/with-contenv sh
+</span></span></span><span style="display:flex;"><span><span style="color:#ff79c6"></span>s6-setuidgid www-data
+</span></span><span style="display:flex;"><span>php /var/www/html/bin/console doctrine:migrations:migrate --no-interaction
+</span></span><span style="display:flex;"><span>php /var/www/html/bin/console doctrine:migrations:status
+</span></span></code></pre></div><h3 id="scheduled-cron-jobs">Scheduled Cron Jobs</h3>
+<p>Symfonys scheduler component replaces cron jobs so you can run scheduled jobs in your application. For this to work you need to have a process running all the time that runs in a loop and asks every time if there is a message scheduled to be triggered.
+Read the complete documentation here: <a href="https://symfony.com/doc/current/scheduler.html">https://symfony.com/doc/current/scheduler.html</a></p>
+<p>Create a longrun service to handle cron-like tasks, such as consuming message queues like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
+</span></span><span style="display:flex;"><span>├── svc-messenger-scheduler
+</span></span><span style="display:flex;"><span>│   ├── dependencies.d
+</span></span><span style="display:flex;"><span>│   │    └── svc-php-fpm
+</span></span><span style="display:flex;"><span>│   ├── <span style="color:#8be9fd;font-style:italic">type</span>
+</span></span><span style="display:flex;"><span>│   └── run
+</span></span><span style="display:flex;"><span>└── user/contents.d/svc-messenger-scheduler
+</span></span></code></pre></div><p>In <code>/etc/s6-overlay/s6-rc.d/svc-messenger-scheduler/run</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/with-contenv sh
+</span></span></span><span style="display:flex;"><span><span style="color:#ff79c6"></span>s6-setuidgid www-data
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>php /var/www/html/bin/console messenger:consume scheduler_default <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>  --time-limit<span style="color:#ff79c6">=</span><span style="color:#bd93f9">300</span> --limit<span style="color:#ff79c6">=</span><span style="color:#bd93f9">10</span> --env<span style="color:#ff79c6">=</span><span style="color:#f1fa8c">`</span>printcontenv APP_ENV<span style="color:#f1fa8c">`</span> --quiet
+</span></span></code></pre></div><h3 id="async-message-handling">Async Message handling</h3>
+<p>Same as the scheduler there is a Symfony Messages component that will be connected to a transport and query for new messages. For that we need a worker service running that will consume messages and dispatch them to message handlers.
+Read the complete documentation here: <a href="https://symfony.com/doc/current/messenger.html">https://symfony.com/doc/current/messenger.html</a></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
+</span></span><span style="display:flex;"><span>├── svc-messenger-async
+</span></span><span style="display:flex;"><span>│   ├── dependencies.d
+</span></span><span style="display:flex;"><span>│   │    └── svc-php-fpm
+</span></span><span style="display:flex;"><span>│   ├── <span style="color:#8be9fd;font-style:italic">type</span>
+</span></span><span style="display:flex;"><span>│   └── run
+</span></span><span style="display:flex;"><span>└── user/contents.d/svc-messenger-async
+</span></span></code></pre></div><p>In <code>/etc/s6-overlay/s6-rc.d/svc-messenger-async/run</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/with-contenv sh
+</span></span></span><span style="display:flex;"><span><span style="color:#ff79c6"></span>s6-setuidgid www-data
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>php /var/www/html/bin/console messenger:consume messenger:consume async <span style="color:#f1fa8c">\
+</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>    --time-limit<span style="color:#ff79c6">=</span><span style="color:#bd93f9">300</span> --limit<span style="color:#ff79c6">=</span><span style="color:#bd93f9">1000</span> --env<span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;</span><span style="color:#ff79c6">$(</span>printcontenv APP_ENV<span style="color:#ff79c6">)</span><span style="color:#f1fa8c">&#34;</span> --quiet
+</span></span></code></pre></div><h3 id="feature-flags-with-s6_stage2_hook">Feature flags with <code>S6_STAGE2_HOOK</code></h3>
+<p>Sometimes you want to deploy a container an turn services on or off depending on the function the container will have.</p>
+<p>Those are the scenarios I came up with:</p>
+<ul>
+<li><strong>migrations</strong>: You want to run migrations but do not want to have to ssh onto the machine where the container is running, exec into it and then execute the script that will execute the migrations. You want to run them when the container starts, but you do not want to execute them always so you want a way how to disable them.</li>
+<li><strong>worker</strong>: You want to run a container not accessible by http, but run worker scripts like for <code>symfony/scheduler</code> or <code>symfony/messenger</code>. Those would not need php-fpm or nginx running. And the workers would not need to run in the same container where the http accessible application is running. But in development it is a different story, there you want to run both.</li>
+</ul>
+<p>Everything is easy with this feature flag script set with the <code>S6_STAGE2_HOOK</code>.
+It enables or disables specific services at startup, tailoring your container behavior to your deployment environment.</p>
+<p>In the Dockerfile:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#6272a4"># set path to feature-toggle script</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">ENV</span> <span style="color:#8be9fd;font-style:italic">S6_STAGE2_HOOK</span><span style="color:#ff79c6">=</span>/etc/s6-overlay/s6-hook/feature-toggle
+</span></span></code></pre></div><p>The <code>feature-toggle</code> script</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/with-contenv sh
+</span></span></span><span style="display:flex;"><span><span style="color:#ff79c6"></span><span style="color:#8be9fd;font-style:italic">INIT_MIGRATIONS</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">FEATURE_INIT_MIGRATIONS</span><span style="color:#ff79c6">:-</span><span style="color:#8be9fd;font-style:italic">false</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">SVC_MESSENGER_SCHEDULER</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">FEATURE_RUN_QUEUE_SCHEDULER</span><span style="color:#ff79c6">:-</span><span style="color:#8be9fd;font-style:italic">false</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">SVC_MESSENGER_ASYNC</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">FEATURE_RUN_QUEUE_ASYNC</span><span style="color:#ff79c6">:-</span><span style="color:#8be9fd;font-style:italic">false</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">SVC_NGINX</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">FEATURE_RUN_NGINX</span><span style="color:#ff79c6">:-</span><span style="color:#8be9fd;font-style:italic">true</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">for</span> feature in <span style="color:#f1fa8c">&#34;INIT_MIGRATIONS SVC_MESSENGER_SCHEDULER SVC_NGINX&#34;</span>; <span style="color:#ff79c6">do</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">is_enabled</span><span style="color:#ff79c6">=</span><span style="color:#ff79c6">$(</span><span style="color:#8be9fd;font-style:italic">eval</span> <span style="color:#8be9fd;font-style:italic">echo</span> <span style="color:#f1fa8c">\$</span><span style="color:#ff79c6">{</span><span style="color:#8be9fd;font-style:italic">$feature</span>:-false<span style="color:#ff79c6">}</span><span style="color:#ff79c6">)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">feature_file</span><span style="color:#ff79c6">=</span><span style="color:#ff79c6">$(</span><span style="color:#8be9fd;font-style:italic">echo</span> <span style="color:#f1fa8c">&#34;</span><span style="color:#8be9fd;font-style:italic">$feature</span><span style="color:#f1fa8c">&#34;</span> | tr <span style="color:#f1fa8c">&#39;[:upper:]&#39;</span> <span style="color:#f1fa8c">&#39;[:lower:]&#39;</span> | tr <span style="color:#f1fa8c">&#39;_&#39;</span> <span style="color:#f1fa8c">&#39;-&#39;</span><span style="color:#ff79c6">)</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">if</span> <span style="color:#ff79c6">[</span> <span style="color:#8be9fd;font-style:italic">$is_enabled</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">false</span> <span style="color:#ff79c6">]</span>; <span style="color:#ff79c6">then</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">echo</span> <span style="color:#f1fa8c">&#34;feature-toggle: info: </span><span style="color:#8be9fd;font-style:italic">$feature</span><span style="color:#f1fa8c"> is disabled. Deleting service: </span><span style="color:#8be9fd;font-style:italic">$feature_file</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>        rm -f <span style="color:#f1fa8c">&#34;/etc/s6-overlay/s6-rc.d/user/contents.d/</span><span style="color:#8be9fd;font-style:italic">$feature_file</span><span style="color:#f1fa8c">&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">fi</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">done</span>
+</span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">exit</span> <span style="color:#bd93f9">0</span>
+</span></span></code></pre></div><p>In the <code>docker-compose.yaml</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ff79c6">services</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">app</span>:
+</span></span><span style="display:flex;"><span>        <span style="color:#6272a4"># ...</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">environment</span>:
+</span></span><span style="display:flex;"><span>            <span style="color:#ff79c6">APP_ENV</span>: <span style="color:#f1fa8c">&#34;dev&#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ff79c6">FEATURE_RUN_NGINX</span>: <span style="color:#f1fa8c">&#34;true&#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ff79c6">FEATURE_RUN_QUEUE_SCHEDULER</span>: <span style="color:#f1fa8c">&#34;true&#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ff79c6">FEATURE_RUN_QUEUE_ASYNC</span>: <span style="color:#f1fa8c">&#34;true&#34;</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#ff79c6">FEATURE_INIT_MIGRATIONS</span>: <span style="color:#f1fa8c">&#34;false&#34;</span>
+</span></span></code></pre></div><h2 id="s6-overlay-base-image">s6-overlay base image</h2>
+<p>I created a base image for s6-overlay which will be build whenever s6-overlay pushes a new version.</p>
+<p><a href="https://github.com/dazz/s6-overlay-base">https://github.com/dazz/s6-overlay-base</a></p>
+<p>In your <code>Dockerfile</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">FROM</span><span style="color:#f1fa8c"> php:8.3-alpine3.21</span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">COPY</span> --from<span style="color:#ff79c6">=</span>hakindazz/s6-overlay-base:3.2.0.2 /s6/root /
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#6272a4"># install your app here</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">ENTRYPOINT</span> [<span style="color:#f1fa8c">&#34;/init&#34;</span>]
+</span></span></code></pre></div><p>The interesting part IMHO is the github workflow that checks if an image for the current version exists and if not it will be built.
+See here <a href="https://github.com/dazz/s6-overlay-base/blob/main/.github/workflows/docker-image-push.yml">https://github.com/dazz/s6-overlay-base/blob/main/.github/workflows/docker-image-push.yml</a>
+You can adapt it und use it in your org if you need the be able to build your own base images .</p>
+<div class="details admonition note open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#Xf040;</i> This is a note<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Read the article that I wrote about it here: <a href="/posts/2024-08-19_base-image-with-s6-overlay/">Build your own s6-overlay base image</a></div>
+  </div>
+</div>
+<h2 id="s6-cli">s6-cli</h2>
+<p>I developed a small cli in golang to ease creating, validating and documenting services that s6 supervises.</p>
+<ul>
+<li>The repo: <a href="https://github.com/dazz/s6-cli">https://github.com/dazz/s6-cli</a></li>
+<li>The docker image: <a href="https://hub.docker.com/repository/docker/hakindazz/s6-cli">https://hub.docker.com/repository/docker/hakindazz/s6-cli</a></li>
+</ul>
+<div class="details admonition note open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#Xf040;</i> This is a note<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Read the article that I wrote about it here: <a href="/posts/2024-12-06_s6-cli/">Manage s6-overlay setup with s6-cli</a></div>
+  </div>
+</div>
+<h2 id="conclusion">Conclusion</h2>
+<p>Using s6-overlay in your dockerized PHP / Symfony setup offers a robust, production-ready solution to manage multiple processes within a single container.</p>
+<p>With proper process supervision, controlled startup/shutdown sequences, and versatile configuration options, s6-overlay fills the gap left by traditional Docker practices. Whether you’re running PHP-FPM, NGINX, or any combination of services, this approach leads to a more stable and maintainable environment.</p>
+<p>By following the in-depth examples and best practices outlined above, PHP developers can confidently migrate their Dockerized applications to the cloud, knowing that every process is well-managed and health-checked.</p>
+<h2 id="references">References</h2>
+<ul>
+<li><a href="https://github.com/just-containers/s6-overlay">https://github.com/just-containers/s6-overlay</a></li>
+<li><a href="https://skarnet.org/software/s6/overview.html">https://skarnet.org/software/s6/overview.html</a></li>
+<li><a href="https://serversideup.net/open-source/docker-php/docs/guide/using-s6-overlay">https://serversideup.net/open-source/docker-php/docs/guide/using-s6-overlay</a></li>
+<li><a href="https://www.tonysm.com/multiprocess-containers-with-s6-overlay/">https://www.tonysm.com/multiprocess-containers-with-s6-overlay/</a></li>
+<li><a href="https://github.com/dazz/s6-overlay-base">https://github.com/dazz/s6-overlay-base</a></li>
+<li><a href="https://github.com/dazz/s6-nginx-php-fpm">https://github.com/dazz/s6-nginx-php-fpm</a></li>
+<li><a href="https://stackoverflow.com/questions/43122080/how-to-use-init-parameter-in-docker-run">How to use &ndash;init parameter in docker run - Stack Overflow</a></li>
+<li><a href="https://docs.docker.com/engine/containers/multi-service_container/">Run multiple processes in a container - Docker Documentation</a></li>
+<li><a href="https://www.baeldung.com/ops/docker-init-parameter">How to Use &ndash;init Parameter in Docker Run Command - Baeldung</a></li>
+<li><a href="https://spacelift.io/blog/docker-init">What is Docker Init &amp; When to Use It - Best Practices - Spacelift</a></li>
+<li><a href="https://www.paolomainardi.com/posts/docker-run-init/">docker run &ndash;init: to the rescue of zombie processes - Paolo Mainardi</a></li>
+<li><a href="https://cloud.theodo.com/en/blog/docker-processes-container">Container lifecycle | Improve it with PID 1 in Docker | Padok</a></li>
+</ul>
+]]></description><media:thumbnail url="https://blog.dazzlog.de/multi-process-container.webp"/></item><item><title>Manage s6-overlay setup with s6-cli</title><link>https://blog.dazzlog.de/posts/2024-12-06_s6-cli/</link><pubDate>Fri, 06 Dec 2024 23:42:23 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2024-12-06_s6-cli/</guid><description><![CDATA[<p>I developed a small cli in golang to ease creating, validating and documenting services that s6 supervises.</p>
 <ul>
 <li>The repo: <a href="https://github.com/dazz/s6-cli">https://github.com/dazz/s6-cli</a></li>
 <li>The docker image: <a href="https://hub.docker.com/repository/docker/hakindazz/s6-cli">https://hub.docker.com/repository/docker/hakindazz/s6-cli</a></li>
