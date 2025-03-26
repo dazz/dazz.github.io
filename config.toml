@@ -9,7 +9,7 @@ theme = "hugo-ficurinia"
 author = "dazz"
 copyright = "dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/)."
 
-paginate = 5
+pagination.pagerSize = 5
 summaryLength = 70
 
 [params]

@@ -71,3 +71,7 @@ Lorem Ipsum
 {{< admonition type=tldr title="This is a tldr;" >}}
 Lorem Ipsum
 {{< /admonition >}}
+
+## FontAwesome cheat sheet
+
+https://forkaweso.me/Fork-Awesome/cheatsheet/
