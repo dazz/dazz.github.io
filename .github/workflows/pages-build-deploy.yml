@@ -42,7 +42,7 @@ jobs:
           hugo-version: 'latest'
 
       # Step 3 - Adds a cache
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         with:
           path: /tmp/hugo_cache
           key: ${{ runner.os }}-hugomod-${{ hashFiles('**/go.sum') }}
