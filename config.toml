@@ -76,7 +76,7 @@ summaryLength = 70
     underlineTitleLinks = false  # show an underline also for links that are titles
 
     # alternative sidebar layout
-    enableSidebarLayout = true
+    enableSidebarLayout = false
     tocInSidebar = true  # if the sidebar is enbabled, show the TOC in the sidebar
 
 [markup]
