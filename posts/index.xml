@@ -3,7 +3,7 @@
 <p>In this post, we&rsquo;re diving into running Symfony in a container that runs multiple processes using s6-overlay. We&rsquo;ll explain why having more than one process in a container can be important, how this idea is different from Docker&rsquo;s usual “one process per container” rule, and how s6-overlay makes it easier to run everything together.</p>
 <p>Whether you&rsquo;re new to s6-overlay or looking to improve your container setup, this guide walks you through practical, step-by-step tips to help you run your Symfony apps more smoothly. Enjoy discovering a simpler, more flexible way to work with containers!</p>
 <h2 id="why-two-containers">Why Two Containers?</h2>
-<p>Typically, a Dockerized PHP development environment consists of:</p>
+<p>Typically, a dockerized PHP development environment consists of:</p>
 <ul>
 <li><strong>PHP-FPM Container:</strong> Runs the PHP application.</li>
 <li><strong>NGINX Container:</strong> Serves static files and proxies requests to PHP-FPM.</li>
@@ -57,12 +57,10 @@ sequenceDiagram
     mermaid.initialize({ startOnLoad: true, theme: "dark" });
 </script>
 <h2 id="why-is-it-a-problem-running-two-containers">Why is it a problem running two containers?</h2>
-<p>When you rely on PHP to build the assets and the webserver needs to have the assets in order to serve them then
-there is a build-time dependency between those to images that you want to deploy.</p>
-<p>You do NOT want to use container volumes in production, it&rsquo;s unreliable what will be in the volume. I had started
-experiments after a colleague stated that and he was right.</p>
-<p>The solution when running with two container I came up with was that the webserver image copies the assets from the
-php image. It always felt hacky and not like the best way to solve.</p>
+<p>Running multiple containers isn&rsquo;t inherently problematic. Some hosting platforms limit multi-container deployments, pushing developers toward single-container solutions. But this isn&rsquo;t a technical limitation — it&rsquo;s often a constraint of hosting.</p>
+<h3 id="build-time-dependency-between-containers">Build-time dependency between containers</h3>
+<p>When your PHP application generates static assets that your webserver needs to serve, you&rsquo;re essentially creating a build-time dependency between containers. This isn&rsquo;t automatically bad, but it reveals potential architectural weaknesses.</p>
+<p>The core problem isn&rsquo;t multiple containers—it&rsquo;s mixing concerns. Static assets should be treated as build artifacts, not runtime-generated content. Containers should be immutable; writing files during runtime contradicts container best practices.</p>
 <h2 id="overcoming-the-one-process-per-container-constraint">Overcoming the One Process Per Container Constraint</h2>
 <h3 id="understanding-container-isolation">Understanding Container Isolation</h3>
 <div class="details admonition tldr open">
@@ -73,11 +71,13 @@ php image. It always felt hacky and not like the best way to solve.</p>
     <div class="admonition-content">In Docker containers, the first process (PID 1) is responsible for handling system signals and managing child processes. If <code>PID 1</code> doesn&rsquo;t properly handle termination signals like <code>SIGTERM</code>, it can lead to issues such as zombie processes—completed processes that remain in the process table, potentially causing resource exhaustion.</div>
   </div>
 </div>
-<p>Containers provide isolation by encapsulating an application&rsquo;s filesystem, networking, and process tree. In Docker, the first process started within a container is assigned process ID 1 (PID 1). This process becomes the init process for the container, responsible for handling system signals and managing child processes.</p>
-<p>Docker relies on sending signals like <code>SIGTERM</code> and <code>SIGKILL</code> to the container&rsquo;s <code>PID 1</code> to manage lifecycle events such as stopping or restarting the container. However, if the process running as PID 1 isn&rsquo;t designed to handle these signals properly, it may not terminate gracefully upon receiving a termination signal. This can lead to issues like zombie processes—processes that have completed execution but still have an entry in the process table because their parent hasn&rsquo;t acknowledged their termination. Zombie processes can accumulate over time, leading to resource exhaustion and degraded system performance.</p>
-<p>To mitigate these issues, it&rsquo;s important to ensure that the process running as PID 1 in your container can handle system signals appropriately and manage child processes effectively. One approach is to use a minimal init system or an init-like process as PID 1. These init systems are designed to forward signals to child processes and reap zombie processes, ensuring proper process management within the container. For instance, using the exec command in shell scripts can replace the shell process with the intended application process, ensuring it becomes PID 1 and can handle signals directly.</p>
-<p>Alternatively, Docker provides the &ndash;init flag, which runs an init process as PID 1. This init process is responsible for forwarding signals and reaping zombie processes, thereby improving the container&rsquo;s process management.</p>
-<p>By addressing the PID 1 signal handling and zombie reaping issues, you can ensure that your containerized applications are more robust, responsive to lifecycle events, and free from resource leaks caused by lingering zombie processes.</p>
+<p>Containers provide isolation by encapsulating an application&rsquo;s filesystem, networking, and process tree. In Docker, the first process started within a container is assigned process ID 1 (<code>PID 1</code>). This process becomes the init process for the container, responsible for handling system signals and managing child processes.</p>
+<p>Docker relies on sending signals like <code>SIGTERM</code> and <code>SIGKILL</code> to the container&rsquo;s <code>PID 1</code> to manage lifecycle events
+such as stopping or restarting the container. However, if the process running as <code>PID 1</code> isn&rsquo;t designed to handle
+these signals properly, it may not terminate gracefully upon receiving a termination signal. This can lead to issues like zombie processes — processes that have completed execution but still have an entry in the process table because their parent hasn&rsquo;t acknowledged their termination. Zombie processes can accumulate over time, leading to resource exhaustion and degraded system performance.</p>
+<p>To mitigate these issues, it&rsquo;s important to ensure that the process running as <code>PID 1</code> in your container can handle system signals appropriately and manage child processes effectively. One approach is to use a minimal init system or an init-like process as <code>PID 1</code>. These init systems are designed to forward signals to child processes and reap zombie processes, ensuring proper process management within the container. For instance, using the exec command in shell scripts can replace the shell process with the intended application process, ensuring it becomes <code>PID 1</code> and can handle signals directly.</p>
+<p>Alternatively, Docker provides the <code>--init</code> flag, which runs an init process as <code>PID 1</code>. This init process is responsible for forwarding signals and reaping zombie processes, thereby improving the container&rsquo;s process management.</p>
+<p>By addressing the <code>PID 1</code> signal handling and zombie reaping issues, you can ensure that your containerized applications are more robust, responsive to lifecycle events, and free from resource leaks caused by lingering zombie processes.</p>
 <div class="mermaid">
     
 sequenceDiagram
@@ -172,7 +172,7 @@ Built-in support for logging and easy integration of environment variables makes
 </div>
 <p>For example:</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dockerfile" data-lang="dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">ENTRYPOINT</span> [<span style="color:#f1fa8c">&#34;/init&#34;</span>]
-</span></span><span style="display:flex;"><span><span style="color:#ff79c6">CMD</span> [<span style="color:#f1fa8c">&#34;php&#34;</span>, <span style="color:#f1fa8c">&#34;bin/console&#34;</span>, <span style="color:#f1fa8c">&#34;horizon:work&#34;</span>]
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">CMD</span> [<span style="color:#f1fa8c">&#34;php&#34;</span>, <span style="color:#f1fa8c">&#34;bin/console&#34;</span>, <span style="color:#f1fa8c">&#34;messenger:consume&#34;</span>, <span style="color:#f1fa8c">&#34;scheduler_default&#34;</span>, <span style="color:#f1fa8c">&#34;--time-limit=300&#34;</span>]
 </span></span></code></pre></div><p>In this configuration, even if you override the command, s6-overlay will continue to manage your process lifecycle.</p>
 <h2 id="service-types-in-s6-overlay">Service Types in s6-overlay</h2>
 <p>s6-overlay supports three service types that let you control how processes run within your container:</p>
@@ -400,10 +400,10 @@ You can adapt it und use it in your org if you need the be able to build your ow
   </div>
 </div>
 <h2 id="s6-cli">s6-cli</h2>
-<p>I developed a small cli in golang to ease creating, validating and documenting services that s6 supervises.</p>
+<p>I developed a small cli in Golang to ease creating, validating and documenting services that s6 supervises.</p>
 <ul>
 <li>The repo: <a href="https://github.com/dazz/s6-cli">https://github.com/dazz/s6-cli</a></li>
-<li>The docker image: <a href="https://hub.docker.com/repository/docker/hakindazz/s6-cli">https://hub.docker.com/repository/docker/hakindazz/s6-cli</a></li>
+<li>The Docker image: <a href="https://hub.docker.com/repository/docker/hakindazz/s6-cli">https://hub.docker.com/repository/docker/hakindazz/s6-cli</a></li>
 </ul>
 <div class="details admonition note open">
   <div class="details-summary admonition-title">
@@ -501,7 +501,7 @@ svc-nginx --> svc-php-fpm
     import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
     mermaid.initialize({ startOnLoad: true, theme: "dark" });
 </script>
-]]></description></item><item><title>Build your own s6-overlay base image</title><link>https://blog.dazzlog.de/posts/2024-08-19_base-image-with-s6-overlay/</link><pubDate>Mon, 19 Aug 2024 23:42:23 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2024-08-19_base-image-with-s6-overlay/</guid><description><![CDATA[<p>S6-overlay is a container-focused process manager that offers end-to-end management of the container&rsquo;s lifecycle, from initialization to graceful shutdown.</p>
+]]></description><media:thumbnail url="https://blog.dazzlog.de/s6-cli.webp"/></item><item><title>Build your own s6-overlay base image</title><link>https://blog.dazzlog.de/posts/2024-08-19_base-image-with-s6-overlay/</link><pubDate>Mon, 19 Aug 2024 23:42:23 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2024-08-19_base-image-with-s6-overlay/</guid><description><![CDATA[<p>S6-overlay is a container-focused process manager that offers end-to-end management of the container&rsquo;s lifecycle, from initialization to graceful shutdown.</p>
 <p>To make use of s6-overlay we need to add the binaries to our container by adding, extracting and then moving them to the directory where they are expected.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">ADD</span> https://github.com/just-containers/s6-overlay/releases/download/3.2.0.0/s6-overlay-noarch.tar.xz /tmp  
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">ADD</span> https://github.com/just-containers/s6-overlay/releases/download/3.2.0.0/s6-overlay-x86_64.tar.xz /tmp
