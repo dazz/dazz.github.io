@@ -6,7 +6,7 @@ tags:
   - docker
   - devops
   - ci
-#image: s6-overlay.webp
+image: s6-cli.webp
 comments: true
 draft: false
 toc: true
