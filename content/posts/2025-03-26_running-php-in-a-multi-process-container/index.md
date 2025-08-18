@@ -129,17 +129,25 @@ for the specified container. It first sends the `SIGTERM` signal to the main pro
 https://github.com/just-containers/s6-overlay
 {{< /admonition >}}
 
-- **Providing Proper PID 1 Functionality:**  
-  It ensures that all child processes are managed and that signals are handled gracefully.
-
-- **Versatile Process Management:**  
-  It can supervise both long-running daemons and one-off tasks within the same container.
-
-- **Enabling Dependency and Sequence Control:**  
-  Services can be started or stopped in a controlled order, reducing race conditions and ensuring stability.
-
-- **Facilitating Log Management and Environment Templating:**  
-  Built-in support for logging and easy integration of environment variables makes configuration a breeze.
+- **Easy Integration:** Seamlessly integrate S6-overlay into Docker images with a straightforward installation 
+  process. Just extract a 
+  tarball or two!
+- **Proper PID 1 functionality**: It ensures that all child processes are managed and that signals are handled 
+  gracefully. You'll never have zombie processes hanging around in your container, they will be properly cleaned up.
+- **Versatile Process Management:** S6-overlay efficiently handles both one-time tasks and long-running processes,
+  making it versatile for containerized tasks.
+- **Dependency Control:** Establish dependencies between processes to ensure orderly execution in complex application
+  stacks.
+- **Sequence Management:** Control the start and stop sequence of processes, streamlining container operations.
+- **Environment Variable Templating:** Easily customize process behavior with environment variables, adapting to 
+  different environments.
+- **Log Management:** Built-in log rotation simplifies log file management within container environments. the 
+  supervision system 
+  automatically maintains an open pipe between the producer's stdout and the logger's stdin.
+- **Graceful Shutdown:** Ensure data integrity with graceful process shutdown and the ability to execute custom 
+  scripts before container 
+  shutdown.
+- **Multi-Arch Support:** S6-overlay accommodates the diverse landscape of container [platforms with support](https://platformengineers.io/services/infrastructure-maintenance-and-support) for multi-architecture container images.
 
 ## Setting Up s6-overlay
 
@@ -162,6 +170,8 @@ ENTRYPOINT ["/init"]
 ```
 
 Here, `/init` becomes the container’s entrypoint and will be responsible for process supervision.
+
+(If you want to see a simpler setup jump to [s6-overlay-base image](#s6-overlay-base-image))
 
 ### Basic Usage
 
