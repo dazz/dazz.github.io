@@ -4,3 +4,31 @@ $mono_font_mult:  {{ .Site.Params.monoFontSizeMultiplier  | default 1.0 }};
 code {
   font-size: $base_font_size * 1.0 * $mono_font_mult;
 }
+
+// Rosa-Abstufungen
+//$h2-color: #E67BAE; // helleres Rosa
+//$h3-color: #C2447E; // dunkleres Rosa
+//$h4-color: #C2447E; // gleich wie H3 für Konsistenz
+
+$h2-color: #2EC4B6; // kräftiges Türkis
+$h3-color: #00BFA5; // etwas dunkler
+$h4-color: #009688; // noch dunkler, guter Kontrast
+
+h2 {
+  color: $h2-color;
+  font-size: 28px;
+}
+
+h3 {
+  color: $h3-color;
+}
+
+h4 {
+  color: $h4-color;
+  font-size: 18px;
+}
+
+strong, b {
+  color: var(--default_accent);
+  font-weight: bold;
+}
