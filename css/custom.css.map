@@ -6,8 +6,8 @@
 		"assets/scss/custom.scss"
 	],
 	"sourcesContent": [
-		"$symbols_font: \"Symbols Nerd Font\";\n$base_font_size: 16px;\n$mono_font_mult:  1;\ncode {\n  font-size: $base_font_size * 1.0 * $mono_font_mult;\n}"
+		"$symbols_font: \"Symbols Nerd Font\";\n$base_font_size: 16px;\n$mono_font_mult:  1;\ncode {\n  font-size: $base_font_size * 1.0 * $mono_font_mult;\n}\n\n// Rosa-Abstufungen\n//$h2-color: #E67BAE; // helleres Rosa\n//$h3-color: #C2447E; // dunkleres Rosa\n//$h4-color: #C2447E; // gleich wie H3 für Konsistenz\n\n$h2-color: #2EC4B6; // kräftiges Türkis\n$h3-color: #00BFA5; // etwas dunkler\n$h4-color: #009688; // noch dunkler, guter Kontrast\n\nh2 {\n  color: $h2-color;\n  font-size: 28px;\n}\n\nh3 {\n  color: $h3-color;\n}\n\nh4 {\n  color: $h4-color;\n  font-size: 18px;\n}\n\nstrong, b {\n  color: var(--default_accent);\n  font-weight: bold;\n}"
 	],
 	"names": [],
-	"mappings": "AAGA,AAAA,IAAI,AAAC,CACH,SAAS,CAAE,IAAuC,CACnD"
+	"mappings": "AAGA,AAAA,IAAI,AAAC,CACH,SAAS,CAAE,IAAuC,CACnD,AAWD,AAAA,EAAE,AAAC,CACD,KAAK,CALI,OAAO,CAMhB,SAAS,CAAE,IAAI,CAChB,AAED,AAAA,EAAE,AAAC,CACD,KAAK,CATI,OAAO,CAUjB,AAED,AAAA,EAAE,AAAC,CACD,KAAK,CAZI,OAAO,CAahB,SAAS,CAAE,IAAI,CAChB,AAED,AAAA,MAAM,CAAE,CAAC,AAAC,CACR,KAAK,CAAE,qBAAqB,CAC5B,WAAW,CAAE,IAAI,CAClB"
 }
