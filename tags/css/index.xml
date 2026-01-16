@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>Css on DazzLog</title><link>https://blog.dazzlog.de/tags/css/</link><description>Recent content in Css on DazzLog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Sun, 17 Aug 2025 09:00:00 +0200</lastBuildDate><atom:link href="https://blog.dazzlog.de/tags/css/index.xml" rel="self" type="application/rss+xml"/><icon>https://blog.dazzlog.de/logo.svg</icon><item><title>Summer Projects 2025: 3 websites in 3 weeks</title><link>https://blog.dazzlog.de/posts/2025-08-17_summer-projects/</link><pubDate>Sun, 17 Aug 2025 09:00:00 +0200</pubDate><guid>https://blog.dazzlog.de/posts/2025-08-17_summer-projects/</guid><description><![CDATA[<blockquote>
-<p>&ldquo;Three weeks, three websites — and yes, I actually took a proper holiday too.&rdquo;</p></blockquote>
+<p>&ldquo;Three weeks, three websites — and yes, I actually took a proper holiday too.&rdquo;</p>
+</blockquote>
 <p>During my summer vacation 2025, I had a bit of time each evening to hack away at my computer. Since I&rsquo;d been wanting to tackle these projects for a while and felt motivated, I decided to take them on one after another. It wasn&rsquo;t originally planned as &ldquo;one per week&rdquo;, but that&rsquo;s the rhythm that naturally emerged from the time I had available, the pace of development, and how long each project actually took. I&rsquo;ll get to what these projects were in a moment, but what I found more important was my goal to develop a solid workflow with <strong>Claude Code</strong>.</p>
 <p>I&rsquo;ve been exploring Claude Code for a few weeks now, and the topics you can research and discover with it are numerous.</p>
 <h2 id="claude-code-features">Claude Code Features</h2>
@@ -31,14 +32,14 @@ Link: <a href="https://docs.anthropic.com/en/docs/claude-code/slash-commands">ht
 </span></span><span style="display:flex;"><span>---
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="font-weight:bold">## Context  
-</span></span></span><span style="display:flex;"><span><span style="font-weight:bold"></span>  
+</span></span></span><span style="display:flex;"><span>  
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">-</span> Current directory: !<span style="color:#f1fa8c">`pwd`</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">-</span> Current date: !<span style="color:#f1fa8c">`date +%Y-%m-%d`</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="font-weight:bold">## Usage
-</span></span></span><span style="display:flex;"><span><span style="font-weight:bold"></span>
+</span></span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#f1fa8c">```
-</span></span></span><span style="display:flex;"><span><span style="color:#f1fa8c"></span>/generate-command Analyze content for SEO optimization opportunities across the blog
+</span></span></span><span style="display:flex;"><span>/generate-command Analyze content for SEO optimization opportunities across the blog
 </span></span><span style="display:flex;"><span><span style="color:#f1fa8c">```</span>
 </span></span><span style="display:flex;"><span>...
 </span></span></code></pre></div><p><strong>Examples of commands for my technical blog</strong></p>
