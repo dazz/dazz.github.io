@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>Ai Engineering on DazzLog</title><link>https://blog.dazzlog.de/tags/ai-engineering/</link><description>Recent content in Ai Engineering on DazzLog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Sat, 17 Jan 2026 09:00:00 +0200</lastBuildDate><atom:link href="https://blog.dazzlog.de/tags/ai-engineering/index.xml" rel="self" type="application/rss+xml"/><icon>https://blog.dazzlog.de/logo.svg</icon><item><title>I Thought I Needed Better Prompts. I Needed a System.</title><link>https://blog.dazzlog.de/posts/2026-01-17_application-layer-ai-engineering/</link><pubDate>Sat, 17 Jan 2026 09:00:00 +0200</pubDate><guid>https://blog.dazzlog.de/posts/2026-01-17_application-layer-ai-engineering/</guid><description><![CDATA[<p>I don&rsquo;t learn well from videos. Too much friction—pausing, rewinding, hunting for that one command buried in a 45-minute timeline. Last summer, I decided to build my way out of it.</p>
+<h3 id="the-initial-win">The Initial Win</h3>
+<p>The plan was straightforward: feed video transcripts to an AI, extract clean Markdown, commit to Git. Not even a proper application—just something I could consume via RSS instead of watching videos.</p>
+<p>The first results were surprisingly good. The AI captured structure and nuance well enough that I kept going. For a brief moment, it felt like I&rsquo;d solved the problem.</p>
+<p>Then came the real work.</p>
+<h3 id="when-manual-steps-became-the-bottleneck">When Manual Steps Became the Bottleneck</h3>
+<p>The AI quality wasn&rsquo;t the issue. Everything <em>around</em> it was.</p>
+<p>I was trapped in a loop: copy-paste transcripts, update video IDs in a Makefile, trigger Python scripts, verify output, repeat. The actual AI call represented only a fraction of the effort. The rest was me playing human cron job.</p>
+<p>As content accumulated, the Markdown files became unmanageable. No cross-file search. No metadata. No deduplication. The moment I needed to ask &ldquo;which video mentioned this specific technique?&rdquo; the whole approach collapsed.</p>
+<p>A database wasn&rsquo;t a feature. It was the structural requirement I&rsquo;d been avoiding.</p>
+<h3 id="from-script-to-system">From Script to System</h3>
+<p>I didn&rsquo;t need better scripts. I needed something that could discover content, process it, store it, and make it queryable—without manual intervention at every step.</p>
+<p>This forced me to think about maintainability and evaluation. I moved the entire project to <strong>PHP and Symfony</strong>. Not because it&rsquo;s trendy in AI circles (it&rsquo;s not), but because I needed to build something I could maintain, debug, and reason about six months later. When Symfony released their AI packages, the orchestration layer finally made sense.</p>
+<p>PostgreSQL with pgvector for embeddings and Neo4j for knowledge graphs. Everything in an environment designed for long-term stability.</p>
+<div class="details admonition symfony open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xe756;</i> symfony/ai<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content"><p>Symfony AI is a set of components that integrate AI capabilities into PHP applications, providing a unified interface to work with various AI platforms like OpenAI, Anthropic, Google Gemini, Azure, and more.</p>
+<p>See <a href="https://symfony.com/doc/current/ai/index.html">https://symfony.com/doc/current/ai/index.html</a></p>
+</div>
+  </div>
+</div>
+<h3 id="engineering-over-magic">Engineering Over Magic</h3>
+<p>Here&rsquo;s what became clear: &ldquo;knowledge extraction&rdquo; sounds like a single AI task. It&rsquo;s not. It&rsquo;s a pipeline with distinct stages:</p>
+<ol>
+<li><strong>Gather</strong> – Fetch transcripts, manage metadata</li>
+<li><strong>Normalize</strong> – Chunk at semantic boundaries, disfluency Removal</li>
+<li><strong>Transform</strong> – Extract entities and relationships</li>
+<li><strong>Store</strong> – Vectors and graphs</li>
+<li><strong>Retrieve</strong> – Routed search methods</li>
+</ol>
+<p><strong>Most of these stages have nothing to do with AI.</strong></p>
+<p>The breakthrough came when I stopped chasing the perfect prompt. I built a <strong>TranscriptChunker</strong> service that preserves timestamps and context. A <strong>triplet extraction pipeline</strong> that pulls structured relationships from text. An <strong>evaluation system</strong> to measure whether any of it actually works.</p>
+<p>Chaining specific, isolated AI calls produces more reliable results than one massive &ldquo;do everything&rdquo; request. If your input data is messy or your pipeline logic is flawed, no amount of prompt engineering will save you.</p>
+<h3 id="what-actually-matters">What Actually Matters</h3>
+<p>AI fails silently and gracefully. Without proper evaluation, you can&rsquo;t tell the difference between &ldquo;looks good&rdquo; and &ldquo;actually works.&rdquo; Without tracing, you can&rsquo;t debug where extraction went wrong. Without structure, you have a demo, not a system.</p>
+<p>The architecture surrounding the AI calls matters more than the calls themselves. Database schema design. Chunk boundary decisions. Metadata preservation. Error handling. These are application problems, and they&rsquo;re where most AI projects quietly fall apart.</p>
+<p>I&rsquo;m still figuring out the optimal patterns. The industry&rsquo;s collective knowledge is scattered across blog posts, papers, and half-finished repos. But my focus has permanently shifted: less time optimizing individual prompts, more time building the system that makes those prompts repeatable, traceable, and maintainable.</p>
+<p>That&rsquo;s the work that scales.</p>
+]]></description><media:thumbnail url="https://blog.dazzlog.de/hero.png"/></item></channel></rss>
