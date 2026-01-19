@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>Ai Engineering on DazzLog</title><link>https://blog.dazzlog.de/tags/ai-engineering/</link><description>Recent content in Ai Engineering on DazzLog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Mon, 19 Jan 2026 09:00:00 +0200</lastBuildDate><atom:link href="https://blog.dazzlog.de/tags/ai-engineering/index.xml" rel="self" type="application/rss+xml"/><icon>https://blog.dazzlog.de/logo.svg</icon><item><title>When Scripts Turn into a System</title><link>https://blog.dazzlog.de/posts/2026-01-19_scripts-turn-into-system/</link><pubDate>Mon, 19 Jan 2026 09:00:00 +0200</pubDate><guid>https://blog.dazzlog.de/posts/2026-01-19_scripts-turn-into-system/</guid><description><![CDATA[<p>A Makefile orchestrated a couple of Python scripts. For a few days, my setup felt almost boring — in a good way. I copied a YouTube video ID, pasted it into a Makefile, ran a command, and with a prompt to analyze the transcript, an AI produced Markdown and wrote it to a file. I copied the file to a GitHub repository, pushed it, and a static site generator turned it into something I actually enjoyed reading: HTML in the browser, and an RSS feed I could follow like a personal newspaper.</p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>Guardrails on DazzLog</title><link>https://blog.dazzlog.de/tags/guardrails/</link><description>Recent content in Guardrails on DazzLog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Mon, 19 Jan 2026 09:00:00 +0200</lastBuildDate><atom:link href="https://blog.dazzlog.de/tags/guardrails/index.xml" rel="self" type="application/rss+xml"/><icon>https://blog.dazzlog.de/logo.svg</icon><item><title>When Scripts Turn into a System</title><link>https://blog.dazzlog.de/posts/2026-01-19_scripts-turn-into-system/</link><pubDate>Mon, 19 Jan 2026 09:00:00 +0200</pubDate><guid>https://blog.dazzlog.de/posts/2026-01-19_scripts-turn-into-system/</guid><description><![CDATA[<p>A Makefile orchestrated a couple of Python scripts. For a few days, my setup felt almost boring — in a good way. I copied a YouTube video ID, pasted it into a Makefile, ran a command, and with a prompt to analyze the transcript, an AI produced Markdown and wrote it to a file. I copied the file to a GitHub repository, pushed it, and a static site generator turned it into something I actually enjoyed reading: HTML in the browser, and an RSS feed I could follow like a personal newspaper.</p>
 <p>Everything lived as files. No database. No UI. No persistence beyond whatever ended up on disk.</p>
 <p>And for a while, that was perfect.</p>
 <p>This approach allowed me to convert videos into readable content quickly, with minimal effort and cognitive load.</p>
@@ -117,59 +117,4 @@ The state split between filesystem and database is drifting out of sync.<br>
 <p>You start caring about the <em>order</em> of operations, not just their completion.</p>
 <p>You realize &ldquo;just run it again&rdquo; isn&rsquo;t a recovery strategy anymore—it&rsquo;s a way to make things worse.</p>
 <p>At that point, you&rsquo;re not migrating from scripts to a system. You&rsquo;re admitting you&rsquo;ve been building a system with script-shaped tools, and adjusting accordingly.</p>
-]]></description><media:thumbnail url="https://blog.dazzlog.de/hero.png"/></item><item><title>I Thought I Needed Better Prompts. I Needed a System.</title><link>https://blog.dazzlog.de/posts/2026-01-17_application-layer-ai-engineering/</link><pubDate>Sat, 17 Jan 2026 09:00:00 +0200</pubDate><guid>https://blog.dazzlog.de/posts/2026-01-17_application-layer-ai-engineering/</guid><description><![CDATA[<p>I have two kids and no time to watch hours of YouTube tutorials. Also, I find the information density very sparse and extracting the information very time-consuming. My <strong>&ldquo;Neo from the Matrix&rdquo; fantasy</strong> has always been to have knowledge injected directly into my brain—skipping the medium and going straight to the data. So my wish formulated that I would like to have the information extracted, so I can expose my brain to the compacted knowledge and speed through all the knowledge I would like my brain to have consumed.</p>
-<p>Last summer, I decided to build my way out of that friction.</p>
-<h3 id="the-initial-win-and-the-illusion">The Initial Win and the Illusion</h3>
-<p>My plan was straightforward and, at the time, I didn&rsquo;t even think of it as an &ldquo;application&rdquo;. I just wanted to feed video transcripts to an AI, extract the information into clean Markdown, and push those files to a Git directory. From there, a static site generator and some GitHub Actions would turn the data into a readable blog post. I wanted something I could consume via a browser or RSS feed, fully replacing the need to watch the video.</p>
-<p>The first results were exceptionally good—the AI captured structure and nuance far better than I expected. For a brief moment, it felt like I had solved the problem with just a few clever prompts.</p>
-<h3 id="where-reality-disagreed">Where Reality Disagreed</h3>
-<p>The friction started almost immediately, and it wasn’t an AI problem—it was a manual effort problem. I found myself trapped in a boring, repetitive cycle of copying video IDs into a Makefile and running Python scripts manually. I was playing &ldquo;human cron job&rdquo;.</p>
-<p>As I processed more content, the Markdown files started piling up. Managing the metadata, searching through the directory, and deduplicating entries became significantly harder than generating the content itself. That was the moment I realized that a database wasn&rsquo;t just a &ldquo;nice-to-have&rdquo; feature; it had to be the center of the project.</p>
-<h3 id="from-script-to-system">From Script to System</h3>
-<p>The turning point was realizing that I didn&rsquo;t want a better script or better prompts; I wanted an agentic system that could discover, ingest, analyze, and publish content without my intervention. I had to move beyond &ldquo;generating text&rdquo; and start &ldquo;operating a workflow&rdquo;. This forced me to shift my thinking toward maintainability and long-term stability.</p>
-<p>While I started with Python-based frameworks, I quickly hit a wall of <strong>&ldquo;vibe-trash&rdquo;</strong>—a pile of scattered scripts that were easy to write but impossible to reason about weeks later. I eventually moved the entire project to PHP and Symfony. Moving to my &ldquo;native&rdquo; environment allowed me to own the orchestration layer and build something I could actually debug when things went wrong.</p>
-<div class="details admonition tip open">
-  <div class="details-summary admonition-title">
-    <i class="icon ">&#xf400;</i> I learned<i class="details-icon fas fa-angle-right fa-fw"></i>
-  </div>
-  <div class="details-content">
-    <div class="admonition-content">I have to be the expert evaluating the output of the AI. Otherwise, the output it will be vibe-trash.</div>
-  </div>
-</div>
-<p>To ensure the system remained safe and queryable, I moved away from ephemeral files toward a more robust stack: PostgreSQL with pgvector for embeddings and Neo4j for knowledge graphs. This wasn’t about over-engineering; it was about building a foundation that could handle the consequences of state, consistency, and scale.</p>
-<div class="details admonition symfony open">
-  <div class="details-summary admonition-title">
-    <i class="icon ">&#xe756;</i> symfony/ai<i class="details-icon fas fa-angle-right fa-fw"></i>
-  </div>
-  <div class="details-content">
-    <div class="admonition-content"><p>Symfony AI is a set of components that integrate AI capabilities into PHP applications, providing a unified interface to work with various AI platforms like OpenAI, Anthropic, Google Gemini, Azure, and more.</p>
-<p>See <a href="https://symfony.com/doc/current/ai/index.html">https://symfony.com/doc/current/ai/index.html</a></p>
-</div>
-  </div>
-</div>
-<h3 id="engineering-over-magic">Engineering Over Magic</h3>
-<p>Here&rsquo;s what became clear: &ldquo;knowledge extraction&rdquo; sounds like a single AI task. It&rsquo;s not. It&rsquo;s a pipeline with distinct stages:</p>
-<ol>
-<li><strong>Gather</strong> – Fetch transcripts, manage metadata</li>
-<li><strong>Normalize</strong> – Chunk at semantic boundaries, disfluency Removal</li>
-<li><strong>Transform</strong> – Extract entities and relationships</li>
-<li><strong>Store</strong> – Vectors and graphs</li>
-<li><strong>Retrieve</strong> – Routed search methods</li>
-</ol>
-<p><strong>Most of these stages have nothing to do with AI.</strong></p>
-<p>They are <strong>fundamental</strong>, necessary steps. I stopped looking for the &ldquo;perfect model&rdquo; and started building a TranscriptChunker to preserve timestamps and a database schema that could actually handle metadata.</p>
-<p>What surprised me was that AI is most effective when it is given the smallest possible job. I found that chaining specific, isolated AI calls produced far more reliable results than one massive &ldquo;do everything&rdquo; request.</p>
-<div class="details admonition tip open">
-  <div class="details-summary admonition-title">
-    <i class="icon ">&#xf400;</i> I learned<i class="details-icon fas fa-angle-right fa-fw"></i>
-  </div>
-  <div class="details-content">
-    <div class="admonition-content">If the input data is messy or the early steps in my pipeline are flawed, no amount of clever prompt engineering can save the output downstream.</div>
-  </div>
-</div>
-<h3 id="the-realization-plumbing-over-prompts">The Realization: Plumbing Over Prompts</h3>
-<p>AI fails silently and gracefully. Without proper tracing, I couldn’t tell the difference between an output that &ldquo;looked good&rdquo; and one that actually captured the knowledge I needed. I saw that if I couldn&rsquo;t trace exactly how a piece of knowledge was extracted, I didn&rsquo;t have a system—I just had a demo.</p>
-<p>The <strong>architecture surrounding the AI</strong>—the database design, the way I decided to split chunks of text, the preservation of metadata—is where the real engineering happens. These are application problems, and they are where most AI projects quietly fall apart.</p>
-<p>I am still figuring out the optimal patterns for this. Structured guidance is scattered across half-finished repos and old blog posts, and I’m still learning how to search for the &ldquo;right&rdquo; way to build these systems. But my focus has permanently shifted: I care less about individual prompts and more about the traceable, repeatable system that makes those prompts work.</p>
-<p>That is the work that actually scales—and the only way I&rsquo;ll ever get that &ldquo;Neo&rdquo; style knowledge injection.</p>
 ]]></description><media:thumbnail url="https://blog.dazzlog.de/hero.png"/></item></channel></rss>

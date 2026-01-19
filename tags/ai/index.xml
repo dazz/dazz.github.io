@@ -1,17 +1,142 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>Ai on DazzLog</title><link>https://blog.dazzlog.de/tags/ai/</link><description>Recent content in Ai on DazzLog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Sat, 17 Jan 2026 09:00:00 +0200</lastBuildDate><atom:link href="https://blog.dazzlog.de/tags/ai/index.xml" rel="self" type="application/rss+xml"/><icon>https://blog.dazzlog.de/logo.svg</icon><item><title>I Thought I Needed Better Prompts. I Needed a System.</title><link>https://blog.dazzlog.de/posts/2026-01-17_application-layer-ai-engineering/</link><pubDate>Sat, 17 Jan 2026 09:00:00 +0200</pubDate><guid>https://blog.dazzlog.de/posts/2026-01-17_application-layer-ai-engineering/</guid><description><![CDATA[<p>I don&rsquo;t learn well from videos. Too much friction—pausing, rewinding, hunting for that one command buried in a 45-minute timeline. Last summer, I decided to build my way out of it.</p>
-<h3 id="the-initial-win">The Initial Win</h3>
-<p>The plan was straightforward: feed video transcripts to an AI, extract clean Markdown, commit to Git. Not even a proper application—just something I could consume via RSS instead of watching videos.</p>
-<p>The first results were surprisingly good. The AI captured structure and nuance well enough that I kept going. For a brief moment, it felt like I&rsquo;d solved the problem.</p>
-<p>Then came the real work.</p>
-<h3 id="when-manual-steps-became-the-bottleneck">When Manual Steps Became the Bottleneck</h3>
-<p>The AI quality wasn&rsquo;t the issue. Everything <em>around</em> it was.</p>
-<p>I was trapped in a loop: copy-paste transcripts, update video IDs in a Makefile, trigger Python scripts, verify output, repeat. The actual AI call represented only a fraction of the effort. The rest was me playing human cron job.</p>
-<p>As content accumulated, the Markdown files became unmanageable. No cross-file search. No metadata. No deduplication. The moment I needed to ask &ldquo;which video mentioned this specific technique?&rdquo; the whole approach collapsed.</p>
-<p>A database wasn&rsquo;t a feature. It was the structural requirement I&rsquo;d been avoiding.</p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>Ai on DazzLog</title><link>https://blog.dazzlog.de/tags/ai/</link><description>Recent content in Ai on DazzLog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Mon, 19 Jan 2026 09:00:00 +0200</lastBuildDate><atom:link href="https://blog.dazzlog.de/tags/ai/index.xml" rel="self" type="application/rss+xml"/><icon>https://blog.dazzlog.de/logo.svg</icon><item><title>When Scripts Turn into a System</title><link>https://blog.dazzlog.de/posts/2026-01-19_scripts-turn-into-system/</link><pubDate>Mon, 19 Jan 2026 09:00:00 +0200</pubDate><guid>https://blog.dazzlog.de/posts/2026-01-19_scripts-turn-into-system/</guid><description><![CDATA[<p>A Makefile orchestrated a couple of Python scripts. For a few days, my setup felt almost boring — in a good way. I copied a YouTube video ID, pasted it into a Makefile, ran a command, and with a prompt to analyze the transcript, an AI produced Markdown and wrote it to a file. I copied the file to a GitHub repository, pushed it, and a static site generator turned it into something I actually enjoyed reading: HTML in the browser, and an RSS feed I could follow like a personal newspaper.</p>
+<p>Everything lived as files. No database. No UI. No persistence beyond whatever ended up on disk.</p>
+<p>And for a while, that was perfect.</p>
+<p>This approach allowed me to convert videos into readable content quickly, with minimal effort and cognitive load.</p>
+<p>The responsibilities were cleanly split. I picked a video, copied the ID, triggered the run, and occasionally checked whether it worked. The scripts handled the rest: transcript download, prompt formatting, output writing, and site generation.</p>
+<p>It felt like control.</p>
+<p><img src="dazztronic-blog.jpg" alt="dazztronic-blog.jpg" title="dazztronic blog"></p>
+<h2 id="why-scripts-felt-like-the-right-tool-at-first">Why Scripts Felt Like the Right Tool at First</h2>
+<p>Scripts removed the tedious middle steps: <em>download transcript → format prompt → save response</em>. They gave me repeatability without committing to “architecture.”</p>
+<p>More importantly, they kept the whole thing understandable.</p>
+<p>Same input. Same process. Predictable failure. If something broke, it broke loudly. If something was wrong, it was usually obvious. There was no hidden state and nothing to “maintain.” Each run started fresh. If it didn’t work, I could throw it away and try again.</p>
+<p>And that mattered, because at the beginning, I wasn’t building a product. I was learning.</p>
+<h2 id="the-limits-of-scripts-i-didnt-notice-immediately">The Limits of Scripts I Didn’t Notice Immediately</h2>
+<p>The problem is that it feels harmless when scripts make certain assumptions.</p>
+<p>I assumed I would remember what I had processed. I assumed a file on disk was “state”. I assumed manual selection would stay sustainable. I assumed “just run it again” was a valid recovery strategy.</p>
+<p>Those assumptions don’t break immediately. They just quietly get more expensive.</p>
+<p>Files had to be in exactly the right place. Concurrent runs weren’t really a thing. “Did I already do this?” lived in my head. Idempotency was implied, not designed.</p>
+<p>And over time, the questions I had to answer became less and less script-shaped:</p>
+<ul>
+<li>Why does <em>this</em> video have an output, but <em>that</em> one doesn’t?</li>
+<li>Did this fail because the run failed—or because the video is weird?</li>
+<li>What happens if I run the same command twice?</li>
+<li>Does my blog reflect <em>everything</em> I processed, or just the most recent success?</li>
+</ul>
+<p>At some point, the gap between <em>“this works”</em> and <em>“this is correct”</em> widened silently.</p>
+<p>I didn’t notice at first. I noticed later. And that’s always worse.</p>
+<h2 id="the-moment-i-realized-this-was-becoming-a-system">The Moment I Realized This Was Becoming a System</h2>
+<p>Then I discovered entire channels and playlists that were worth processing.</p>
+<p>Suddenly, it wasn’t “process this one video.” It was:</p>
+<p><em>process these 47 videos, track which ones matter, don’t redo work, remember what failed, and do it again next week when new videos show up.</em></p>
+<p>That was the moment my brain became the bottleneck. I spent more time tracking what I had already done than actually reading the results. Scripts assume ephemeral work. Playlists assume persistence.</p>
+<p>Running the script on video 23 of 47 meant I couldn’t even answer a basic question: <em>What state is this whole batch in?</em>
+Files kept piling up with no index. Manual tracking became the critical path. And I hated that feeling.</p>
+<p>The pause moment came when I caught myself thinking:</p>
+<blockquote>
+<p>I should write another script to track what the first script processed.</p>
+</blockquote>
+<p>That’s the moment scripts stop being tools and start becoming a system with a hidden state.</p>
+<h2 id="what-changed-once-state-entered-the-picture">What Changed Once State Entered the Picture</h2>
+<p>Once a state exists, you can’t pretend it doesn’t.</p>
+<p>The questions changed:</p>
+<p>Has this video been processed? (not “does a file exist?”)<br>
+Is this video worth processing? (assessment becomes data, not just a one-time decision)<br>
+When was this last updated? (staleness matters)<br>
+Did this fail, or is it pending? (intent vs. outcome)</p>
+<p>Persistence became unavoidable. Subscription tracking. Assessment scores. Processing status (queued, in-progress, completed, failed). History.</p>
+<p>And new failure modes appeared—the annoying kind:</p>
+<p>Partial batch completion with no resumption strategy.<br>
+The state split between filesystem and database is drifting out of sync.<br>
+“Successful” execution producing a corrupted or misleading state.</p>
+<p>Scripts fail cleanly. Systems fail partially.</p>
+<p>When you’re building something you trust, that difference matters.</p>
+<h2 id="the-trap-of-vibe-trash">The Trap of “Vibe-Trash”</h2>
+<p>To remove friction, I started experimenting with agentic frameworks like PydanticAI and deveoped my own Claude Code commands (with templates) for <strong>Spec Driven Development</strong>.</p>
+<p>And because Python isn’t my native language, I didn’t immediately notice what was happening: the AI was producing code that worked <em>today</em> while quietly increasing the chaos <em>tomorrow</em>.</p>
+<p>The coding assistant would create new files instead of editing an existing one—because “adding is easier than editing.” Suddenly, I had a folder full of scripts with unclear purpose and ownership. Things “worked,” but only in the fragile way that makes you afraid to touch anything.</p>
+<p>I started calling this <strong>vibe-trash</strong>: code that passes the vibe check now, and fails six decisions later.</p>
+<p>The tooling also made assumptions I couldn’t always see in time:</p>
+<ul>
+<li>A new setup means a new schema.</li>
+<li>Running migrations is helpful.</li>
+<li>“This works now” equals “this is correct.”</li>
+<li>And of course: I can evaluate the consequences.</li>
+</ul>
+<p>I couldn’t.</p>
+<p>When you’re not fluent in the language, you don’t evaluate correctness—you evaluate whether it runs. Helpful automation becomes dangerous automation.</p>
+<h2 id="the-crash-and-the-wipe">The Crash and the Wipe</h2>
+<p>The turning point wasn’t gentle. It was a crash.</p>
+<p>When Anthropic introduced weekly limits and Claude Code would not for <strong>four days</strong>. I was stuck. I was furious. And in that frustration, I made a decision that was emotionally obvious and technically inevitable: I moved the project back to my roots — PHP and Symfony.</p>
+<p>And then the worst thing happened.</p>
+<p>As Claude Code&rsquo;s first act of “helping” set up the Symfony environment, Claude Code deleted my entire database. It assumed “fresh start” was the right thing to do.</p>
+<p>It wiped assessments I had paid for with real OpenAI tokens. It wiped decisions. It wiped history.</p>
+<p>I was angry at the AI. But mostly I was angry at myself.</p>
+<p>Because I had no backup. I had no guardrails. I had confused “automation” with “safety.”</p>
+<p>I had to rebuild an import pipeline from scattered blog files. Some things I could reconstruct. Some I couldn’t. The pain wasn’t the work — it was the realization that I had built something where loss was possible, and done nothing to prevent it.</p>
+<h2 id="what-happened-after-the-wipe">What Happened After the Wipe</h2>
+<p>The first thing I did after restoring what I could from scattered blog files was write a backup script. It runs every night. I check the logs every morning. I don&rsquo;t fully trust it not to fail, so I check.</p>
+<p>I added a comment to every migration file: <code># HUMAN ONLY - DO NOT LET AI RUN THIS</code>. I tell Claude this in every session. It still tries occasionally. I keep reminding the AI. The pattern is exhausting, but data loss is worse.</p>
+<p>Then I made a decision that changed the project more than I expected: I built an actual application with a UI.</p>
+<p>Not because the UI was hard—I do this professionally, so building a Symfony app with controllers and views is familiar territory. But because I needed to <em>see</em> what was happening.</p>
+<p>Scripts hide their state. An application exposes it.</p>
+<p>Suddenly, I could look at a screen and answer questions I couldn&rsquo;t answer before:</p>
+<ul>
+<li>Which videos are queued vs. in-progress vs. completed?</li>
+<li>What&rsquo;s the assessment score for this video, and when was it calculated?</li>
+<li>Which model did the assessment use, when, and how long did it take?</li>
+<li>What&rsquo;s the processing history for this channel?</li>
+</ul>
+<p>The workflow became visible. Data moving through the pipeline wasn&rsquo;t a guess anymore—it was something I could observe, verify, and trust.</p>
+<h2 id="what-changed-in-how-i-think-about-this">What Changed in How I Think About This</h2>
+<p>Before the wipe, I thought the problem was: <em>How do I process more videos faster?</em></p>
+<p>After the wipe, I realized the problem was: <em>How do I protect the decisions I&rsquo;ve already made?</em></p>
+<p>The assessments—scores that determine whether a video is worth processing—those cost real money. OpenAI tokens aren&rsquo;t free. Re-running thousands of assessments because I didn&rsquo;t think about backups isn&rsquo;t &ldquo;a learning experience.&rdquo; It&rsquo;s expensive stupidity.</p>
+<p>And that changed what I cared about:</p>
+<p>I stopped experimenting with where my data lives. Experiments happen in throwaway environments now. The production database is not a playground.</p>
+<p>I started treating state transitions as events that need approval. Not automation that &ldquo;just runs.&rdquo; If something is going to change the state of 500 videos, I want to see the plan first.</p>
+<p>I realized the application isn&rsquo;t the clever part—it&rsquo;s the boring part that makes the clever parts survivable. Symfony isn&rsquo;t exciting. But Doctrine transactions, database constraints, and a UI that shows me what&rsquo;s actually happening? Those make the difference between &ldquo;this might work&rdquo; and &ldquo;I can trust this.&rdquo;</p>
+<h2 id="the-tools-i-added">The Tools I Added</h2>
+<p>The backup script checks the database nightly and creates snapshots. It&rsquo;s not sophisticated. It just works.</p>
+<p>The UI has a status dashboard. I can see the processing state at a glance. No more wondering &ldquo;did that finish?&rdquo; or &ldquo;which videos failed?&rdquo;</p>
+<p>The application enforces a separation: assessment happens in one place, processing happens in another. They&rsquo;re decoupled. If assessment breaks, processing still works with old scores. If processing breaks, I&rsquo;m not re-running expensive assessments.</p>
+<p>And I started writing tools that exist solely to monitor the other tools. A script that checks whether the backup ran. A view that shows which videos have been queued for more than 24 hours. A report that flags videos where assessment and processing state don&rsquo;t match.</p>
+<p>When you start building tools to watch your tools, you&rsquo;ve crossed a line. You&rsquo;re no longer scripting. You&rsquo;re operating a system.</p>
+<h2 id="boundaries-and-non-goals">Boundaries and Non-Goals</h2>
+<p>Scripts are still great for exploratory work. This isn&rsquo;t a critique of scripts.</p>
+<p>It&rsquo;s also not a critique of vibe-coding, but you need to be able to evaluate what gets produced. When you can&rsquo;t tell if the code will break tomorrow, helpful automation becomes dangerous.</p>
+<p>The problem isn&rsquo;t scripts. It&rsquo;s using script-thinking when system-thinking is required.</p>
+<h2 id="what-id-do-differently-next-time">What I&rsquo;d Do Differently Next Time</h2>
+<p>I wouldn&rsquo;t wait for a database wipe to add backups. That&rsquo;s the obvious one.</p>
+<p>But more importantly, I&rsquo;d recognize the moment when I started wanting to &ldquo;track just one more thing&rdquo; as the signal that state has entered the picture. That&rsquo;s when scripts stop being the right tool.</p>
+<p>The question I ask now when I&rsquo;m tempted to add tracking to a script: <em>Is this metadata, or is this state?</em></p>
+<p>If it&rsquo;s a state, the script is lying to me. It&rsquo;s pretending to be stateless while depending on something that isn&rsquo;t.</p>
+<h2 id="the-signal-youve-built-a-system">The Signal You&rsquo;ve Built a System</h2>
+<p>The clearest indicator isn&rsquo;t architectural. It&rsquo;s behavioral.</p>
+<p>You start writing tools that monitor your other tools.</p>
+<p>You start checking whether things happened, not just whether they succeeded.</p>
+<p>You start caring about the <em>order</em> of operations, not just their completion.</p>
+<p>You realize &ldquo;just run it again&rdquo; isn&rsquo;t a recovery strategy anymore—it&rsquo;s a way to make things worse.</p>
+<p>At that point, you&rsquo;re not migrating from scripts to a system. You&rsquo;re admitting you&rsquo;ve been building a system with script-shaped tools, and adjusting accordingly.</p>
+]]></description><media:thumbnail url="https://blog.dazzlog.de/hero.png"/></item><item><title>I Thought I Needed Better Prompts. I Needed a System.</title><link>https://blog.dazzlog.de/posts/2026-01-17_application-layer-ai-engineering/</link><pubDate>Sat, 17 Jan 2026 09:00:00 +0200</pubDate><guid>https://blog.dazzlog.de/posts/2026-01-17_application-layer-ai-engineering/</guid><description><![CDATA[<p>I have two kids and no time to watch hours of YouTube tutorials. Also, I find the information density very sparse and extracting the information very time-consuming. My <strong>&ldquo;Neo from the Matrix&rdquo; fantasy</strong> has always been to have knowledge injected directly into my brain—skipping the medium and going straight to the data. So my wish formulated that I would like to have the information extracted, so I can expose my brain to the compacted knowledge and speed through all the knowledge I would like my brain to have consumed.</p>
+<p>Last summer, I decided to build my way out of that friction.</p>
+<h3 id="the-initial-win-and-the-illusion">The Initial Win and the Illusion</h3>
+<p>My plan was straightforward and, at the time, I didn&rsquo;t even think of it as an &ldquo;application&rdquo;. I just wanted to feed video transcripts to an AI, extract the information into clean Markdown, and push those files to a Git directory. From there, a static site generator and some GitHub Actions would turn the data into a readable blog post. I wanted something I could consume via a browser or RSS feed, fully replacing the need to watch the video.</p>
+<p>The first results were exceptionally good—the AI captured structure and nuance far better than I expected. For a brief moment, it felt like I had solved the problem with just a few clever prompts.</p>
+<h3 id="where-reality-disagreed">Where Reality Disagreed</h3>
+<p>The friction started almost immediately, and it wasn’t an AI problem—it was a manual effort problem. I found myself trapped in a boring, repetitive cycle of copying video IDs into a Makefile and running Python scripts manually. I was playing &ldquo;human cron job&rdquo;.</p>
+<p>As I processed more content, the Markdown files started piling up. Managing the metadata, searching through the directory, and deduplicating entries became significantly harder than generating the content itself. That was the moment I realized that a database wasn&rsquo;t just a &ldquo;nice-to-have&rdquo; feature; it had to be the center of the project.</p>
 <h3 id="from-script-to-system">From Script to System</h3>
-<p>I didn&rsquo;t need better scripts. I needed something that could discover content, process it, store it, and make it queryable—without manual intervention at every step.</p>
-<p>This forced me to think about maintainability and evaluation. I moved the entire project to <strong>PHP and Symfony</strong>. Not because it&rsquo;s trendy in AI circles (it&rsquo;s not), but because I needed to build something I could maintain, debug, and reason about six months later. When Symfony released their AI packages, the orchestration layer finally made sense.</p>
-<p>PostgreSQL with pgvector for embeddings and Neo4j for knowledge graphs. Everything in an environment designed for long-term stability.</p>
+<p>The turning point was realizing that I didn&rsquo;t want a better script or better prompts; I wanted an agentic system that could discover, ingest, analyze, and publish content without my intervention. I had to move beyond &ldquo;generating text&rdquo; and start &ldquo;operating a workflow&rdquo;. This forced me to shift my thinking toward maintainability and long-term stability.</p>
+<p>While I started with Python-based frameworks, I quickly hit a wall of <strong>&ldquo;vibe-trash&rdquo;</strong>—a pile of scattered scripts that were easy to write but impossible to reason about weeks later. I eventually moved the entire project to PHP and Symfony. Moving to my &ldquo;native&rdquo; environment allowed me to own the orchestration layer and build something I could actually debug when things went wrong.</p>
+<div class="details admonition tip open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf400;</i> I learned<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">I have to be the expert evaluating the output of the AI. Otherwise, the output it will be vibe-trash.</div>
+  </div>
+</div>
+<p>To ensure the system remained safe and queryable, I moved away from ephemeral files toward a more robust stack: PostgreSQL with pgvector for embeddings and Neo4j for knowledge graphs. This wasn’t about over-engineering; it was about building a foundation that could handle the consequences of state, consistency, and scale.</p>
 <div class="details admonition symfony open">
   <div class="details-summary admonition-title">
     <i class="icon ">&#xe756;</i> symfony/ai<i class="details-icon fas fa-angle-right fa-fw"></i>
@@ -32,13 +157,21 @@
 <li><strong>Retrieve</strong> – Routed search methods</li>
 </ol>
 <p><strong>Most of these stages have nothing to do with AI.</strong></p>
-<p>The breakthrough came when I stopped chasing the perfect prompt. I built a <strong>TranscriptChunker</strong> service that preserves timestamps and context. A <strong>triplet extraction pipeline</strong> that pulls structured relationships from text. An <strong>evaluation system</strong> to measure whether any of it actually works.</p>
-<p>Chaining specific, isolated AI calls produces more reliable results than one massive &ldquo;do everything&rdquo; request. If your input data is messy or your pipeline logic is flawed, no amount of prompt engineering will save you.</p>
-<h3 id="what-actually-matters">What Actually Matters</h3>
-<p>AI fails silently and gracefully. Without proper evaluation, you can&rsquo;t tell the difference between &ldquo;looks good&rdquo; and &ldquo;actually works.&rdquo; Without tracing, you can&rsquo;t debug where extraction went wrong. Without structure, you have a demo, not a system.</p>
-<p>The architecture surrounding the AI calls matters more than the calls themselves. Database schema design. Chunk boundary decisions. Metadata preservation. Error handling. These are application problems, and they&rsquo;re where most AI projects quietly fall apart.</p>
-<p>I&rsquo;m still figuring out the optimal patterns. The industry&rsquo;s collective knowledge is scattered across blog posts, papers, and half-finished repos. But my focus has permanently shifted: less time optimizing individual prompts, more time building the system that makes those prompts repeatable, traceable, and maintainable.</p>
-<p>That&rsquo;s the work that scales.</p>
+<p>They are <strong>fundamental</strong>, necessary steps. I stopped looking for the &ldquo;perfect model&rdquo; and started building a TranscriptChunker to preserve timestamps and a database schema that could actually handle metadata.</p>
+<p>What surprised me was that AI is most effective when it is given the smallest possible job. I found that chaining specific, isolated AI calls produced far more reliable results than one massive &ldquo;do everything&rdquo; request.</p>
+<div class="details admonition tip open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf400;</i> I learned<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">If the input data is messy or the early steps in my pipeline are flawed, no amount of clever prompt engineering can save the output downstream.</div>
+  </div>
+</div>
+<h3 id="the-realization-plumbing-over-prompts">The Realization: Plumbing Over Prompts</h3>
+<p>AI fails silently and gracefully. Without proper tracing, I couldn’t tell the difference between an output that &ldquo;looked good&rdquo; and one that actually captured the knowledge I needed. I saw that if I couldn&rsquo;t trace exactly how a piece of knowledge was extracted, I didn&rsquo;t have a system—I just had a demo.</p>
+<p>The <strong>architecture surrounding the AI</strong>—the database design, the way I decided to split chunks of text, the preservation of metadata—is where the real engineering happens. These are application problems, and they are where most AI projects quietly fall apart.</p>
+<p>I am still figuring out the optimal patterns for this. Structured guidance is scattered across half-finished repos and old blog posts, and I’m still learning how to search for the &ldquo;right&rdquo; way to build these systems. But my focus has permanently shifted: I care less about individual prompts and more about the traceable, repeatable system that makes those prompts work.</p>
+<p>That is the work that actually scales—and the only way I&rsquo;ll ever get that &ldquo;Neo&rdquo; style knowledge injection.</p>
 ]]></description><media:thumbnail url="https://blog.dazzlog.de/hero.png"/></item><item><title>Summer Projects 2025: 3 websites in 3 weeks</title><link>https://blog.dazzlog.de/posts/2025-08-17_summer-projects/</link><pubDate>Sun, 17 Aug 2025 09:00:00 +0200</pubDate><guid>https://blog.dazzlog.de/posts/2025-08-17_summer-projects/</guid><description><![CDATA[<blockquote>
 <p>&ldquo;Three weeks, three websites — and yes, I actually took a proper holiday too.&rdquo;</p>
 </blockquote>
