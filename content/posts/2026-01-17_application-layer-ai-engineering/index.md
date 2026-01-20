@@ -7,7 +7,7 @@ comments: true
 toc: false
 ---
 
-I have two kids and no time to watch hours of YouTube tutorials. Also, I find the information density very sparse and extracting the information very time-consuming. My **"Neo from the Matrix" fantasy** has always been to have knowledge injected directly into my brain—skipping the medium and going straight to the data. So my wish formulated that I would like to have the information extracted, so I can expose my brain to the compacted knowledge and speed through all the knowledge I would like my brain to have consumed.
+I have a busy familiy life and no time to watch hours of YouTube tutorials. Also, I find the information density very sparse and extracting the information very time-consuming. My **"Neo from the Matrix" fantasy** has always been to have knowledge injected directly into my brain—skipping the medium and going straight to the data. So my wish formulated that I would like to have the information extracted, so I can expose my brain to the compacted knowledge and speed through all the knowledge I would like my brain to have consumed.
 
 Last summer, I decided to build my way out of that friction.
 
