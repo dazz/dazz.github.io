@@ -12,6 +12,17 @@ copyright = "dazz - [Creative Commons Attribution 4.0 International License](htt
 pagination.pagerSize = 5
 summaryLength = 70
 
+[services]
+    [services.googleAnalytics]
+        id = 'G-SZG9LWH6KX'
+
+[privacy]
+#    [privacy.cactus]
+#        disable = false
+    [privacy.googleAnalytics]
+        disable = false
+        respectDoNotTrack = true
+
 [params]
     description = "dazz blog about programming and other cool stuff"
     author = "dazz | Anne-Julia Seitz"
