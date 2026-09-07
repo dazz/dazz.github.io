@@ -102,15 +102,14 @@
 ]]></description><media:thumbnail url="https://blog.dazzlog.de/8-stage-software-factory.png"/></item><item><title>Orca Is My Agent Development Environment Now</title><link>https://blog.dazzlog.de/posts/2026-08-23_orca-is-my-agent-development-environment/</link><pubDate>Sun, 23 Aug 2026 17:00:00 +0200</pubDate><guid>https://blog.dazzlog.de/posts/2026-08-23_orca-is-my-agent-development-environment/</guid><description><![CDATA[<p>I used to open an IDE, open a terminal, find the right file, make a change, and run the tests myself.</p>
 <p>That is still a perfectly reasonable way to develop software. It is also no longer the way I want to work.</p>
 <p>At the beginning of August, I moved my development into <a href="https://herdr.dev/">Herdr</a>. Herdr gave me the first important step away from an IDE: one terminal interface for several agents and projects. I could send an agent to work, switch to another project instead of watching it, and see when the first agent had finished.</p>
-<p><img src="ide.jpg" alt="ide.jpg"></p>
 <p>That already matched the way I wanted to work. An IDE assumes that I operate Git, the file browser, the terminal, and the editor. Once a coding agent operates those tools, my job moves up a level. I describe the work, give the agent the project context, inspect the result, and decide what happens next.</p>
 <p>Herdr brought the pieces together for me. I did not use it for long, because I found <a href="https://onorca.dev/">Orca</a> soon afterwards and was stunned by how much more it brought around the same agent-management idea.</p>
 <h2 id="from-herdr-to-orca">From Herdr to Orca</h2>
-<p>I had already stopped waiting beside a single coding agent. Herdr let me manage several agents and projects from one place. Orca kept that model and added workspaces, Git worktrees, orchestration, skills, automation, remote clients, and a server runtime.</p>
-<p>I installed Orca on my computer first. During installation and setup it changed enough on my system that I reconsidered where any of my AI development should run. Coding agents install tools, create worktrees, start containers, store credentials, and leave session data behind. I no longer wanted all of that mixed into my personal workstation.</p>
-<p><img src="herdr.jpg" alt="herdr.jpg"></p>
-<p>Orca&rsquo;s documentation described several remote-server setups. I could have rented a virtual server. Instead, I already had a powerful AI computer sitting on my desk, so I created an Ubuntu VM on it and moved Orca, the agents, the repositories, and Docker into that VM.</p>
-<p>That decision made Orca much more than the richer successor to the setup I had in Herdr. The agents now had a permanent place to work, independent of the computer I happened to be using.</p>
+<p>I had already stopped waiting beside a single coding agent. Herdr let me manage several agents and projects from one place. Orca kept that model and added workspaces, using git worktrees, orchestration, skills, automation, remote clients, and even a server runtime.</p>
+<p>I installed Orca on my computer first. During installation and setup it changed enough on my system that I reconsidered where any of my AI development should run. Coding agents install tools, create worktrees, start containers, store credentials, and leave session data behind. I no longer wanted all of that mixed into my personal workstation. Additionally, I wanted to give my agents as much freedom as possible to no longer being blocked by asking me or any other model for permission to access or execute.</p>
+<p><img src="orca-ade.jpg" alt="orca-ade.jpg"></p>
+<p>Orca&rsquo;s documentation described several <a href="https://www.onorca.dev/docs/remote-servers">remote-server setups</a>. I could have rented a virtual server. Instead, I already had a powerful AI computer sitting on my desk, so I created an Ubuntu VM on it and moved Orca, the agents, the repositories, and Docker into that VM.</p>
+<p>That decision made Orca much more than the richer successor to the setup I had in herdr. The agents now had a permanent place to work, independent of the computer I happened to be using.</p>
 <h2 id="what-orca-adds-to-coding-agents">What Orca adds to coding agents</h2>
 <p>Orca does not replace GitHub, Git, Docker, Claude Code, Pi, or Codex. It puts them into an environment where several agent sessions can work at once and where I can manage them as work rather than as disconnected command lines.</p>
 <p>The parts I use most are these:</p>
@@ -118,15 +117,14 @@
 <li>workspaces and Git worktrees for isolated tasks;</li>
 <li>terminals that belong to those workspaces;</li>
 <li>several agents and models in one runtime;</li>
-<li>orchestration, where a coordinator can start worker sessions;</li>
+<li>orchestration, where a coordinator can start worker sessions and aks them to communicate with each other;</li>
 <li>skills and project context that tell an agent how this repository works;</li>
-<li>remote access from a desktop or phone;</li>
+<li>remote access from a desktop or phone via Tailscale VPN;</li>
 <li>a headless server mode that keeps the work alive when my computer is closed;</li>
 <li>automations that can run recurring, narrowly scoped actions;</li>
 <li>session history and runtime state that make it possible to inspect what happened.</li>
 </ul>
 <p>The important feature is not any one item in that list. It is that Orca treats agent work as something that has a lifecycle.</p>
-<p><img src="orca-ade.jpg" alt="orca-ade.jpg"></p>
 <h2 id="worktrees-are-not-a-detail">Worktrees are not a detail</h2>
 <p>DazzHub is the project where I am testing this way of working. It is a Symfony application that discovers YouTube videos, scores them with AI, fetches transcripts, and turns them into searchable knowledge and Markdown blog posts. It has PostgreSQL with pgvector, Neo4j, asynchronous workers, external services, and a serious test and architecture toolchain.</p>
 <p>It is also exactly the kind of existing project where two agents must not casually share a checkout.</p>
