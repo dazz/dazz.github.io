@@ -2,10 +2,15 @@
 title: "The Factory Looked Good Until It Had to Work"
 date: 2026-09-07T17:00:00+02:00
 tags: [ai, ai engineering, software factory, agents, orca, workflow, deno, testing, dazzhub]
+image: hero.png
 draft: true
 comments: true
 toc: true
 ---
+
+{{< admonition type=tldr title="TL;DR" >}}
+My workflow looked good until real DazzHub issues put pressure on it. Commands tested the wrong checkout, copied shell snippets drifted apart, and the journal executed text that should have been data. The fix was not a longer prompt. I moved repeated operations into a tested Deno CLI and turned important rules into executable checks.
+{{< /admonition >}}
 
 The first version of my agent workflow looked convincing in Markdown. It had a board, named states, skills for each job, worktrees, a CI command, and rules about when an agent had to stop.
 
@@ -13,7 +18,7 @@ Then I used it on DazzHub every day.
 
 The failures did not arrive as dramatic model hallucinations. They arrived as a Docker command testing the wrong checkout, three skills carrying slightly different copies of the same shell, and a journal message executing the backticks it was supposed to record. The agents were productive enough to put pressure on every weak part of the setup.
 
-That pressure has been the most useful part of building the factory.
+And honestly, that pressure has been the most useful part of building the factory. The awkward failures showed me where the workflow was only convincing on paper.
 
 ## The Project Underneath the Experiment
 
@@ -42,6 +47,10 @@ One of the nastiest findings came while working on PHPStan rules. The DazzHub ap
 The command succeeded. That made it worse.
 
 A failing command tells me to investigate. A green command against the wrong source tree tells me a lie. In this case, a baseline regeneration even wrote into the other worktree.
+
+{{< admonition type=danger title="Green against the wrong code" >}}
+A successful check is worthless when it runs against another checkout. This failure changed my idea of a gate: it must verify its execution context, not only its exit code.
+{{< /admonition >}}
 
 The agent workflow already required isolated Git worktrees. It had not isolated the running Compose stack. The journal entry from that day now records the diagnostic command I needed:
 
@@ -77,6 +86,10 @@ The Makefile interpolated `MSG` into a shell recipe. I wrote an entry about the 
 
 A tool intended to preserve a failure had reproduced its failure class.
 
+{{< admonition type=bug title="The journal executed the journal entry" >}}
+Backticks inside the message became shell command substitution. It is funny now. It was less funny when several kilobytes of command output landed in the journal.
+{{< /admonition >}}
+
 The fix was small: export the message through the environment and read it as data. I also added a length cap. The larger lesson was that I had management logic embedded in Make recipes and Markdown snippets with nowhere to test it.
 
 By the end of that week, the project had enough examples to justify a small management CLI.
@@ -106,6 +119,10 @@ One-liners remain one-liners. The Symfony application remains in `app/`. I did n
 The permissionless unit suite became one of my favorite checks. A plain `deno test` runs with no read, write, network, or subprocess permission. The tests for adapters assert that the runtime refuses those operations. Separate narrow passes test the filesystem boundary, architecture walk, and repository skills.
 
 The permissions do not make child processes safe. Allowing `gh` still starts an unrestricted `gh` process. They do catch an accidental `Deno.Command("sh", ...)`, and they force every external program to have a name I can inspect.
+
+{{< admonition type=tip title="I learned" >}}
+When a rule can become an exit code, parser, or test, I move it out of the prompt. The model should spend its judgment on things I cannot check deterministically.
+{{< /admonition >}}
 
 ## One Board Command Instead of Several Copies
 
@@ -159,6 +176,6 @@ More important, I have a criterion for moving another rule out of prose: if the 
 
 Some rules remain in skills because they require judgment. Is this issue fully specified? Does this architecture finding exceed the ticket? Which Backlog card collides least with current work? I keep those decisions narrow and preserve the evidence in issue comments.
 
-The setup is still being refined while it works. That is preferable to designing the complete factory in isolation. DazzHub keeps producing the awkward cases I need: stale assumptions, concurrent branches, environment failures, review corrections, and commands that succeed for the wrong reason.
+The setup is still being refined while it works. I prefer that to designing a perfect factory in isolation. DazzHub keeps producing the awkward cases I need: stale assumptions, concurrent branches, environment failures, review corrections, and commands that succeed for the wrong reason.
 
 The next part of the series covers the thing I needed before allowing more unattended work: one place to see what Claude Code, Pi, and Codex actually did.

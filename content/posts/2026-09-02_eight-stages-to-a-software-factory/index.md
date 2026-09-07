@@ -1,17 +1,21 @@
 ---
-title: "Eight Stages to a Software Factory, and Where I Am Now"
+title: "8 Stages to a Software Factory, and Where I Am Now"
 date: 2026-09-02T17:00:00+02:00
 tags: [ai, ai engineering, software factory, agents, orca, workflow, claude code, pi, codex]
-draft: true
 comments: true
 toc: true
+image: 8-stage-software-factory.png
 ---
+
+{{< admonition type=tldr title="TL;DR" >}}
+I thought I already had an advanced agent setup. What I actually had was a group of capable workers with me acting as scheduler, state machine, and safety net. DazzHub and Orca moved parts of that setup towards Stage 7, but the interesting work was not better prompting. It was isolation, state, gates, and limited permissions.
+{{< /admonition >}}
 
 A few weeks ago, I still started every coding agent myself. I opened a terminal, explained the task, watched it work, ran the tests, and decided what happened next. The agent wrote much of the code, but I remained the scheduler, the state machine, and the audit log.
 
 That setup felt advanced compared with autocomplete. Then I read Upsun's article about [the eight stages of AI engineering maturity](https://upsun.com/blog/8-stages-ai-engineering-maturity/). It gave me an uncomfortable way to describe what I had built: I had several capable workers and no factory.
 
-I started using DazzHub, my Symfony application for discovering and processing technical videos, as the project where I would find out what a software factory needs in practice. Orca became the place where the agents run. The work since then has involved fewer clever prompts than I expected. Most of it has been state, isolation, gates, and deciding which decisions an agent may make.
+I used DazzHub, my Symfony application for discovering and processing technical videos, to find out what a software factory actually needs. Orca became the place where the agents run. What happened next was much less about clever prompts than I expected. Most of the work was state, isolation, gates, and deciding which decisions an agent may make.
 
 ## The Eight Stages
 
@@ -28,7 +32,11 @@ The maturity model names these stages:
 
 I do not read this as a score. My setup occupies more than one stage at once. DazzHub has repository-owned skills and a formal workflow, which puts parts of it at Stage 6. An agent can take a Ready issue through an isolated worktree, implementation, CI, push, and pull request with little line-by-line authorship from me. That reaches into Stage 7. I still approve merges, and until recently I started every coding run myself.
 
-The useful question became: which missing part still requires my attention?
+{{< admonition type=info title="The stages are not a score" >}}
+A project can be at several stages at the same time. I use the model to find the next missing control, not to award my setup a bigger number.
+{{< /admonition >}}
+
+So I stopped asking, “Which stage am I?” The more useful question was: which missing part still requires my attention?
 
 ## My Starting Point Was Already an Island
 
@@ -55,7 +63,11 @@ The VM has two users with real roles:
 - `dazz` operates the machine and has sudo.
 - `dazztronic` runs Orca, the coding agents, rootless Docker, repositories, and a restricted GitHub identity.
 
-Orca runs Claude Code, Pi, and Codex as children of the runner. Giving Orca a third Unix user would only duplicate credentials while requiring the same repository access. The useful boundary is the runner account. Anything that account can do, an agent may eventually do too.
+Orca runs Claude Code, Pi, and Codex as children of the runner. Giving Orca a third Unix user would only duplicate credentials while requiring the same repository access. The useful boundary is the runner account.
+
+{{< admonition type=warning title="The real security boundary" >}}
+Anything the `dazztronic` account can do, an agent may eventually do too. I try not to confuse separate agent sessions with separate security boundaries.
+{{< /admonition >}}
 
 With Orca, I found several pieces that map directly onto the factory problem.
 
@@ -85,7 +97,11 @@ Orca automations supplied the first unattended actor in the workflow. An hourly 
 
 When there is capacity, the groomer reads `Backlog`, verifies one issue against the code, and either promotes a complete spec to `Ready`, asks one concrete question, or marks a thin issue for refinement. It never writes code and never touches a card outside `Backlog`.
 
-That narrow permission was my first practical lesson in autonomy. The useful unit is not “an autonomous agent.” It is an actor allowed to make one kind of decision under checkable conditions.
+{{< admonition type=tip title="I learned" >}}
+The useful unit is not “an autonomous agent.” It is an actor allowed to make one kind of decision under conditions I can check.
+{{< /admonition >}}
+
+That narrow permission was my first practical lesson in autonomy. Small permissions are easier to trust, test, and take away again.
 
 ## The First Factory Pieces
 
@@ -105,7 +121,7 @@ The issue flow looks like this:
 
 Failures also have a path. A red gate gets up to three bounded attempts with wider context. After that, the card moves to `Blocked`, gets a reason label, returns to me, and keeps its worktree for inspection. An environmental failure can resume only after the run repeats the exact check named in the block comment.
 
-I used to treat a failed agent session as a conversation that went badly. Now it becomes state another session can inspect.
+I used to treat a failed agent session as a conversation that went badly. Now it becomes state another session can inspect. For me, that is a much bigger improvement than another clever prompt.
 
 ## Where This Leaves Me
 

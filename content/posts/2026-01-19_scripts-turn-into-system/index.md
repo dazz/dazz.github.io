@@ -19,7 +19,7 @@ The responsibilities were cleanly split. I picked a video, copied the ID, trigge
 
 It felt like control.
 
-![dazztronic-blog.jpg](dazztronic-blog.jpg "dazztronic blog")
+![dazztronic-blog.jpg](dazztronic-blog-2.jpg "dazztronic blog")
 
 ## Why Scripts Felt Like the Right Tool at First
 

@@ -2,10 +2,15 @@
 title: "What I Still Need Before I Call This an Autonomous Factory"
 date: 2026-09-12T17:00:00+02:00
 tags: [ai, ai engineering, software factory, autonomous agents, orca, workflow, evals, guardrails, dazzhub]
+image: hero.png
 draft: true
 comments: true
 toc: true
 ---
+
+{{< admonition type=tldr title="TL;DR" >}}
+I have scheduled agents, isolated worktrees, CI gates, and central traces. I still do not have an autonomous factory. Dispatch, budgets, retry state, path locks, stronger evals, and explicit escalation are missing. I will add them one narrow lane at a time and keep human approval until the evidence says I can safely remove it.
+{{< /admonition >}}
 
 My agent server already has a scheduled job. Every hour, Orca checks whether the DazzHub board has capacity. When it does, a backlog groomer may promote one complete issue to `Ready`.
 
@@ -14,6 +19,10 @@ That sounds like an autonomous factory until I look at what happens next.
 The card waits. I still start the coding run. The agent opens a pull request, GitHub Actions checks it, and the process waits for me again. I approve before the agent may merge.
 
 I have automated the intake side of the queue. I have not automated dispatch or trust.
+
+{{< admonition type=warning title="Scheduled is not autonomous" >}}
+A job running every hour is only a timer. Autonomy starts when the system can select work, stay inside a budget, pass explicit gates, and stop or escalate without me watching it.
+{{< /admonition >}}
 
 ## What Stage 8 Means in This Setup
 
@@ -53,7 +62,11 @@ Orca automations can provide the schedule, fresh session, workspace, and prechec
 
 The Groomer writes `cheap`, `standard`, or `deep` to each promoted card. The value describes the work rather than naming a model, so it should survive model releases.
 
-No program consumes it.
+No program consumes it. Right now, the tier is documentation pretending to be policy.
+
+{{< admonition type=note title="A field is not a control" >}}
+Writing `cheap`, `standard`, or `deep` onto a card changes nothing until deterministic code maps it to a model, budget, concurrency limit, and retry policy.
+{{< /admonition >}}
 
 A Stage 8 dispatcher has to translate that tier into policy. A mechanical documentation change may use a cheaper model and a small token ceiling. Cross-module architecture work may use a stronger model, wider context, and a lower concurrency limit. The mapping belongs in configuration owned by the factory, where I can review and change it.
 
@@ -84,6 +97,10 @@ I want an immutable envelope per work item. Each phase should produce a new numb
 - artifact references.
 
 A deterministic orchestrator should be the only writer. Agents return results; they do not advance their own phase. Shape checks validate the envelope before it is stored, and domain gates decide whether the next phase may start.
+
+{{< admonition type=tip title="I learned" >}}
+Agents may return results, but they should not move themselves into the next phase. I want one deterministic orchestrator to validate the envelope and decide whether the workflow may continue.
+{{< /admonition >}}
 
 Without that envelope, retries and escalation remain conventions distributed across prompts and GitHub history.
 
@@ -134,6 +151,10 @@ The PR skill may merge only when three conditions hold:
 
 Removing my approval is a policy change, not the final line of an automation ticket. A green test suite proves the properties encoded in that suite. It says nothing about the requirement I forgot to encode or the technically correct feature I no longer want.
 
+{{< admonition type=warning title="Human approval is still a feature" >}}
+My approval is not leftover manual work I forgot to automate. It is the current trust boundary, and I will remove it only for work classes with enough evidence and a rollback path.
+{{< /admonition >}}
+
 I need trace history and eval results from enough real issues before changing this boundary. I may start by allowing a narrow class of recurring chores to merge automatically: patch dependency updates with a known diff shape, a complete deterministic gate, and a rollback path. Cross-module features can keep the human gate.
 
 Stage 8 does not require every job to have equal autonomy. It requires autonomy to follow encoded policy rather than whoever happens to be watching.
@@ -173,7 +194,7 @@ A run with no trace should fail an observability check. Silence cannot count as 
 
 I am not going to turn on autonomous issue dispatch and automatic merge together. That would combine scheduling, model selection, cost control, retry state, and trust into one failure.
 
-The next useful slice is smaller:
+So I am deliberately making the next slice smaller:
 
 1. add the work-item envelope and deterministic phase runner;
 2. run one narrow chore lane end to end;
@@ -183,4 +204,4 @@ The next useful slice is smaller:
 
 After that works repeatedly, I can decide whether one chore class may merge on its gates. Features can wait.
 
-I can already leave the house and let the backlog groomer run. I am not yet willing to let the whole factory decide what to build, spend, and merge while I sleep. The work left is the evidence that would make that boring.
+I can already leave the house and let the backlog groomer run. I am not yet willing to let the whole factory decide what to build, spend, and merge while I sleep. I do not need that to sound impressive. I need enough evidence that it becomes boring.

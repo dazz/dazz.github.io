@@ -2,10 +2,15 @@
 title: "The Bright Factory Needed Windows"
 date: 2026-09-10T17:00:00+02:00
 tags: [ai, ai engineering, observability, langfuse, agents, orca, claude code, pi, codex, self-hosting]
+image: hero.png
 draft: true
 comments: true
 toc: true
 ---
+
+{{< admonition type=tldr title="TL;DR" >}}
+Claude Code, Pi, and Codex all produced logs, but I had no practical view across them. I self-hosted Langfuse to collect their traces in one place. Pi works end to end, Claude Code works through transcript replay but still needs one live-hook proof, and Codex is installed but not verified. Observability helped, but it also added cost, secrets, and new failure modes.
+{{< /admonition >}}
 
 Claude Code, Pi, and Codex all kept session logs on my agent server. In theory, I could audit every run. In practice, that meant connecting to the machine, finding three different directories, and reading three different JSONL formats.
 
@@ -44,7 +49,11 @@ Self-hosting Langfuse is not one container. My Compose stack contains:
 
 That is a substantial observer for one VM with 14 GiB of RAM. Before starting it, the box had 10 GiB available and 31 GiB free on disk. During first-boot migrations, memory use reached 8.5 GiB and swap grew by about 0.2 GiB. After fifteen minutes it settled at 5.8 GiB used with 8.9 GiB available. The images and volumes consumed around 5 GiB of disk.
 
-Those numbers made the decision real. “Add observability” had a resource budget.
+{{< admonition type=info title="The observer is not free" >}}
+Langfuse added six containers and used around 5 GiB of disk. During migrations, memory use reached 8.5 GiB. “Add observability” sounds small until the observer needs its own resource budget.
+{{< /admonition >}}
+
+Those numbers made the decision real. I could no longer treat “add observability” as a checkbox.
 
 ## Keeping the Observer Separate
 
@@ -74,6 +83,10 @@ DBUS_SESSION_BUS_ADDRESS=disabled:
 
 The GNOME keyring was running, but the agent process could not reach the Secret Service over D-Bus. The hook started without its Langfuse keys and failed open before writing a log. Failing open is sensible for a telemetry hook because tracing must not block coding. It also made the cause invisible.
 
+{{< admonition type=warning title="Failing open can fail silently" >}}
+The coding session should continue when telemetry breaks. But if the hook leaves no error and no trace, “nothing happened” and “observability is broken” look exactly the same.
+{{< /admonition >}}
+
 I moved the three Langfuse variables into a mode-600 environment file sourced by the runner's shell. Plain environment variables do not need D-Bus. A manual replay of a real transcript from a shell shaped like an Orca agent session processed three turns and increased the ClickHouse row count.
 
 One qualification remains in my notes: I verified the hook script with the real transcript and real shell environment, but I have not yet recorded a fully automatic live `Stop` event after that fix. The difference is small in commands and important in evidence.
@@ -92,7 +105,7 @@ LANGFUSE_MIGRATION_V4_WRITE_MODE=dual
 
 After recreating the web and worker containers, a real `pi --print` turn completed and the trace count went from zero to one in ClickHouse. This is the strongest of my three agent integrations because I verified it from actual model turn to stored trace.
 
-The bridge stays until the Pi integration moves to a v4-native SDK. It is compatibility debt with a named removal condition.
+The bridge stays until the Pi integration moves to a v4-native SDK. For me, that is acceptable compatibility debt because it has a name and a clear removal condition.
 
 ## Codex: Installed Is Not Verified
 
@@ -108,13 +121,17 @@ I could call the installation “wired” and move on. The useful status is more
 - no authenticated real turn;
 - no trace verified.
 
-Observability work has made me much less tolerant of verbs such as “configured” and “working.” They describe different checkpoints.
+Observability work has made me much less tolerant of words such as “configured” and “working.” They are not the same checkpoint.
 
 ## The Incident Inside the Observability Work
 
 While diagnosing the shared environment, I printed the real Langfuse public and secret keys into an agent session transcript.
 
 The instance only listens on localhost, and the transcript is visible to an operator who already controls the machine. The immediate impact was low. The irony was excellent: while building a central record of agent activity, I created the exact secret-bearing record I wanted to avoid.
+
+{{< admonition type=danger title="Tracing also preserves mistakes" >}}
+Central tracing gives accidental secrets a longer life and a much better search interface. I now verify that variables are present without printing their values.
+{{< /admonition >}}
 
 I wrote the incident into the machine changelog instead of quietly deleting the evidence. The current setup avoids printing secret values during normal checks. A verification command checks only that the variable lengths are non-zero.
 
@@ -128,6 +145,6 @@ The stack also has an unresolved warning. The Langfuse worker logs recurring Red
 
 There is another structural weakness: Langfuse runs under the same `dazztronic` user and rootless Docker daemon as the agents it observes. An agent can stop its own observer. I accept that for this phase, and I wrote it down so it remains a decision.
 
-Central traces do not make the factory autonomous. They give me evidence to decide which job can run unattended, where it fails, and whether its gate catches the failures I care about.
+Central traces do not make the factory autonomous. They give me evidence to decide which job can run unattended, where it fails, and whether its gate catches the failures I care about. That is less exciting than autonomy, but I need the evidence first.
 
 That is the window I needed in the bright factory. The last post in this series looks at the controls still missing before I am willing to call it Stage 8.
