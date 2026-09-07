@@ -25,7 +25,7 @@ summaryLength = 70
 
 [params]
     description = "dazz blog about programming and other cool stuff"
-    author = "dazz | Anne-Julia Seitz"
+    author = { name = "dazz | Anne-Julia Seitz" }
     logo = "/logo.svg"
     favicon = "/favicon.png"
     faviconIco = "/favicon.ico"
