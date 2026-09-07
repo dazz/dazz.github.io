@@ -78,14 +78,7 @@ Claude Code is still part of my daily work. Pi runs alongside it and is especial
 
 They share a machine, but they do not share identical behavior.
 
-Claude Code and Pi have different session formats, different startup behavior, and different ways of loading project context. Pi does not automatically discover DazzHub's `.claude/skills` directory, so I pass it explicitly:
-
-```bash
-pi --skill /srv/workspaces/dazzhub/.claude/skills \
-   --model gpt-5.6-sol
-```
-
-That command is not decoration. Without the skill directory, Pi can write technically plausible code while missing the repository's rules about architecture, tests, migrations, naming, worktrees, and verification.
+Claude Code and Pi have different session formats, startup behavior, and ways of loading project context.
 
 The agents run as the server user, with the permissions of that user. Pi has no permission system that makes an unattended run safe by itself. The containment is provided by the machine: the runner has no sudo, Docker is rootless, and the repositories and credentials belong to that runner. This is an operational boundary, not a magic property of the model.
 
@@ -95,17 +88,7 @@ The biggest mistake would be to think that Orca makes prompts unnecessary. It ma
 
 DazzHub has an `AGENTS.md`, project rules, architecture documentation, workflow documentation, skills, tests, Make targets, and a small factory CLI. Those files explain how the project is supposed to be changed. The agent is not just given an issue; it is given the local way of working.
 
-The skills describe roles rather than one giant super-prompt:
-
-- an issue worker claims a ready card and takes it through implementation and verification;
-- a fleet skill owns worktrees and isolated checks;
-- a pull-request skill handles review feedback and merge policy;
-- a verifier compares a pull request with its acceptance criteria;
-- a backlog groomer decides whether one Backlog card is specified enough to become Ready;
-- a board walker dispatches eligible Ready cards to implementers;
-- dependency and infrastructure skills handle their narrower kinds of change.
-
-The skills do not replace deterministic checks. They tell the agent what to do. The factory CLI and CI enforce the parts that should not depend on the model remembering them.
+I use focused skills for individual roles instead of one giant super-prompt. They do not replace deterministic checks. They tell the agent what to do. The factory CLI and CI enforce the parts that should not depend on the model remembering them.
 
 That distinction has become central to my system: a prompt may propose a transition, but it must not be the authority that silently performs every transition.
 
@@ -149,79 +132,25 @@ It also makes the limits visible. Parallelism is not automatically good. Agents 
 
 ## Building the remote Orca server
 
-I set up an Ubuntu VM called `dazztronic-box` and installed Orca's Linux AppImage there. My desktop runs NixOS, but I chose Ubuntu for the agent server. Orca ships frequently as an Electron AppImage, and agents install software at runtime: npm packages, Python tools, downloaded binaries, and native dependencies. Ubuntu gives those tools the conventional Linux environment they expect.
+I set up an Ubuntu VM called `dazztronic-box` and installed Orca there. Ubuntu gives Orca and the tools installed by agents a conventional Linux environment.
 
-The VM runs with four cores, 16 GB of RAM, and a 100 GB disk on the AI computer already sitting on my desk. It uses VMware NAT and connects to my devices through Tailscale, so I did not need to rent another server or expose Orca directly to the internet.
+The VM runs on the AI computer already sitting on my desk and connects to my devices through Tailscale. I did not need to rent another server or expose Orca directly to the internet.
 
-Permissions and Docker caused the predictable trouble. The less predictable part was making Orca, rootless Docker, systemd, and a headless login session agree about the runner's environment. Once I had cleared those hurdles, all AI development could happen inside the VM instead of altering my workstation.
-
-I use two Unix roles:
-
-- `dazz` is the operator and has sudo for the machine setup;
-- `dazztronic` is the runner and owns Orca, the repositories, the agents, Docker, and the GitHub identity, but has no sudo.
-
-I did not create a fake third `orca` service user. Orca starts agents as child processes. A separate service user would either be unable to write the repositories or would need the same access as the runner. The meaningful boundary is that the account executing the agent is not allowed to become root.
-
-Docker is rootless for the same reason. A user in the rootful Docker group is effectively root. Rootless Docker requires a little more setup, including user namespaces, subordinate UID/GID ranges, lingering, and an explicit `DOCKER_HOST`, but it preserves the security story.
+I separated the operator account from the account that runs Orca and the agents. The runner has no sudo access and uses rootless Docker. With that boundary in place, all AI development can happen inside the VM instead of altering my workstation.
 
 ## Headless Orca and remote access
 
-The useful command is:
+`orca serve` keeps the runtime on the VM. I connect from the desktop client or the Android app through Tailscale, while the repositories, sessions, containers, and running agents remain on the server.
 
-```bash
-/opt/orca/orca-linux.AppImage serve \
-  --port 6768 \
-  --pairing-address 100.x.y.z
-```
+This changed my daily life most. I can start an agent at home, close the computer, and later reconnect from my phone to inspect its state, answer a question, or send another instruction.
 
-`orca serve` keeps the runtime on the VM. I connect to it from the Orca desktop client through Tailscale. Orca also has an Android app that I paired with the same server. The repositories, projects, sessions, credentials, containers, and running agents remain on the VM.
-
-This changed my daily life most. I can start an agent at home, close the computer, and later open Orca on my phone. I reconnect to the same projects and agents, read their state, answer a question, send another instruction, or start more work while I am away from my desk.
-
-I also enabled Orca's voice feature. At my computer I can speak to each agent instead of typing every instruction. The interaction feels less like operating a development tool and more like checking in with workers who already have the project and its current state in front of them.
-
-All projects run under the same server account, so they can see one another in my setup. I use that deliberately. An agent working in DazzHub or in the infrastructure project can open the blog repository and draft an article from the work it just inspected. That is unusually useful for me because the application, the factory, the infrastructure, and this blog document the same experiment.
-
-Cross-project visibility is a choice, not a requirement of remote Orca. Another setup may need strict project boundaries, separate runner accounts, or separate servers. On my personal machine, sharing the workspace removes handoffs I would otherwise perform by copying notes between projects.
-
-For persistence, I run Orca as a systemd service. The service has to provide the runner's rootless Docker socket explicitly because a system service does not inherit the interactive shell's `XDG_RUNTIME_DIR`:
-
-```ini
-[Service]
-User=dazztronic
-Environment=LIBGL_ALWAYS_SOFTWARE=1
-Environment=DOCKER_HOST=unix:///run/user/1000/docker.sock
-ExecStart=/opt/orca/orca-linux.AppImage serve --port 6768 --pairing-address 100.x.y.z
-Restart=on-failure
-```
-
-The `LIBGL_ALWAYS_SOFTWARE` setting is necessary on a headless machine without a usable GPU. The system comes back after a reboot, and the agent runtime no longer depends on my desktop being open.
-
-## The server had one particularly strange failure
-
-The headless server exposed an Orca problem that was invisible during the first start.
-
-`serve` started successfully, but the CLI commands used to inspect the runtime failed with `bad option: --no-sandbox`. Ubuntu restricts unprivileged user namespaces through AppArmor. Orca's AppImage detects that restriction and adds Electron's `--no-sandbox` fallback. That is reasonable for starting the full Electron application. The CLI starts the AppImage as Node with `ELECTRON_RUN_AS_NODE=1`, and Node does not understand the Electron flag.
-
-The server looked healthy while the CLI was broken.
-
-I kept the global Ubuntu restriction enabled and added a path-bound AppArmor profile that grants the Orca AppImage the user namespace capability it needs. After that, the CLI worked and the full server ran with the real Chromium sandbox instead of the fallback.
-
-That was a useful lesson for the whole system: “the process started” is not the same as “the runtime works.” The smoke test is `orca status --json`, not a process list.
+I also enabled Orca's voice feature and let projects share a workspace. An agent working on DazzHub can move to the blog repository and draft an article from the work it just inspected. For persistence, Orca runs as a systemd service and returns after a reboot without depending on my desktop.
 
 ## Observability matters once agents multiply
 
-When one agent runs on a laptop, I can often remember what happened. With Claude Code, Pi, and Codex on a server, each tool has its own local session logs and format. I want one place to answer questions such as:
+With several agents on a server, I also want one place to see what happened across their different session formats. I am adding a self-hosted Langfuse instance to collect traces from Claude Code, Pi, and Codex without replacing those runtimes.
 
-- Which agent worked on this issue?
-- Which tools did it call?
-- Where did it retry?
-- How much did the run cost?
-- Did it stop because of a code failure, an environment failure, or a missing instruction?
-
-I am adding self-hosted Langfuse as an observer rather than replacing the agent runtimes. Claude Code's hooks, Pi's extension, and Codex's plugin can turn their existing session data into traces. The Langfuse stack runs separately with its own PostgreSQL, ClickHouse, Redis, MinIO, web service, and worker.
-
-That stack is not free. It uses RAM, disk, and operational attention. Centralized traces also collect prompts, tool calls, paths, and accidental secrets, so observability increases both auditability and the value of what must be protected. I am treating it as infrastructure with a budget, not as a checkbox.
+Those traces may contain prompts, tool calls, paths, and secrets, so I treat the observer as sensitive infrastructure rather than a harmless dashboard.
 
 ## What I still do myself
 
