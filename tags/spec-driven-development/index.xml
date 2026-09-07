@@ -4,7 +4,7 @@
 <p>This approach allowed me to convert videos into readable content quickly, with minimal effort and cognitive load.</p>
 <p>The responsibilities were cleanly split. I picked a video, copied the ID, triggered the run, and occasionally checked whether it worked. The scripts handled the rest: transcript download, prompt formatting, output writing, and site generation.</p>
 <p>It felt like control.</p>
-<p><img src="dazztronic-blog.jpg" alt="dazztronic-blog.jpg" title="dazztronic blog"></p>
+<p><img src="dazztronic-blog-2.jpg" alt="dazztronic-blog.jpg" title="dazztronic blog"></p>
 <h2 id="why-scripts-felt-like-the-right-tool-at-first">Why Scripts Felt Like the Right Tool at First</h2>
 <p>Scripts removed the tedious middle steps: <em>download transcript → format prompt → save response</em>. They gave me repeatability without committing to “architecture.”</p>
 <p>More importantly, they kept the whole thing understandable.</p>

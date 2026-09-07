@@ -151,4 +151,43 @@
 <h2 id="closing-the-tradeoff-is-always-legibility-versus-rigor">Closing: the tradeoff is always legibility versus rigor</h2>
 <p>Step back from the specific implementations and a single axis explains most of the differences above: every one of these approaches trades off how <em>legible</em> its output is to a human against how <em>structurally rigorous</em> it is for a machine to reason over. OKF sits at the legible end — genuinely readable prose, at the cost of zero cross-source structure. Triplet extraction sits near the rigorous end — a clean, queryable edge list, at the cost of being nearly unreadable as prose and blind to synonymy. Ontology tries to buy both — readable community reports <em>and</em> resolved entities — and pays for it in genuine engineering complexity, with results here that are real but not yet validated at production quality. Concept files are a bet that you can buy back most of Ontology&rsquo;s memory without most of its weight, by being deliberate about which 20% of the machinery actually does the load-bearing work.</p>
 <p>There is no version of this that gets you legibility and rigor and simplicity all at once for free. The right move is naming, honestly, which one your actual use case needs most — a human skimming for understanding, a machine walking a graph, or a system that needs to remember what it already knows the next time it sees the same idea again — and building for that, rather than reaching for whichever of the four happens to be the current default answer to &ldquo;we have unstructured data, now what.&rdquo;</p>
-]]></description><media:thumbnail url="https://blog.dazzlog.de/knowledge-extraction.png"/></item></channel></rss>
+]]></description><media:thumbnail url="https://blog.dazzlog.de/knowledge-extraction.png"/></item><item><title>O is for Ontology</title><link>https://blog.dazzlog.de/posts/2026-01-28-o-is-for-ontology/</link><pubDate>Wed, 28 Jan 2026 09:00:00 +0200</pubDate><guid>https://blog.dazzlog.de/posts/2026-01-28-o-is-for-ontology/</guid><description><![CDATA[<p>I have developed my own YouTube video transcript RAG. I wanted to read summarized transcripts as blog posts, but when I was at the stage that the blog posts appeared in my blog right after a video that I had in my subscriptions was published I thought that I also would like to have all the content accessible for AI so I could ask an LLM about topics of the videos my system had consumed and an LLM would answer with all the references back to the videos where a piece of information was found.</p>
+<p>The RAG pipeline part was easy:</p>
+<ul>
+<li>get transcript</li>
+<li>split into chunks</li>
+<li>enrich with metadata</li>
+<li>vectorize each chunk</li>
+</ul>
+<p>Then I build a feature in the application to have a conversation about the video content with an LLM and it worked awesome.</p>
+<p>But RAG has some flaws. It can only find what you know how it named, since it has to vectorize the question, search with those vectors and the result is fed
+to an LLM which generates an answer from those results.</p>
+<p>The next logical thing to do is building a GraphRAG. I did not know that the rabbit hole would be that deep and would have so many tunnels.</p>
+<p>Things I learned:</p>
+<h2 id="1-check-your-data">1. Check your data</h2>
+<p>I thought I had figured it all out and then discovered that the summaries of chunks I extracted the entities and relations from were not good. It took 2 days to figure out which model would give me good summaries. It took three days to rerun generation for all summaries.</p>
+<p>And a few days ago I found out that the ChapterChunker does not do the 20% overlap which is mandatory for finding in RAG. I can not simply rebuild those since that would mean all the chunk-summaries, vectors, extractions and all that would need to get rebuild again as well.</p>
+<h2 id="2-experiment-and-compare-before-you-code">2. Experiment and Compare before you code</h2>
+<p>AI tricks you into thinking that &ldquo;of course, d&rsquo;oh&rdquo; everything we do here is the way things are done. But when the results are bad you need to find out why. In my case, I wanted to extract entities and relations of the transcript chunks. AI wanted to use the summary and I did not know better so we started with those. While reading about how to extract entities from text I discovered ontology. And no, this has nothing to do with birds. Its about &hellip;(fill facts).</p>
+<p>So the plan to extract entities changed to do a bottom up ontology</p>
+<ol>
+<li>discover candidates from many videos</li>
+<li>induce an ontology schema from it</li>
+<li>extract entities from chunk</li>
+<li>check them against ontology schema</li>
+<li>store entities</li>
+<li>persist entities with relations to neo4j</li>
+<li>win</li>
+</ol>
+<p>Then I thought it would be better to split up discovery in two prompts, first the entities, then from that the relations. It made everything more complicated.
+Also I discovered that reading the discovered candidates in a relational database makes it hard to compare.</p>
+<p>I build a feature in my application to make all prompts visible, and I can select from a list and a form is build for filling out all the placeholders. Then I can select a model from the list. For having a better overview I also created a page in the application that gives me specs and insights so I know I am using the right ones in my experiments.</p>
+<p>The results were still not overwhelming, but queriing the models not with curl, but from within the application made me discover that although the model has thinking capability it was not actively enabled which you need to do with ollama.</p>
+<p>Having a way to test the prompts and do experiments helped me tremendously selecting a model for a specific task and I have to say, this is the part that is fun and annoying at the same time.</p>
+<h2 id="3-quality-takes-time-a-lot-of-time-and-time-is-money">3. Quality takes time, a lot of time. And time is money.</h2>
+<p>Extracting knowledge from text runs up to 5 minutes for every text, of course depending on the model. Selecting a big model would increase the time, taking a smaller model decreases the quality, so the goal is to find the smallest model that you can live with the quality of output.</p>
+<p>I found out that I have to configure the timeouts of my system to wait for a long time, up to 6 minutes so I would not get timeouts during synchonous experiments.</p>
+<h2 id="4-know-the-limits">4. Know the limits</h2>
+<p>But there are more parts to it. A model has a context length it can process. If the input is to big then it will get truncated and the model again will act on not all the information. But bigger is not better as it depends on the attention. If a model has not been trained to follow instructions and understand the system prompt and apply it on the input then the big context is really not helping.</p>
+<p>Some models come with their own system prompts that mix in, some models look very promising and then do not even understand to answer with JSON, not with JSON in markdown quotes &hellip; Yes, I was very specific in my prompt but it still would not comply.</p>
+]]></description><media:thumbnail url="https://blog.dazzlog.de/ontology.jpg"/></item></channel></rss>
