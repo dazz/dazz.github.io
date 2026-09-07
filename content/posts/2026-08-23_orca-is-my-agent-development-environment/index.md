@@ -13,23 +13,21 @@ That is still a perfectly reasonable way to develop software. It is also no long
 
 At the beginning of August, I moved my development into [Herdr](https://herdr.dev/). Herdr gave me the first important step away from an IDE: one terminal interface for several agents and projects. I could send an agent to work, switch to another project instead of watching it, and see when the first agent had finished.
 
-![ide.jpg](ide.jpg)
-
 That already matched the way I wanted to work. An IDE assumes that I operate Git, the file browser, the terminal, and the editor. Once a coding agent operates those tools, my job moves up a level. I describe the work, give the agent the project context, inspect the result, and decide what happens next.
 
 Herdr brought the pieces together for me. I did not use it for long, because I found [Orca](https://onorca.dev/) soon afterwards and was stunned by how much more it brought around the same agent-management idea.
 
 ## From Herdr to Orca
 
-I had already stopped waiting beside a single coding agent. Herdr let me manage several agents and projects from one place. Orca kept that model and added workspaces, Git worktrees, orchestration, skills, automation, remote clients, and a server runtime.
+I had already stopped waiting beside a single coding agent. Herdr let me manage several agents and projects from one place. Orca kept that model and added workspaces, using git worktrees, orchestration, skills, automation, remote clients, and even a server runtime.
 
-I installed Orca on my computer first. During installation and setup it changed enough on my system that I reconsidered where any of my AI development should run. Coding agents install tools, create worktrees, start containers, store credentials, and leave session data behind. I no longer wanted all of that mixed into my personal workstation.
+I installed Orca on my computer first. During installation and setup it changed enough on my system that I reconsidered where any of my AI development should run. Coding agents install tools, create worktrees, start containers, store credentials, and leave session data behind. I no longer wanted all of that mixed into my personal workstation. Additionally, I wanted to give my agents as much freedom as possible to no longer being blocked by asking me or any other model for permission to access or execute.
 
-![herdr.jpg](herdr.jpg)
+![orca-ade.jpg](orca-ade.jpg)
 
-Orca's documentation described several remote-server setups. I could have rented a virtual server. Instead, I already had a powerful AI computer sitting on my desk, so I created an Ubuntu VM on it and moved Orca, the agents, the repositories, and Docker into that VM.
+Orca's documentation described several [remote-server setups](https://www.onorca.dev/docs/remote-servers). I could have rented a virtual server. Instead, I already had a powerful AI computer sitting on my desk, so I created an Ubuntu VM on it and moved Orca, the agents, the repositories, and Docker into that VM.
 
-That decision made Orca much more than the richer successor to the setup I had in Herdr. The agents now had a permanent place to work, independent of the computer I happened to be using.
+That decision made Orca much more than the richer successor to the setup I had in herdr. The agents now had a permanent place to work, independent of the computer I happened to be using.
 
 ## What Orca adds to coding agents
 
@@ -40,16 +38,14 @@ The parts I use most are these:
 - workspaces and Git worktrees for isolated tasks;
 - terminals that belong to those workspaces;
 - several agents and models in one runtime;
-- orchestration, where a coordinator can start worker sessions;
+- orchestration, where a coordinator can start worker sessions and aks them to communicate with each other;
 - skills and project context that tell an agent how this repository works;
-- remote access from a desktop or phone;
+- remote access from a desktop or phone via Tailscale VPN;
 - a headless server mode that keeps the work alive when my computer is closed;
 - automations that can run recurring, narrowly scoped actions;
 - session history and runtime state that make it possible to inspect what happened.
 
 The important feature is not any one item in that list. It is that Orca treats agent work as something that has a lifecycle.
-
-![orca-ade.jpg](orca-ade.jpg)
 
 ## Worktrees are not a detail
 
