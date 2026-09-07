@@ -8,7 +8,7 @@
 </ul>
 <h2 id="the-github-workflow">The GitHub Workflow</h2>
 <p>I created a workflow in my repository under <code>.github/workflow/cd.md</code> and added the following:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ff79c6">name</span>: Continuous Delivery
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ff79c6">name</span>: Continuous Delivery
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">on</span>:
 </span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">push</span>:
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">branches</span>:

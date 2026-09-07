@@ -70,7 +70,7 @@ If you don&rsquo;t know that and put the web apps <code>.env</code> file in the 
 <h3 id="the-directory-tree">The directory tree</h3>
 <p>To ease the separation of infrastructure and code the application code moves into the <code>./app</code> directory to be completely separate from the code/config that defines the infrastructure.
 You see there is no <code>.env</code> file left from Symfony. All variables have now moved to the env files inside the <code>devops/env</code> directory.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-gdscript3" data-lang="gdscript3"><span style="display:flex;"><span><span style="color:#ff79c6">.</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-gdscript3" data-lang="gdscript3"><span style="display:flex;"><span><span style="color:#ff79c6">.</span>
 </span></span><span style="display:flex;"><span>├── app
 </span></span><span style="display:flex;"><span>│   ├── assets
 </span></span><span style="display:flex;"><span>│   ├── bin
@@ -107,7 +107,7 @@ You see there is no <code>.env</code> file left from Symfony. All variables have
 </span></span><span style="display:flex;"><span>└── README<span style="color:#ff79c6">.</span>md
 </span></span></code></pre></div><h2 id="the-docker-composeyml">The docker-compose.yml</h2>
 <p>Each service gets its own <code>env_file</code> where we can configure the sensitive data for each service.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ff79c6">version</span>: <span style="color:#f1fa8c">&#39;3.9&#39;</span>  
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ff79c6">version</span>: <span style="color:#f1fa8c">&#39;3.9&#39;</span>  
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">services</span>:  
 </span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">app</span>:  
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">image</span>: ghcr.io/c-base/cbag3:dev-latest  
@@ -139,7 +139,7 @@ You see there is no <code>.env</code> file left from Symfony. All variables have
 </div>
 <h2 id="disable-dotenv-in-frontcontroller--and-console">Disable DotEnv in frontcontroller  and console</h2>
 <p>The DotEnv component is disabled since all environment variables have already passed to the container.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#6272a4"># app/public/index.php
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#6272a4"># app/public/index.php
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">&lt;?</span>php  
 </span></span><span style="display:flex;"><span>  
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> Cbase\App\Kernel;  
@@ -151,7 +151,7 @@ You see there is no <code>.env</code> file left from Symfony. All variables have
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">return</span> <span style="color:#ff79c6">function</span> (<span style="color:#ff79c6">array</span> <span style="color:#8be9fd;font-style:italic">$context</span>) {  
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">new</span> Kernel(<span style="color:#8be9fd;font-style:italic">$context</span>[<span style="color:#f1fa8c">&#39;APP_ENV&#39;</span>], (bool) <span style="color:#8be9fd;font-style:italic">$context</span>[<span style="color:#f1fa8c">&#39;APP_DEBUG&#39;</span>]);  
 </span></span><span style="display:flex;"><span>};
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#6272a4"># app/bin/console
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#6272a4"># app/bin/console
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4">#!/usr/bin/env php  
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">&lt;?</span>php  
 </span></span><span style="display:flex;"><span>  
@@ -192,7 +192,7 @@ You see there is no <code>.env</code> file left from Symfony. All variables have
   </div>
 </div>
 <h2 id="dont-forget-to-add-the-parameters-in-servicesyml">Don&rsquo;t forget to add the parameters in <code>services.yml</code></h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># app/config/services.yaml</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># app/config/services.yaml</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">parameters</span>:  
 </span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">images.upload.directory</span>: <span style="color:#f1fa8c">&#39;%env(resolve:IMAGES_UPLOAD_DIRECTORY)%&#39;</span>
 </span></span><span style="display:flex;"><span>
@@ -214,7 +214,7 @@ environment variable in the env file since the service might not be loaded in ev
   </div>
 </div>
 <h2 id="run-docker--container-in-production-with-env-file">Run docker  container in production with env-file</h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat devops/env/app.env
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat devops/env/app.env
 </span></span><span style="display:flex;"><span><span style="color:#6272a4"># This is a comment</span>
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">IMAGES_UPLOAD_DIRECTORY</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;%kernel.project_dir%/var/uploads&#34;</span>
 </span></span><span style="display:flex;"><span>
@@ -224,10 +224,10 @@ environment variable in the env file since the service might not be loaded in ev
 <h2 id="migration-path">Migration Path</h2>
 <p>There is a migration path for projects that use already many config yaml files and want to migrate to environment
 variables.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># config/my-app.yaml</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># config/my-app.yaml</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">parameters</span>:
 </span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">images.upload.directory</span>: <span style="color:#f1fa8c">&#39;%kernel.project_dir%/var/uploads&#39;</span>
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># config/services.yaml</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># config/services.yaml</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">parameters</span>:
 </span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">env(IMAGES_UPLOAD_DIRECTORY)</span>: <span style="color:#f1fa8c">&#39;%images.upload.directory%&#39;</span>
 </span></span><span style="display:flex;"><span>

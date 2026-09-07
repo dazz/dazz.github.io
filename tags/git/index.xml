@@ -15,35 +15,35 @@
 <p>As a reference, this is what I ended up doing:</p>
 <h2 id="local-setup">Local setup</h2>
 <h3 id="install-hugo">install hugo</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo apt-get install hugo
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>sudo apt-get install hugo
 </span></span></code></pre></div><h3 id="create-a-new-site">create a new site</h3>
 <p>see the <a href="https://gohugo.io/getting-started/quick-start/">official Quick Start</a> for more infos.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>hugo new site dazz.github.io
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>hugo new site dazz.github.io
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">cd</span> dazz.github.io
 </span></span><span style="display:flex;"><span>git init
 </span></span></code></pre></div><h3 id="add-a-theme">add a theme</h3>
 <p>Look at all the <a href="https://themes.gohugo.io/tags/blog/">blog themes</a> hugo already has listed.</p>
 <p>I chose <code>hugo-ficurinia</code> as it has the following enabled: tags, categories, fonts I like, simply deploys and looks as promised.</p>
 <p>Add the theme as submodule:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>git submodule add https://gitlab.com/gabmus/hugo-ficurinia themes/hugo-ficurinia
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>git submodule add https://gitlab.com/gabmus/hugo-ficurinia themes/hugo-ficurinia
 </span></span></code></pre></div><p>And run a local server to test everything</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>hugo server -t hugo-ficurinia
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>hugo server -t hugo-ficurinia
 </span></span></code></pre></div><h3 id="add-a-blog-post">add a blog post</h3>
 <p>There is probably nothing much to see, so let&rsquo;s add a new post as draft.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>hugo new posts/hello-world/index.md
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>hugo new posts/hello-world/index.md
 </span></span></code></pre></div><p>Make sure to read about how to <a href="https://gohugo.io/content-management/organization/">organize the content</a> in directories.</p>
 <h3 id="run-the-server">run the server</h3>
 <p>And run the server again and also include the draft post</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>hugo server -t hugo-ficurinia --buildDrafts
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>hugo server -t hugo-ficurinia --buildDrafts
 </span></span></code></pre></div><p>When you run just <code>hugo -t hugo-ficurinia</code>  the site will be build and dumped to <code>public/</code>. That is what we will later do to deploy the site.</p>
 <p>Time to commit all the changed files and add the remote to push everything</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>git remote add origin git@github.com:dazz/dazz.github.io.git
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>git remote add origin git@github.com:dazz/dazz.github.io.git
 </span></span><span style="display:flex;"><span>git push origin main
 </span></span></code></pre></div><p>There will nothing happen yet as we still need to add the github workflow</p>
 <h2 id="deploy-to-github-pages-via-github-actions">Deploy to GitHub pages via GitHub actions</h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>mkdir -p .github/workflows
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>mkdir -p .github/workflows
 </span></span><span style="display:flex;"><span>touch .github/workflows/pages-deploy.yml
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># file: .github/workflows/pages-deploy.yml</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># file: .github/workflows/pages-deploy.yml</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">name</span>: <span style="color:#f1fa8c">&#34;Build and Deploy gh-pages&#34;</span>  
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">on</span>:  
 </span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">push</span>:  

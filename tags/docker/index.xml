@@ -9,7 +9,7 @@
 <li><strong>NGINX Container:</strong> Serves static files and proxies requests to PHP-FPM.</li>
 </ul>
 <p>And the <code>docker-compose.yaml</code> looks like this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># docker-compose.yaml</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># docker-compose.yaml</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">services</span>:
 </span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">app</span>:
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">image</span>: php:8.4.1-fpm-alpine
@@ -144,7 +144,7 @@ shutdown.</li>
 <h2 id="setting-up-s6-overlay">Setting Up s6-overlay</h2>
 <h3 id="installation">Installation</h3>
 <p>The installation of s6-overlay is straightforward. In your Dockerfile, you typically add and extract two tarballs (one for noarch and one for your architecture). For example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dockerfile" data-lang="dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">FROM</span> <span style="color:#f1fa8c">busybox</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-dockerfile" data-lang="dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">FROM</span> <span style="color:#f1fa8c">busybox</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">ARG</span> <span style="color:#8be9fd;font-style:italic">RELEASE_PATH</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;https://github.com/just-containers/s6-overlay/releases/download/v3.2.0.2&#34;</span>
 </span></span><span style="display:flex;"><span>
@@ -176,7 +176,7 @@ shutdown.</li>
   </div>
 </div>
 <p>For example:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-dockerfile" data-lang="dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">ENTRYPOINT</span> [<span style="color:#f1fa8c">&#34;/init&#34;</span>]
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-dockerfile" data-lang="dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">ENTRYPOINT</span> [<span style="color:#f1fa8c">&#34;/init&#34;</span>]
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">CMD</span> [<span style="color:#f1fa8c">&#34;php&#34;</span>, <span style="color:#f1fa8c">&#34;bin/console&#34;</span>, <span style="color:#f1fa8c">&#34;messenger:consume&#34;</span>, <span style="color:#f1fa8c">&#34;scheduler_default&#34;</span>, <span style="color:#f1fa8c">&#34;--time-limit=300&#34;</span>]
 </span></span></code></pre></div><p>In this configuration, even if you override the command, s6-overlay will continue to manage your process lifecycle.</p>
 <h2 id="service-types-in-s6-overlay">Service Types in s6-overlay</h2>
@@ -223,15 +223,15 @@ shutdown.</li>
 <h2 id="a-step-by-step-example-running-php-fpm-and-nginx">A Step-by-Step Example: Running PHP-FPM and NGINX</h2>
 <h3 id="1-directory-structure">1. Directory Structure</h3>
 <p>Create the service root directory:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>mkdir -p /etc/s6-overlay/s6-rc.d
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>mkdir -p /etc/s6-overlay/s6-rc.d
 </span></span></code></pre></div><p>Then add the <code>user</code> bundle, which s6-overlay expects and uses as the entry point for all service configurations:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
 </span></span><span style="display:flex;"><span>└── user
 </span></span><span style="display:flex;"><span>    ├── contents.d <span style="color:#6272a4"># Directory for service files</span>
 </span></span><span style="display:flex;"><span>    └── <span style="color:#8be9fd;font-style:italic">type</span>  <span style="color:#6272a4"># File contains string &#34;bundle&#34;</span>
 </span></span></code></pre></div><h3 id="2-defining-the-php-fpm-service">2. Defining the PHP-FPM Service</h3>
 <p>Create the PHP-FPM service configuration:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
 </span></span><span style="display:flex;"><span>├── svc-php-fpm
 </span></span><span style="display:flex;"><span>│   ├── run
 </span></span><span style="display:flex;"><span>│   └── <span style="color:#8be9fd;font-style:italic">type</span>  <span style="color:#6272a4"># Contains &#34;longrun&#34;</span>
@@ -239,11 +239,11 @@ shutdown.</li>
 </span></span><span style="display:flex;"><span>    └── contents.d
 </span></span><span style="display:flex;"><span>        └── svc-php-fpm
 </span></span></code></pre></div><p>And in <code>/etc/s6-overlay/s6-rc.d/svc-php-fpm/run</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/execlineb -P
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/execlineb -P
 </span></span></span><span style="display:flex;"><span>/usr/local/sbin/php-fpm --nodaemonize
 </span></span></code></pre></div><h3 id="3-defining-the-nginx-service">3. Defining the NGINX Service</h3>
 <p>Set up the NGINX service with a dependency on PHP-FPM:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
 </span></span><span style="display:flex;"><span>├── svc-nginx
 </span></span><span style="display:flex;"><span>│   ├── dependencies.d
 </span></span><span style="display:flex;"><span>│   │   └── svc-php-fpm
@@ -253,12 +253,12 @@ shutdown.</li>
 </span></span><span style="display:flex;"><span>    └── contents.d
 </span></span><span style="display:flex;"><span>        └── svc-nginx
 </span></span></code></pre></div><p>And the content of <code>/etc/s6-overlay/s6-rc.d/svc-nginx/run</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/execlineb -P
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/execlineb -P
 </span></span></span><span style="display:flex;"><span>nginx -g <span style="color:#f1fa8c">&#34;daemon off;&#34;</span>
 </span></span></code></pre></div><p>This ensures that NGINX only starts after PHP-FPM is running.</p>
 <h3 id="4-running-the-container">4. Running the Container</h3>
 <p>Once the configuration is in place, launch your container:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run --name s6-demo -d -p 8000:80 s6-demo
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run --name s6-demo -d -p 8000:80 s6-demo
 </span></span></code></pre></div><p>Use <code>docker stop</code> to gracefully shut down your container. s6-overlay will handle the shutdown by invoking any configured <code>finish</code> scripts to perform cleanup or adjust exit codes.</p>
 <h2 id="s6-programs">s6 programs</h2>
 <p>Below is an overview of several key s6 programs that come with installing s6-overlay.</p>
@@ -269,7 +269,7 @@ shutdown.</li>
 <li>Low Overhead: It’s lightweight, making it ideal for container environments where efficiency is key.</li>
 <li>Reliability: With minimal dependencies and a straightforward design, execlineb helps prevent unexpected behavior in critical system scripts.</li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/execlineb -P
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/execlineb -P
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4"># Using the -P flag preserves the environment variables</span>
 </span></span><span style="display:flex;"><span>s6-setuidgid www-data
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">exec</span> /usr/local/sbin/php-fpm --nodaemonize
@@ -277,14 +277,14 @@ shutdown.</li>
 <h3 id="with-contenv"><code>with-contenv</code></h3>
 <p>The <code>with-contenv</code> command is designed to &ldquo;inject&rdquo; the container’s environment variables into the execution context. In containerized environments, it ensures that any environment variables set at the container level are available to the script.</p>
 <p>Opposed to when you do not set it the program you execute will not kow about environment variables of the container.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/with-contenv sh
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/with-contenv sh
 </span></span></span><span style="display:flex;"><span>env
 </span></span></code></pre></div><h3 id="s6-setuidgid"><code>s6-setuidgid</code></h3>
 <p>Always drop root privileges before running your service. In <code>execlineb</code>, you can do this as follows:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/execlineb -P
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/execlineb -P
 </span></span></span><span style="display:flex;"><span>s6-setuidgid www-data myservice
 </span></span></code></pre></div><p>Or in a shell script:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/bin/sh
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/bin/sh
 </span></span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">exec</span> s6-setuidgid www-data myservice
 </span></span></code></pre></div><p>Read more about it here: <a href="https://skarnet.org/software/s6/s6-setuidgid.html">https://skarnet.org/software/s6/s6-setuidgid.html</a></p>
 <h2 id="customizing-behavior-with-environment-variables">Customizing Behavior with Environment Variables</h2>
@@ -301,14 +301,14 @@ shutdown.</li>
 <p>After establishing your basic setup, you might want to extend functionality with additional recipes:</p>
 <h3 id="database-migrations">Database Migrations</h3>
 <p>Define an oneshot service to run your migration scripts:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
 </span></span><span style="display:flex;"><span>├── init-migrations
 </span></span><span style="display:flex;"><span>│   ├── <span style="color:#8be9fd;font-style:italic">type</span>  <span style="color:#6272a4"># Contains &#34;oneshot&#34;</span>
 </span></span><span style="display:flex;"><span>│   └── up
 </span></span><span style="display:flex;"><span>└── scripts
 </span></span><span style="display:flex;"><span>  └── init-migrations
 </span></span></code></pre></div><p>And in the migration script:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/with-contenv sh
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/with-contenv sh
 </span></span></span><span style="display:flex;"><span>s6-setuidgid www-data
 </span></span><span style="display:flex;"><span>php /var/www/html/bin/console doctrine:migrations:migrate --no-interaction
 </span></span><span style="display:flex;"><span>php /var/www/html/bin/console doctrine:migrations:status
@@ -316,7 +316,7 @@ shutdown.</li>
 <p>Symfonys scheduler component replaces cron jobs so you can run scheduled jobs in your application. For this to work you need to have a process running all the time that runs in a loop and asks every time if there is a message scheduled to be triggered.
 Read the complete documentation here: <a href="https://symfony.com/doc/current/scheduler.html">https://symfony.com/doc/current/scheduler.html</a></p>
 <p>Create a longrun service to handle cron-like tasks, such as consuming message queues like this:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
 </span></span><span style="display:flex;"><span>├── svc-messenger-scheduler
 </span></span><span style="display:flex;"><span>│   ├── dependencies.d
 </span></span><span style="display:flex;"><span>│   │    └── svc-php-fpm
@@ -324,7 +324,7 @@ Read the complete documentation here: <a href="https://symfony.com/doc/current/s
 </span></span><span style="display:flex;"><span>│   └── run
 </span></span><span style="display:flex;"><span>└── user/contents.d/svc-messenger-scheduler
 </span></span></code></pre></div><p>In <code>/etc/s6-overlay/s6-rc.d/svc-messenger-scheduler/run</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/with-contenv sh
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/with-contenv sh
 </span></span></span><span style="display:flex;"><span>s6-setuidgid www-data
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>php /var/www/html/bin/console messenger:consume scheduler_default <span style="color:#f1fa8c">\
@@ -332,7 +332,7 @@ Read the complete documentation here: <a href="https://symfony.com/doc/current/s
 </span></span></code></pre></div><h3 id="async-message-handling">Async Message handling</h3>
 <p>Same as the scheduler there is a Symfony Messages component that will be connected to a transport and query for new messages. For that we need a worker service running that will consume messages and dispatch them to message handlers.
 Read the complete documentation here: <a href="https://symfony.com/doc/current/messenger.html">https://symfony.com/doc/current/messenger.html</a></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
 </span></span><span style="display:flex;"><span>├── svc-messenger-async
 </span></span><span style="display:flex;"><span>│   ├── dependencies.d
 </span></span><span style="display:flex;"><span>│   │    └── svc-php-fpm
@@ -340,7 +340,7 @@ Read the complete documentation here: <a href="https://symfony.com/doc/current/m
 </span></span><span style="display:flex;"><span>│   └── run
 </span></span><span style="display:flex;"><span>└── user/contents.d/svc-messenger-async
 </span></span></code></pre></div><p>In <code>/etc/s6-overlay/s6-rc.d/svc-messenger-async/run</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/with-contenv sh
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/with-contenv sh
 </span></span></span><span style="display:flex;"><span>s6-setuidgid www-data
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>php /var/www/html/bin/console messenger:consume messenger:consume async <span style="color:#f1fa8c">\
@@ -355,10 +355,10 @@ Read the complete documentation here: <a href="https://symfony.com/doc/current/m
 <p>Everything is easy with this feature flag script set with the <code>S6_STAGE2_HOOK</code>.
 It enables or disables specific services at startup, tailoring your container behavior to your deployment environment.</p>
 <p>In the Dockerfile:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#6272a4"># set path to feature-toggle script</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#6272a4"># set path to feature-toggle script</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">ENV</span> <span style="color:#8be9fd;font-style:italic">S6_STAGE2_HOOK</span><span style="color:#ff79c6">=</span>/etc/s6-overlay/s6-hook/feature-toggle
 </span></span></code></pre></div><p>The <code>feature-toggle</code> script</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/with-contenv sh
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#ff79c6">#!/command/with-contenv sh
 </span></span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">INIT_MIGRATIONS</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">FEATURE_INIT_MIGRATIONS</span><span style="color:#ff79c6">:-</span><span style="color:#8be9fd;font-style:italic">false</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">&#34;</span>
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">SVC_MESSENGER_SCHEDULER</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">FEATURE_RUN_QUEUE_SCHEDULER</span><span style="color:#ff79c6">:-</span><span style="color:#8be9fd;font-style:italic">false</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">&#34;</span>
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">SVC_MESSENGER_ASYNC</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">FEATURE_RUN_QUEUE_ASYNC</span><span style="color:#ff79c6">:-</span><span style="color:#8be9fd;font-style:italic">false</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">&#34;</span>
@@ -374,7 +374,7 @@ It enables or disables specific services at startup, tailoring your container be
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">done</span>
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">exit</span> <span style="color:#bd93f9">0</span>
 </span></span></code></pre></div><p>In the <code>docker-compose.yaml</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ff79c6">services</span>:
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ff79c6">services</span>:
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">app</span>:
 </span></span><span style="display:flex;"><span>        <span style="color:#6272a4"># ...</span>
 </span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">environment</span>:
@@ -387,7 +387,7 @@ It enables or disables specific services at startup, tailoring your container be
 <p>I created a base image for s6-overlay which will be build whenever s6-overlay pushes a new version.</p>
 <p><a href="https://github.com/dazz/s6-overlay-base">https://github.com/dazz/s6-overlay-base</a></p>
 <p>In your <code>Dockerfile</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">FROM</span> <span style="color:#f1fa8c">php:8.3-alpine3.21</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">FROM</span> <span style="color:#f1fa8c">php:8.3-alpine3.21</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">COPY</span> --from<span style="color:#ff79c6">=</span>hakindazz/s6-overlay-base:3.2.0.2 /s6/root /
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#6272a4"># install your app here</span>
@@ -444,17 +444,17 @@ You can adapt it und use it in your org if you need the be able to build your ow
 </ul>
 <h2 id="usage">Usage</h2>
 <p>You do not need to install anything, just execute the binary via docker</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run -it --rm hakindazz/s6-cli <span style="color:#8be9fd;font-style:italic">help</span>
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>COMMANDS:
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run -it --rm hakindazz/s6-cli <span style="color:#8be9fd;font-style:italic">help</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>COMMANDS:
 </span></span><span style="display:flex;"><span>   create, c   create a service
 </span></span><span style="display:flex;"><span>   remove, rm  remove a service
 </span></span><span style="display:flex;"><span>   lint, l     lint directories and files
 </span></span><span style="display:flex;"><span>   mermaid, m  document s6 service dependencies in mermaid syntax
 </span></span><span style="display:flex;"><span>   help, h     Shows a list of commands or <span style="color:#8be9fd;font-style:italic">help</span> <span style="color:#ff79c6">for</span> one <span style="color:#8be9fd;font-style:italic">command</span>
 </span></span></code></pre></div><h2 id="create-a-service-with-s6-cli">Create a service with s6-cli</h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run -it --rm -v ./:/etc/s6-overlay hakindazz/s6-cli create oneshot init-dependencies
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run -it --rm -v ./:/etc/s6-overlay hakindazz/s6-cli create oneshot init-dependencies
 </span></span></code></pre></div><p>Here is the file / directory structure it creates:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>/etc/s6-overlay/s6-rc.d
 </span></span><span style="display:flex;"><span>├── init-dependencies
 </span></span><span style="display:flex;"><span>│   ├── dependencies.d
 </span></span><span style="display:flex;"><span>│   │    ├── base
@@ -468,18 +468,18 @@ You can adapt it und use it in your org if you need the be able to build your ow
 <li>Adding <code>base</code> as default dependency tells s6-rc to only start a service when all the base services are ready, and it prevents race conditions</li>
 </ul>
 <h2 id="use-s6-cli-in-your-ci">Use s6-cli in your CI</h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run -it --rm -v .:/etc/s6-overlay hakindazz/s6-cli lint
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run -it --rm -v .:/etc/s6-overlay hakindazz/s6-cli lint
 </span></span></code></pre></div><p>It will tell you when it does not find any issue</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>s6-cli: lint found no issues
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>s6-cli: lint found no issues
 </span></span></code></pre></div><p>Or list the findings so you can fix them before you deploy.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>s6-cli: lint found issues with services in /etc/s6-overlay/s6-rc.d
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>s6-cli: lint found issues with services in /etc/s6-overlay/s6-rc.d
 </span></span><span style="display:flex;"><span>- svc-lint-me
 </span></span><span style="display:flex;"><span>  - <span style="color:#8be9fd;font-style:italic">type</span> file <span style="color:#ff79c6">for</span> <span style="color:#f1fa8c">&#34;svc-lint-me&#34;</span> does not end with a newline
 </span></span><span style="display:flex;"><span>  - invalid <span style="color:#8be9fd;font-style:italic">type</span> in svc-lint-me/type file specified
 </span></span></code></pre></div><h2 id="document-your-setup-with-mermaid">Document your setup with mermaid</h2>
 <p>You can use the <code>mermaid</code> command to output the dependency graph between the services:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run -it --rm -v .:/etc/s6-overlay hakindazz/s6-cli mermaid
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>```mermaid
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker run -it --rm -v .:/etc/s6-overlay hakindazz/s6-cli mermaid
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-fallback" data-lang="fallback"><span style="display:flex;"><span>```mermaid
 </span></span><span style="display:flex;"><span>graph TD;
 </span></span><span style="display:flex;"><span>    user --&gt; init-dependencies
 </span></span><span style="display:flex;"><span>    user --&gt; init-migrations
@@ -508,7 +508,7 @@ svc-nginx --> svc-php-fpm
 </script>
 ]]></description><media:thumbnail url="https://blog.dazzlog.de/s6-cli.webp"/></item><item><title>Build your own s6-overlay base image</title><link>https://blog.dazzlog.de/posts/2024-08-19_base-image-with-s6-overlay/</link><pubDate>Mon, 19 Aug 2024 23:42:23 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2024-08-19_base-image-with-s6-overlay/</guid><description><![CDATA[<p>S6-overlay is a container-focused process manager that offers end-to-end management of the container&rsquo;s lifecycle, from initialization to graceful shutdown.</p>
 <p>To make use of s6-overlay we need to add the binaries to our container by adding, extracting and then moving them to the directory where they are expected.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">ADD</span> https://github.com/just-containers/s6-overlay/releases/download/3.2.0.0/s6-overlay-noarch.tar.xz /tmp  
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">ADD</span> https://github.com/just-containers/s6-overlay/releases/download/3.2.0.0/s6-overlay-noarch.tar.xz /tmp  
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">ADD</span> https://github.com/just-containers/s6-overlay/releases/download/3.2.0.0/s6-overlay-x86_64.tar.xz /tmp
 </span></span></code></pre></div><h2 id="update-dependencies">Update dependencies</h2>
 <p>When adding the s6-overlay sources to in a <code>Dockerfile</code> we want to make sure that we get notified when a new version
@@ -516,10 +516,10 @@ is available, so we can always be up-to-date with all our libraries. This can be
 <h2 id="version-checker-know-about-docker-from">Version checker know about Docker <code>FROM</code></h2>
 <p>If we leverage the <code>FROM</code> of docker to include our sources we would not need to add anything. I already use the way of loading sources via images in several places:</p>
 <h3 id="include-composer">include composer</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">FROM</span> <span style="color:#f1fa8c">composer:2.7.7</span> <span style="color:#ff79c6">AS</span> <span style="color:#f1fa8c">composer</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">FROM</span> <span style="color:#f1fa8c">composer:2.7.7</span> <span style="color:#ff79c6">AS</span> <span style="color:#f1fa8c">composer</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">COPY</span> --from<span style="color:#ff79c6">=</span>composer /usr/bin/composer /usr/bin/composer
 </span></span></code></pre></div><h3 id="include-extension-installer">include extension-installer</h3>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">FROM</span> <span style="color:#f1fa8c">mlocati/php-extension-installer:2.2.16</span> <span style="color:#ff79c6">AS</span> <span style="color:#f1fa8c">php-extension-installer</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">FROM</span> <span style="color:#f1fa8c">mlocati/php-extension-installer:2.2.16</span> <span style="color:#ff79c6">AS</span> <span style="color:#f1fa8c">php-extension-installer</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">COPY</span> --from<span style="color:#ff79c6">=</span>php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">RUN</span> install-php-extensions <span style="color:#f1fa8c">\
 </span></span></span><span style="display:flex;"><span>  xdebug <span style="color:#f1fa8c">\
@@ -527,7 +527,7 @@ is available, so we can always be up-to-date with all our libraries. This can be
 </span></span></span><span style="display:flex;"><span>;
 </span></span></code></pre></div><p>But there is no base image for s6-overlay from justcontainers/s6-overlay . There are some other vendors, but they are opinionated and do more things that are helpful to their case.</p>
 <h2 id="build-your-own-s6-overlay-base-image">Build your own s6-overlay base image</h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">FROM</span> <span style="color:#f1fa8c">alpine:3</span> <span style="color:#ff79c6">AS</span> <span style="color:#f1fa8c">s6</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">FROM</span> <span style="color:#f1fa8c">alpine:3</span> <span style="color:#ff79c6">AS</span> <span style="color:#f1fa8c">s6</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">ARG</span> TARGETARCH
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">ARG</span> TARGETVARIANT
@@ -563,12 +563,12 @@ is available, so we can always be up-to-date with all our libraries. This can be
 <li>uses a fresh layer to copy everything</li>
 </ul>
 <p>This can be built with:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>docker build --no-cache --build-arg <span style="color:#8be9fd;font-style:italic">S6_RELEASE</span><span style="color:#ff79c6">=</span>3.2.0.0 -t hakindazz/s6-overlay-base:3.2.0.0 .
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>docker build --no-cache --build-arg <span style="color:#8be9fd;font-style:italic">S6_RELEASE</span><span style="color:#ff79c6">=</span>3.2.0.0 -t hakindazz/s6-overlay-base:3.2.0.0 .
 </span></span></code></pre></div><p>Or you can pull the image to check it out:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker pull hakindazz/s6-overlay-base:3.2.0.0
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker pull hakindazz/s6-overlay-base:3.2.0.0
 </span></span></code></pre></div><h2 id="include-via-docker-from">Include via docker <code>FROM</code></h2>
 <p>The best part: You can now include the versioned sources via docker <code>--from</code>:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">FROM</span> <span style="color:#f1fa8c">hakindazz/s6-overlay-base</span> <span style="color:#ff79c6">AS</span> <span style="color:#f1fa8c">s6-overlay</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">FROM</span> <span style="color:#f1fa8c">hakindazz/s6-overlay-base</span> <span style="color:#ff79c6">AS</span> <span style="color:#f1fa8c">s6-overlay</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">FROM</span> <span style="color:#f1fa8c">alpine3</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">COPY</span> --from<span style="color:#ff79c6">=</span>s6-overlay /s6/root /
@@ -655,7 +655,7 @@ If you don&rsquo;t know that and put the web apps <code>.env</code> file in the 
 <h3 id="the-directory-tree">The directory tree</h3>
 <p>To ease the separation of infrastructure and code the application code moves into the <code>./app</code> directory to be completely separate from the code/config that defines the infrastructure.
 You see there is no <code>.env</code> file left from Symfony. All variables have now moved to the env files inside the <code>devops/env</code> directory.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-gdscript3" data-lang="gdscript3"><span style="display:flex;"><span><span style="color:#ff79c6">.</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-gdscript3" data-lang="gdscript3"><span style="display:flex;"><span><span style="color:#ff79c6">.</span>
 </span></span><span style="display:flex;"><span>├── app
 </span></span><span style="display:flex;"><span>│   ├── assets
 </span></span><span style="display:flex;"><span>│   ├── bin
@@ -692,7 +692,7 @@ You see there is no <code>.env</code> file left from Symfony. All variables have
 </span></span><span style="display:flex;"><span>└── README<span style="color:#ff79c6">.</span>md
 </span></span></code></pre></div><h2 id="the-docker-composeyml">The docker-compose.yml</h2>
 <p>Each service gets its own <code>env_file</code> where we can configure the sensitive data for each service.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ff79c6">version</span>: <span style="color:#f1fa8c">&#39;3.9&#39;</span>  
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ff79c6">version</span>: <span style="color:#f1fa8c">&#39;3.9&#39;</span>  
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">services</span>:  
 </span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">app</span>:  
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">image</span>: ghcr.io/c-base/cbag3:dev-latest  
@@ -724,7 +724,7 @@ You see there is no <code>.env</code> file left from Symfony. All variables have
 </div>
 <h2 id="disable-dotenv-in-frontcontroller--and-console">Disable DotEnv in frontcontroller  and console</h2>
 <p>The DotEnv component is disabled since all environment variables have already passed to the container.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#6272a4"># app/public/index.php
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#6272a4"># app/public/index.php
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">&lt;?</span>php  
 </span></span><span style="display:flex;"><span>  
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">use</span> Cbase\App\Kernel;  
@@ -736,7 +736,7 @@ You see there is no <code>.env</code> file left from Symfony. All variables have
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">return</span> <span style="color:#ff79c6">function</span> (<span style="color:#ff79c6">array</span> <span style="color:#8be9fd;font-style:italic">$context</span>) {  
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">new</span> Kernel(<span style="color:#8be9fd;font-style:italic">$context</span>[<span style="color:#f1fa8c">&#39;APP_ENV&#39;</span>], (bool) <span style="color:#8be9fd;font-style:italic">$context</span>[<span style="color:#f1fa8c">&#39;APP_DEBUG&#39;</span>]);  
 </span></span><span style="display:flex;"><span>};
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#6272a4"># app/bin/console
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#6272a4"># app/bin/console
 </span></span></span><span style="display:flex;"><span><span style="color:#6272a4">#!/usr/bin/env php  
 </span></span></span><span style="display:flex;"><span><span style="color:#ff79c6">&lt;?</span>php  
 </span></span><span style="display:flex;"><span>  
@@ -777,7 +777,7 @@ You see there is no <code>.env</code> file left from Symfony. All variables have
   </div>
 </div>
 <h2 id="dont-forget-to-add-the-parameters-in-servicesyml">Don&rsquo;t forget to add the parameters in <code>services.yml</code></h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># app/config/services.yaml</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># app/config/services.yaml</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">parameters</span>:  
 </span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">images.upload.directory</span>: <span style="color:#f1fa8c">&#39;%env(resolve:IMAGES_UPLOAD_DIRECTORY)%&#39;</span>
 </span></span><span style="display:flex;"><span>
@@ -799,7 +799,7 @@ environment variable in the env file since the service might not be loaded in ev
   </div>
 </div>
 <h2 id="run-docker--container-in-production-with-env-file">Run docker  container in production with env-file</h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat devops/env/app.env
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat devops/env/app.env
 </span></span><span style="display:flex;"><span><span style="color:#6272a4"># This is a comment</span>
 </span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">IMAGES_UPLOAD_DIRECTORY</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;%kernel.project_dir%/var/uploads&#34;</span>
 </span></span><span style="display:flex;"><span>
@@ -809,10 +809,10 @@ environment variable in the env file since the service might not be loaded in ev
 <h2 id="migration-path">Migration Path</h2>
 <p>There is a migration path for projects that use already many config yaml files and want to migrate to environment
 variables.</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># config/my-app.yaml</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># config/my-app.yaml</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">parameters</span>:
 </span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">images.upload.directory</span>: <span style="color:#f1fa8c">&#39;%kernel.project_dir%/var/uploads&#39;</span>
-</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># config/services.yaml</span>
+</span></span></code></pre></div><div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#6272a4"># config/services.yaml</span>
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">parameters</span>:
 </span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">env(IMAGES_UPLOAD_DIRECTORY)</span>: <span style="color:#f1fa8c">&#39;%images.upload.directory%&#39;</span>
 </span></span><span style="display:flex;"><span>
@@ -854,7 +854,7 @@ Also, we learned that there is a simple way in Symfony to migrate to environment
 </ul>
 <h2 id="the-github-workflow">The GitHub Workflow</h2>
 <p>I created a workflow in my repository under <code>.github/workflow/cd.md</code> and added the following:</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ff79c6">name</span>: Continuous Delivery
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#ff79c6">name</span>: Continuous Delivery
 </span></span><span style="display:flex;"><span><span style="color:#ff79c6">on</span>:
 </span></span><span style="display:flex;"><span>  <span style="color:#ff79c6">push</span>:
 </span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">branches</span>:

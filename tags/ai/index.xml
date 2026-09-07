@@ -200,9 +200,9 @@ Link: <a href="https://docs.anthropic.com/en/docs/claude-code/slash-commands">ht
 </div>
 <p>The generate-command is my absolute favourite from my current collection, because it lets you create infinitely more and specialized commands.</p>
 <p><code>.claude/commands/generate-command.md</code></p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-md" data-lang="md"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span>allowed-tools: Read, Write, Bash(mkdir:*), Bash(pwd)
-</span></span><span style="display:flex;"><span>description: Add a reusable slash command so anyone who clones your repo can invoke it with <span style="color:#f1fa8c">`/project:&lt;name&gt;`</span> inside the Claude Code CLI.
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-md" data-lang="md"><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">allowed-tools</span>: Read, Write, Bash(mkdir:*), Bash(pwd)
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">description</span>: Add a reusable slash command so anyone who clones your repo can invoke it with `/project:&lt;name&gt;` inside the Claude Code CLI.
 </span></span><span style="display:flex;"><span>---
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span><span style="font-weight:bold">## Context  
@@ -240,10 +240,10 @@ Link: <a href="https://docs.anthropic.com/en/docs/claude-code/slash-commands">ht
 <li>Project level: <code>.claude/agents/</code></li>
 <li>User level: <code>~/.claude/agents/</code></li>
 </ul>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-md" data-lang="md"><span style="display:flex;"><span>---
-</span></span><span style="display:flex;"><span>name: subagent-name
-</span></span><span style="display:flex;"><span>description: Description of when this subagent should be called
-</span></span><span style="display:flex;"><span>tools: tool1, tool2, tool3  # Optional
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-md" data-lang="md"><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">name</span>: subagent-name
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">description</span>: Description of when this subagent should be called
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">tools</span>: tool1, tool2, tool3  <span style="color:#6272a4"># Optional</span>
 </span></span><span style="display:flex;"><span>---
 </span></span><span style="display:flex;"><span>Your system prompt for the subagent...
 </span></span></code></pre></div><p>When you have an idea for a subagent, you can have Claude generate one for you using <code>/agent</code>, which will then be stored in <code>.claude/agents/</code>.</p>
