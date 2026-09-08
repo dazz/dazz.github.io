@@ -5,7 +5,7 @@ tags:
   - s6-overlay
   - docker
   - devops
-image: s6-overlay.webp
+image: s6-overlay.png
 comments: true
 draft: false
 toc: true
