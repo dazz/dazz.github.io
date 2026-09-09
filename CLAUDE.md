@@ -66,7 +66,7 @@ toc: true             # Enable table of contents
 **Hugo-Ficurinia Theme Features:**
 - Paper card style enabled (`paperCards = true`)
 - Search functionality enabled
-- Cactus.chat comments integration
+- Vanilla CookieConsent integration for opt-in Google Analytics; comments disabled
 - Custom SCSS in `assets/scss/`
 - Responsive design with content width of 1000px
 

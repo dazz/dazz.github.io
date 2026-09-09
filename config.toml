@@ -12,19 +12,9 @@ copyright = "dazz - [Creative Commons Attribution 4.0 International License](htt
 pagination.pagerSize = 5
 summaryLength = 70
 
-[services]
-    [services.googleAnalytics]
-        id = 'G-SZG9LWH6KX'
-
-[privacy]
-#    [privacy.cactus]
-#        disable = false
-    [privacy.googleAnalytics]
-        disable = false
-        respectDoNotTrack = true
-
 [params]
     description = "dazz blog about programming and other cool stuff"
+    googleAnalyticsID = "G-SZG9LWH6KX"
     author = { name = "dazz | Anne-Julia Seitz" }
     logo = "/logo.svg"
     favicon = "/favicon.png"
@@ -32,11 +22,6 @@ summaryLength = 70
     appletouch = "/apple-touch-icon.png"
     svgicon = "/logo.svg"
     icon512 = "/android-chrome-512x512.png"
-
-    # commento = "https://cloud.techpills.technology:54321/js/commento.js"
-    cactusCommentsSiteName = "dazzlog"
-    cactusCommentsServerName = "cactus.chat"
-    cactusCommentsHomeserver = "https://matrix.cactus.chat:8448"
 
     imageInArticlePreview = true  # show images in article preview; default false
     fitImageInArticlePreview = false  # make article preview images fit the article preview instead of getting cropped

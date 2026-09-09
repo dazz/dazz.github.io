@@ -2,7 +2,14 @@
     {{ .Inner }}
 </div>
 
-<script type="module">
-    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-    mermaid.initialize({ startOnLoad: true, theme: "dark" });
+{{ if not (.Page.Scratch.Get "mermaid-loaded") }}
+<script defer src="/vendor/mermaid/mermaid.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        if (window.mermaid) {
+            mermaid.initialize({ startOnLoad: true, theme: "dark" });
+        }
+    });
 </script>
+{{ .Page.Scratch.Set "mermaid-loaded" true }}
+{{ end }}

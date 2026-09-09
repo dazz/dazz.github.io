@@ -32,3 +32,48 @@ strong, b {
   color: var(--default_accent);
   font-weight: bold;
 }
+
+// Match the locally hosted CookieConsent dialog to the theme.
+#cc-main {
+  --cc-font-family: "JetBrains Mono", monospace;
+  --cc-bg: var(--default_bg);
+  --cc-primary-color: var(--default_fg);
+  --cc-secondary-color: var(--default_dim_fg);
+  --cc-btn-primary-bg: var(--default_fg);
+  --cc-btn-primary-color: var(--default_bg);
+  --cc-btn-primary-border-color: var(--default_fg);
+  --cc-btn-primary-hover-bg: var(--default_accent);
+  --cc-btn-primary-hover-color: var(--default_bg);
+  --cc-btn-primary-hover-border-color: var(--default_accent);
+  --cc-btn-secondary-bg: var(--default_hl_bg);
+  --cc-btn-secondary-color: var(--default_fg);
+  --cc-btn-secondary-border-color: var(--default_stroke);
+  --cc-btn-secondary-hover-bg: var(--default_stroke);
+  --cc-btn-secondary-hover-color: var(--default_fg);
+  --cc-btn-secondary-hover-border-color: var(--default_stroke);
+  --cc-separator-border-color: var(--default_stroke);
+  --cc-cookie-category-block-bg: var(--default_hl_bg);
+  --cc-cookie-category-block-border: var(--default_stroke);
+  --cc-cookie-category-block-hover-bg: var(--default_hl_bg);
+  --cc-cookie-category-block-hover-border: var(--default_accent);
+  --cc-footer-bg: var(--default_hl_bg);
+  --cc-footer-color: var(--default_dim_fg);
+  --cc-footer-border-color: var(--default_stroke);
+  --cc-toggle-on-bg: var(--default_accent);
+  --cc-link-color: var(--default_accent);
+}
+
+.privacyControls {
+  margin-bottom: 1rem;
+}
+
+.cookieSettingsButton {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--default_accent);
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  text-decoration: underline;
+}
