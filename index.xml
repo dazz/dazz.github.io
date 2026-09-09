@@ -1,4 +1,125 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>DazzLog</title><link>https://blog.dazzlog.de/</link><description>Recent content on DazzLog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Wed, 02 Sep 2026 17:00:00 +0200</lastBuildDate><atom:link href="https://blog.dazzlog.de/index.xml" rel="self" type="application/rss+xml"/><icon>https://blog.dazzlog.de/logo.svg</icon><item><title>8 Stages to a Software Factory, and Where I Am Now</title><link>https://blog.dazzlog.de/posts/2026-09-02_eight-stages-to-a-software-factory/</link><pubDate>Wed, 02 Sep 2026 17:00:00 +0200</pubDate><guid>https://blog.dazzlog.de/posts/2026-09-02_eight-stages-to-a-software-factory/</guid><description><![CDATA[<div class="details admonition tldr open">
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>DazzLog</title><link>https://blog.dazzlog.de/</link><description>Recent content on DazzLog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Mon, 07 Sep 2026 17:00:00 +0200</lastBuildDate><atom:link href="https://blog.dazzlog.de/index.xml" rel="self" type="application/rss+xml"/><icon>https://blog.dazzlog.de/logo.svg</icon><item><title>The Factory Looked Good Until It Had to Work</title><link>https://blog.dazzlog.de/posts/2026-09-07_refining-the-factory-on-a-real-project/</link><pubDate>Mon, 07 Sep 2026 17:00:00 +0200</pubDate><guid>https://blog.dazzlog.de/posts/2026-09-07_refining-the-factory-on-a-real-project/</guid><description><![CDATA[<div class="details admonition tldr open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf259;</i> TL;DR<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">My workflow looked good until real DazzHub issues put pressure on it. Commands tested the wrong checkout, copied shell snippets drifted apart, and the journal executed text that should have been data. The fix was not a longer prompt. I moved repeated operations into a tested <a href="https://deno.com/">Deno</a> CLI with <a href="https://cliffy.io/">cliffy</a> and turned important rules into executable checks.</div>
+  </div>
+</div>
+<p>The first version of my agent workflow looked convincing in Markdown. It had a board, named states, skills for each job, worktrees, a CI command, and rules about when an agent had to stop.</p>
+<p>Then I used it on DazzHub every day.</p>
+<p>The failures did not arrive as dramatic model hallucinations. They arrived as a Docker command testing the wrong checkout, three skills carrying slightly different copies of the same shell, and a journal message executing the backticks it was supposed to record. The agents were productive enough to put pressure on every weak part of the setup.</p>
+<p>And honestly, that pressure has been the most useful part of building the factory. The awkward failures showed me where the workflow was only convincing on paper.</p>
+<h2 id="the-project-underneath-the-experiment">The Project Underneath the Experiment</h2>
+<p>DazzHub is a Symfony application that discovers technical videos, scores them, fetches transcripts, and turns them into searchable knowledge and Markdown posts. It has PostgreSQL with pgvector, Neo4j, asynchronous workers, external AI services, and a growing set of domain modules.</p>
+<p>It also has history. The test suite and architecture rules are strong in some areas and still being improved in others. That makes it a better factory test than a greenfield demo. An agent must work with existing conventions, baselines, data, containers, and GitHub workflow state.</p>
+<p>I started with repository skills that described the full issue lifecycle:</p>
+<ul>
+<li>select a <code>Ready</code> issue from the board;</li>
+<li>claim it;</li>
+<li>create an isolated worktree;</li>
+<li>implement the issue;</li>
+<li>run the complete gate;</li>
+<li>push a feature branch;</li>
+<li>open a pull request;</li>
+<li>wait for human approval;</li>
+<li>merge and clean up.</li>
+</ul>
+<p>The happy path worked. The repeated runs showed me where the real state still lived in my head.</p>
+<h2 id="a-green-gate-against-the-wrong-branch">A Green Gate Against the Wrong Branch</h2>
+<p>One of the nastiest findings came while working on PHPStan rules. The DazzHub application runs in Docker, and the existing development container had a bind mount from another worktree. I ran the expected command through <code>docker compose exec app</code> and got results from that foreign checkout.</p>
+<p>The command succeeded. That made it worse.</p>
+<p>A failing command tells me to investigate. A green command against the wrong source tree tells me a lie. In this case, a baseline regeneration even wrote into the other worktree.</p>
+<div class="details admonition danger open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xfb8a;</i> Green against the wrong code<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">A successful check is worthless when it runs against another checkout. This failure changed my idea of a gate: it must verify its execution context, not only its exit code.</div>
+  </div>
+</div>
+<p>The agent workflow already required isolated Git worktrees. It had not isolated the running Compose stack. The journal entry from that day now records the diagnostic command I needed:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>docker inspect dazzhub-app --format <span style="color:#f1fa8c">&#39;{{range .Mounts}}{{.Source}}{{end}}&#39;</span>
+</span></span></code></pre></div><p>That incident changed how I evaluate guardrails. A rule that says “run CI in the worktree” is weak if the command can silently cross the boundary. The factory needs a command whose implementation knows how this project runs, not another paragraph reminding the agent to be careful.</p>
+<h2 id="the-compose-project-name-reversed-three-times">The Compose Project Name Reversed Three Times</h2>
+<p>My first response was to put a fixed Compose project name into <code>docker-compose.yml</code>. That would make bare <code>docker compose</code> commands target the existing stack consistently.</p>
+<p>Then I noticed the consequence for worktrees. A tracked project name applies in every checkout. A command from an issue worktree could reach the main checkout&rsquo;s shared stack and test the main code. I had replaced “command finds nothing” with “command succeeds against the wrong thing.”</p>
+<p>I tried a Makefile variable and a main-checkout guard. It worked, but the setup became harder to understand than the problem deserved.</p>
+<p>The final decision used an existing property: <code>.env</code> is git-ignored. It exists in the main checkout and does not appear in new worktrees. The main checkout gets the intended Compose project name; a bare command in a worktree resolves to a harmless empty project. The explicit CI target still names what it needs.</p>
+<p>This decision changed three times in a weekend. I kept all three in the project journal because the final diff cannot explain why the obvious tracked setting is absent.</p>
+<p>That is one reason I added an append-only journal. Git records what survived. It does not record the viable option I rejected after discovering a failure mode.</p>
+<h2 id="the-journal-then-executed-its-own-message">The Journal Then Executed Its Own Message</h2>
+<p>The journal started as a Make target:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>make log <span style="color:#8be9fd;font-style:italic">KIND</span><span style="color:#ff79c6">=</span>finding <span style="color:#8be9fd;font-style:italic">MSG</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#39;...&#39;</span>
+</span></span></code></pre></div><p>The Makefile interpolated <code>MSG</code> into a shell recipe. I wrote an entry about the Compose problem using backticks around a command. The shell performed command substitution and ran the command while writing the note. The resulting journal line contained several kilobytes of command output.</p>
+<p>A tool intended to preserve a failure had reproduced its failure class.</p>
+<div class="details admonition bug open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf188;</i> The journal executed the journal entry<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Backticks inside the message became shell command substitution. It is funny now. It was less funny when several kilobytes of command output landed in the journal.</div>
+  </div>
+</div>
+<p>The fix was small: export the message through the environment and read it as data. I also added a length cap. The larger lesson was that I had management logic embedded in Make recipes and Markdown snippets with nowhere to test it.</p>
+<p>By the end of that week, the project had enough examples to justify a small management CLI.</p>
+<h2 id="from-shell-fragments-to-factorybindazzhub">From Shell Fragments to <code>factory/bin/dazzhub</code></h2>
+<p>I first planned to write the CLI in PHP. DazzHub is a PHP project, Symfony Console was already familiar, and the quality toolchain existed.</p>
+<p>The host running the agents had no PHP interpreter. Each fresh worktree would also need Composer dependencies before the management tool could create or prepare it. The tool responsible for bootstrapping a worktree would depend on a bootstrapped worktree.</p>
+<p>I switched to Deno and TypeScript. Deno gives the CLI one host binary, a committed lock file, no <code>node_modules</code>, and explicit runtime permissions. The supported entry point is now:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>factory/bin/dazzhub
+</span></span></code></pre></div><p>The CLI owns operations that are management, repeated, multi-step, and worth testing:</p>
+<ul>
+<li>append a structured journal entry;</li>
+<li>read and update the GitHub Projects board;</li>
+<li>calculate WIP capacity for an Orca precheck;</li>
+<li>report stale Blocked cards;</li>
+<li>create, remove, and sweep issue worktrees.</li>
+</ul>
+<p>One-liners remain one-liners. The Symfony application remains in <code>app/</code>. I did not build a framework around the framework.</p>
+<p>The permissionless unit suite became one of my favorite checks. A plain <code>deno test</code> runs with no read, write, network, or subprocess permission. The tests for adapters assert that the runtime refuses those operations. Separate narrow passes test the filesystem boundary, architecture walk, and repository skills.</p>
+<p>The permissions do not make child processes safe. Allowing <code>gh</code> still starts an unrestricted <code>gh</code> process. They do catch an accidental <code>Deno.Command(&quot;sh&quot;, ...)</code>, and they force every external program to have a name I can inspect.</p>
+<div class="details admonition tip open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf400;</i> I learned<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">When a rule can become an exit code, parser, or test, I move it out of the prompt. The model should spend its judgment on things I cannot check deterministically.</div>
+  </div>
+</div>
+<h2 id="one-board-command-instead-of-several-copies">One Board Command Instead of Several Copies</h2>
+<p>The first skills each carried their own GitHub Projects GraphQL and <code>jq</code> fragments. They started close enough to look shared. Then one expected a project item ID where another used an issue number. Column names were matched differently. Read limits drifted. A later change had to update several fenced code blocks and several grep-based checks.</p>
+<p>The factory CLI now provides one read shape and one write path:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-shell" data-lang="shell"><span style="display:flex;"><span>factory/bin/dazzhub board show ready
+</span></span><span style="display:flex;"><span>factory/bin/dazzhub board <span style="color:#8be9fd;font-style:italic">set</span> status <span style="color:#bd93f9">203</span> progress
+</span></span><span style="display:flex;"><span>factory/bin/dazzhub board <span style="color:#8be9fd;font-style:italic">set</span> tier <span style="color:#bd93f9">203</span> standard
+</span></span></code></pre></div><p>The skills still decide when a transition is allowed. The CLI resolves fields, options, and item IDs and performs the write. That boundary matters. I do not want the CLI making product decisions, and I do not want three agents reimplementing GitHub&rsquo;s project schema in prompts.</p>
+<p>I replaced the old grep guards with Deno tests that parse the skills. During that work I found another quiet bug: the shell script that extracted fenced commands only recognized fences starting at column zero. Code blocks nested under a list item were invisible to every guard. The checks had been green because they skipped part of the material.</p>
+<p>The replacement tests accept indented fences and assert workflow properties over the actual command snippets. The comments explaining retired checks were then deleted. Once a property is a test, I do not need prose claiming the same thing.</p>
+<h2 id="orca-changed-the-worktree-lifecycle">Orca Changed the Worktree Lifecycle</h2>
+<p>A plain Git worktree isolates files, but Orca only knows about worktrees it creates or tracks. A factory-created checkout without an Orca pane is operationally invisible from the runtime where the agents work.</p>
+<p>The DazzHub CLI now probes <code>orca status --json</code>. If the runtime answers, it creates the worktree through Orca and reads the path from Orca&rsquo;s JSON response. If Orca is unavailable, it falls back to <code>git worktree add</code> and says which Orca command would have been better.</p>
+<p>That path needed two review rounds. The first implementation used <code>orca --version</code> as its probe, which proves only that a binary can print help. It does not prove a runtime is reachable. It also fabricated the expected worktree path instead of reading Orca&rsquo;s response. Pi caught both in review.</p>
+<p>A later real run found that Orca nests the path under <code>result.worktree.path</code>, while my parser expected a top-level <code>path</code>. Orca had created the worktree successfully, and my wrapper exited with an error because it could not read the result. That bug is now in the journal and has its own issue.</p>
+<p>This is what refining the setup looks like. The integration is useful before it is complete, and every mistaken assumption becomes a smaller contract.</p>
+<h2 id="skills-became-roles-with-limited-authority">Skills Became Roles With Limited Authority</h2>
+<p>The issue skill originally carried most of the workflow. As the board became busier, I separated roles:</p>
+<ul>
+<li>the <strong>Groomer</strong> decides which Backlog card may become Ready;</li>
+<li>the <strong>executing agent</strong> claims one Ready card and produces a pull request;</li>
+<li>the <strong>PR skill</strong> handles review remarks and merges only after approval;</li>
+<li>the <strong>fleet skill</strong> owns worktrees and verification;</li>
+<li>the deterministic CLI performs board and worktree mechanics.</li>
+</ul>
+<p>The Groomer is the first scheduled actor. Orca runs it hourly with a precheck. It may promote one fully specified, unassigned card when fewer than three cards are in <code>Ready + In progress + In review</code>. It may ask one question. It writes no code and cannot touch an in-flight card.</p>
+<p>This narrow role solved a problem I had created with too much automation. I wanted <code>Ready</code> to refill without turning the entire board over to a model. The answer was a small decision surface with a WIP cap and a cheap precheck.</p>
+<h2 id="what-the-real-work-changed">What the Real Work Changed</h2>
+<p>The project started with prompts telling agents how I work. It now has a state machine, a tested management CLI, an append-only decision journal, worktree lifecycle, board capacity, and an unattended backlog actor.</p>
+<p>More important, I have a criterion for moving another rule out of prose: if the rule can be expressed as an exit code, parser, database constraint, or test, it should stop depending on a model remembering it.</p>
+<p>Some rules remain in skills because they require judgment. Is this issue fully specified? Does this architecture finding exceed the ticket? Which Backlog card collides least with current work? I keep those decisions narrow and preserve the evidence in issue comments.</p>
+<p>The setup is still being refined while it works. I prefer that to designing a perfect factory in isolation. DazzHub keeps producing the awkward cases I need: stale assumptions, concurrent branches, environment failures, review corrections, and commands that succeed for the wrong reason.</p>
+<p>The next part of the series covers the thing I needed before allowing more unattended work: one place to see what Claude Code and Pi actually did.</p>
+]]></description><media:thumbnail url="https://blog.dazzlog.de/hero.png"/></item><item><title>8 Stages to a Software Factory, and Where I Am Now</title><link>https://blog.dazzlog.de/posts/2026-09-02_eight-stages-to-a-software-factory/</link><pubDate>Wed, 02 Sep 2026 17:00:00 +0200</pubDate><guid>https://blog.dazzlog.de/posts/2026-09-02_eight-stages-to-a-software-factory/</guid><description><![CDATA[<div class="details admonition tldr open">
   <div class="details-summary admonition-title">
     <i class="icon ">&#xf259;</i> TL;DR<i class="details-icon fas fa-angle-right fa-fw"></i>
   </div>
