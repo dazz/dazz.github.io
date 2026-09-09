@@ -117,45 +117,6 @@ toc: true             # Enable table of contents
 - Search index automatically generated
 - RSS feed available at `/index.xml`
 
-## Blog Posts Reference
-
-### All Blog Posts (Chronological)
-
-1. **2022-12-26** - "Hello, world!"
-   - **File:** `content/posts/2022-12-26_hello-world/index.md`
-   - **Topics:** first blog post, introduction
-
-2. **2022-12-27** - "Goodbye Jekyll, hello Hugo"
-   - **File:** `content/posts/2022-12-27_goodbye-jekyl-hello-hugo/index.md`
-   - **Topics:** jekyll, hugo, blog migration, github, github-actions, continuous deployment, git, static site generators
-
-3. **2022-12-28** - "Build and push docker images to ghcr.io with GitHub Actions"
-   - **File:** `content/posts/2022-12-28_build-and-push-docker-images-to-ghcr-with-github-actions/index.md`
-   - **Topics:** docker, github, github-actions, github-packages, continuous deployment, container registry
-
-4. **2023-01-02** - "Environment variables in a dockerized Symfony"
-   - **File:** `content/posts/2023-01-02_environment-variables-in-a-dockerized-symfony/index.md`
-   - **Topics:** docker, docker-compose, ci/cd, symfony, dotenv, env_file, 12-factor app, containerization
-
-5. **2024-08-19** - "Build your own s6-overlay base image"
-   - **File:** `content/posts/2024-08-19_base-image-with-s6-overlay/index.md`
-   - **Topics:** s6-overlay, docker, devops, process management, container lifecycle
-
-6. **2024-12-06** - "Manage s6-overlay setup with s6-cli"
-   - **File:** `content/posts/2024-12-06_s6-cli/index.md`
-   - **Topics:** s6-overlay, docker, devops, ci/cd, golang cli tools, service management
-
-7. **2025-03-26** - "Mastering Multi-Process Containers: Running PHP Applications with s6-overlay"
-   - **File:** `content/posts/2025-03-26_running-php-in-a-multi-process-container/index.md`
-   - **Topics:** s6-overlay, docker, devops, ci/cd, php, multi-process containers, php-fpm, nginx
-
-8. **2025-04-23** - "Clean Symfony: Symfony + Clean Architecture + DDD"
-   - **File:** `content/posts/2025-04-23_clean-symfony/index.md`
-   - **Topics:** symfony, php, clean-architecture, rector, phpunit, renovatebot, dependabot, deprecation, ci/cd, tech-debt, phpstan, deptrac, domain-driven design
-
-9. **2025-08-17** - "Summer Projects 2025: 3 websites in 3 weeks" *(Draft)*
-   - **File:** `content/posts/2025-08-17_summer-projects/index.md`
-   - **Topics:** claude code, workflow, ai, zola, bulma, tailwindcss, css, markdown, static site generators
 
 ### Main Topic Categories
 

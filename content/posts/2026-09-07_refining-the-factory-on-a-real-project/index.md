@@ -9,7 +9,7 @@ toc: true
 ---
 
 {{< admonition type=tldr title="TL;DR" >}}
-My workflow looked good until real DazzHub issues put pressure on it. Commands tested the wrong checkout, copied shell snippets drifted apart, and the journal executed text that should have been data. The fix was not a longer prompt. I moved repeated operations into a tested Deno CLI and turned important rules into executable checks.
+My workflow looked good until real DazzHub issues put pressure on it. Commands tested the wrong checkout, copied shell snippets drifted apart, and the journal executed text that should have been data. The fix was not a longer prompt. I moved repeated operations into a tested [Deno](https://deno.com/) CLI with [cliffy](https://cliffy.io/) and turned important rules into executable checks.
 {{< /admonition >}}
 
 The first version of my agent workflow looked convincing in Markdown. It had a board, named states, skills for each job, worktrees, a CI command, and rules about when an agent had to stop.

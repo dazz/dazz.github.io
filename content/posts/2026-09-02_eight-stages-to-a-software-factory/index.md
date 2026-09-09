@@ -1,8 +1,7 @@
 ---
 title: "8 Stages to a Software Factory, and Where I Am Now"
 date: 2026-09-02T17:00:00+02:00
-tags: [ai, ai engineering, software factory, agents, orca, workflow, claude code, pi]
-draft: true
+tags: [ai, ai engineering, software factory, agents, orca, workflow, claude code, pi, codex]
 comments: true
 toc: true
 image: 8-stage-software-factory.png
@@ -16,7 +15,7 @@ A few weeks ago, I still started every coding agent myself. I opened a terminal,
 
 That setup felt advanced compared with autocomplete. Then I read Upsun's article about [the eight stages of AI engineering maturity](https://upsun.com/blog/8-stages-ai-engineering-maturity/). It gave me an uncomfortable way to describe what I had built: I had several capable workers and no factory.
 
-I used DazzHub, my Symfony application for discovering and processing technical videos, to find out what a software factory actually needs. Orca became the place where the agents run. What happened next was much less about clever prompts than I expected. Most of the work was state, isolation, gates, and deciding which decisions an agent may make.
+I used DazzHub, my Symfony application for discovering and processing videos about AI, to find out what a software factory actually needs. Orca became the place where the agents run. What happened next was much less about clever prompts than I expected. Most of the work was state, isolation, gates, and deciding which decisions an agent may make.
 
 ## The Eight Stages
 
@@ -57,7 +56,7 @@ This distinction matters because prompts are suggestions to a model. A state tra
 
 The maturity model describes Stage 7 agents running from terminals on laptops. I wanted to remove my laptop from the execution path early, so I installed Orca on a dedicated Ubuntu VM called `dazztronic-box`.
 
-I chose Ubuntu even though my desktop runs NixOS. Orca ships Linux builds as an Electron AppImage and updates often. More important, agents install tools at runtime: npm packages with native builds, Python tools, downloaded binaries. I am willing to debug Nix store paths on my own desktop. I do not want an unattended run to fail overnight because a downloaded binary expects an FHS system.
+I chose Ubuntu even though my desktop runs NixOS. Orca ships Linux builds as an Electron AppImage and updates often. More important, agents install tools at runtime: npm packages with native builds, Python tools, downloaded binaries. I am willing to debug Nix store paths on my own desktop. I do not want an unattended run to fail overnight because a downloaded binary expects an [FHS system](https://de.wikipedia.org/wiki/Filesystem_Hierarchy_Standard).
 
 The VM has two users with real roles:
 
@@ -84,7 +83,7 @@ That sounds like convenience until two agents edit the same checkout. Isolation 
 
 ### Several agents in one runtime
 
-Claude Code and Pi can live on the same box. I do not need to pretend they are interchangeable. Claude currently does most execution, and Pi has been useful as an independent reviewer. The runtime lets me assign different jobs without moving the repository or copying context between machines.
+Claude Code, Pi, and other coding agents can live on the same box. I do not need to pretend they are interchangeable. Claude currently does most execution, Pi has been useful as an independent reviewer, planner and writer, using the models from OpenAI (gpt-5.6-sol, -terra &amp; -luna). The runtime lets me assign different jobs without moving the repository or copying context between machines.
 
 ### Orchestration
 
