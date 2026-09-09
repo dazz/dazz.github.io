@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><?xml-stylesheet href="/feed_style.xsl" type="text/xsl"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="https://www.rssboard.org/media-rss"><channel><title>Architecture on DazzLog</title><link>https://blog.dazzlog.de/tags/architecture/</link><description>Recent content in Architecture on DazzLog</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>dazz - [Creative Commons Attribution 4.0 International License](https://creativecommons.org/licenses/by/4.0/).</copyright><lastBuildDate>Mon, 03 Nov 2025 09:45:00 +0100</lastBuildDate><atom:link href="https://blog.dazzlog.de/tags/architecture/index.xml" rel="self" type="application/rss+xml"/><icon>https://blog.dazzlog.de/logo.svg</icon><item><title>Mocks vs. Fakes - Why Mocks Make Refactoring Hard</title><link>https://blog.dazzlog.de/posts/2025-11-03_fakes-vs-mocks/</link><pubDate>Mon, 03 Nov 2025 09:45:00 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2025-11-03_fakes-vs-mocks/</guid><description><![CDATA[<p>A good test should tell me if a feature is broken. But I have worked with many tests that failed only because I moved a method call, renamed something, or changed code that no user could see.</p>
+<p>Most of these tests had one thing in common: every dependency was mocked. The tests knew exactly how the code worked inside, but they knew very little about the final result.</p>
+<div class="details admonition tldr open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf259;</i> TL;DR<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content"><p>Mocks often test <strong>how</strong> the code works. Fakes let you test <strong>what</strong> the code does.</p>
+<p>When I test an application service, I usually want to know if the use case works. I do not care if a repository method was called once or twice.</p>
+<p>My rule of thumb is:</p>
+<ul>
+<li>Use real objects for domain tests.</li>
+<li>Use small in-memory fakes for application tests.</li>
+<li>Test real adapters with real infrastructure.</li>
+<li>Use mocks when the method call itself is important.</li>
+</ul>
+<p>Mocks are not always bad. Mocking every dependency is.</p>
+</div>
+  </div>
+</div>
+<h2 id="why-we-use-so-many-mocks">Why We Use So Many Mocks</h2>
+<p>Many developers learn that a unit test should test one class in isolation. The result often looks like this:</p>
+<blockquote>
+<p>I am testing one class, so I have to mock every other class.</p>
+</blockquote>
+<p>But a unit does not have to be one class. A unit can also be one use case or one piece of behavior.</p>
+<p>Isolation also does not mean that every object has to be a mock. It means that the test should not need a production database, the network, the filesystem, or another external system.</p>
+<p>An in-memory repository is still fast and isolated. It is just a normal PHP object that behaves like a simple repository.</p>
+<p>Mocks are popular because they are easy to create:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">$repository</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">createMock</span>(OrderRepository<span style="color:#ff79c6">::</span><span style="color:#50fa7b">class</span>);
+</span></span></code></pre></div><p>A fake takes more work at the beginning. But you write it once and use it in many tests. With mocks, you repeat the setup in every test.</p>
+<h2 id="mocks-stubs-spies-and-fakes">Mocks, Stubs, Spies, and Fakes</h2>
+<p>We often call every test double a mock, but there are differences:</p>
+<table>
+	<thead>
+			<tr>
+					<th>Test double</th>
+					<th>What it does</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td><strong>Dummy</strong></td>
+					<td>Fills a parameter but is not used</td>
+			</tr>
+			<tr>
+					<td><strong>Stub</strong></td>
+					<td>Returns an answer that you define in the test</td>
+			</tr>
+			<tr>
+					<td><strong>Spy</strong></td>
+					<td>Records calls so you can check them later</td>
+			</tr>
+			<tr>
+					<td><strong>Mock</strong></td>
+					<td>Checks if expected calls happened</td>
+			</tr>
+			<tr>
+					<td><strong>Fake</strong></td>
+					<td>Is a small working version of a real adapter</td>
+			</tr>
+	</tbody>
+</table>
+<p>A PHPUnit mock can be used as a stub, spy, or mock. In this post, I use <em>mock</em> for code that checks calls such as this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">$repository</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">expects</span>(self<span style="color:#ff79c6">::</span><span style="color:#50fa7b">exactly</span>(<span style="color:#bd93f9">2</span>))
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">method</span>(<span style="color:#f1fa8c">&#39;save&#39;</span>);
+</span></span></code></pre></div><p>Martin Fowler explains the different testing styles in <a href="https://martinfowler.com/articles/mocksArentStubs.html">Mocks Aren&rsquo;t Stubs</a>. One style checks the final state. The other checks how objects talk to each other. Both can be useful. The problem starts when we check method calls even though we could check a real result instead.</p>
+<h2 id="mocks-test-how-the-code-works">Mocks Test How the Code Works</h2>
+<p>Here is a small application service for creating an order:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#ff79c6">final</span> <span style="color:#ff79c6">class</span> <span style="color:#50fa7b">CreateOrder</span>
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">public</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">__construct</span>(
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">private</span> CustomerRepository <span style="color:#8be9fd;font-style:italic">$customers</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">private</span> OrderRepository <span style="color:#8be9fd;font-style:italic">$orders</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">private</span> PaymentGateway <span style="color:#8be9fd;font-style:italic">$payments</span>,
+</span></span><span style="display:flex;"><span>    ) {
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">public</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">execute</span>(string <span style="color:#8be9fd;font-style:italic">$customerId</span>, <span style="color:#ff79c6">array</span> <span style="color:#8be9fd;font-style:italic">$items</span>)<span style="color:#ff79c6">:</span> Order
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$customer</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">customers</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">findById</span>(<span style="color:#8be9fd;font-style:italic">$customerId</span>)
+</span></span><span style="display:flex;"><span>            <span style="color:#ff79c6">??</span> <span style="color:#ff79c6">throw</span> <span style="color:#ff79c6">new</span> CustomerNotFound(<span style="color:#8be9fd;font-style:italic">$customerId</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$order</span> <span style="color:#ff79c6">=</span> Order<span style="color:#ff79c6">::</span><span style="color:#50fa7b">place</span>(<span style="color:#8be9fd;font-style:italic">$customer</span>, <span style="color:#8be9fd;font-style:italic">$items</span>);
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">orders</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">save</span>(<span style="color:#8be9fd;font-style:italic">$order</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$payment</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">payments</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">charge</span>(
+</span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">$customer</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">paymentMethodId</span>(),
+</span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">$order</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">total</span>(),
+</span></span><span style="display:flex;"><span>        );
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$order</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">markAsPaid</span>(<span style="color:#8be9fd;font-style:italic">$payment</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">transactionId</span>());
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">orders</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">save</span>(<span style="color:#8be9fd;font-style:italic">$order</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">return</span> <span style="color:#8be9fd;font-style:italic">$order</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>A test with mocks could look like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#ff79c6">public</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">testItCreatesAndPaysForAnOrder</span>()<span style="color:#ff79c6">:</span> void
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">$customers</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">createMock</span>(CustomerRepository<span style="color:#ff79c6">::</span><span style="color:#50fa7b">class</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">$orders</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">createMock</span>(OrderRepository<span style="color:#ff79c6">::</span><span style="color:#50fa7b">class</span>);
+</span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">$payments</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">createMock</span>(PaymentGateway<span style="color:#ff79c6">::</span><span style="color:#50fa7b">class</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">$customer</span> <span style="color:#ff79c6">=</span> Customer<span style="color:#ff79c6">::</span><span style="color:#50fa7b">withPaymentMethod</span>(<span style="color:#f1fa8c">&#39;customer-1&#39;</span>, <span style="color:#f1fa8c">&#39;payment-method-1&#39;</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">$customers</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">expects</span>(self<span style="color:#ff79c6">::</span><span style="color:#50fa7b">once</span>())
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">method</span>(<span style="color:#f1fa8c">&#39;findById&#39;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">with</span>(<span style="color:#f1fa8c">&#39;customer-1&#39;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">willReturn</span>(<span style="color:#8be9fd;font-style:italic">$customer</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">$orders</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">expects</span>(self<span style="color:#ff79c6">::</span><span style="color:#50fa7b">exactly</span>(<span style="color:#bd93f9">2</span>))
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">method</span>(<span style="color:#f1fa8c">&#39;save&#39;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">with</span>(self<span style="color:#ff79c6">::</span><span style="color:#50fa7b">isInstanceOf</span>(Order<span style="color:#ff79c6">::</span><span style="color:#50fa7b">class</span>));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">$payments</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">expects</span>(self<span style="color:#ff79c6">::</span><span style="color:#50fa7b">once</span>())
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">method</span>(<span style="color:#f1fa8c">&#39;charge&#39;</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">with</span>(<span style="color:#f1fa8c">&#39;payment-method-1&#39;</span>, <span style="color:#bd93f9">99.98</span>)
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">willReturn</span>(<span style="color:#ff79c6">new</span> Payment(<span style="color:#f1fa8c">&#39;transaction-1&#39;</span>, <span style="color:#bd93f9">99.98</span>));
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">$service</span> <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> CreateOrder(<span style="color:#8be9fd;font-style:italic">$customers</span>, <span style="color:#8be9fd;font-style:italic">$orders</span>, <span style="color:#8be9fd;font-style:italic">$payments</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">$order</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$service</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">execute</span>(<span style="color:#f1fa8c">&#39;customer-1&#39;</span>, [
+</span></span><span style="display:flex;"><span>        [<span style="color:#f1fa8c">&#39;sku&#39;</span> <span style="color:#ff79c6">=&gt;</span> <span style="color:#f1fa8c">&#39;ABC&#39;</span>, <span style="color:#f1fa8c">&#39;price&#39;</span> <span style="color:#ff79c6">=&gt;</span> <span style="color:#bd93f9">49.99</span>, <span style="color:#f1fa8c">&#39;quantity&#39;</span> <span style="color:#ff79c6">=&gt;</span> <span style="color:#bd93f9">2</span>],
+</span></span><span style="display:flex;"><span>    ]);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    self<span style="color:#ff79c6">::</span><span style="color:#50fa7b">assertTrue</span>(<span style="color:#8be9fd;font-style:italic">$order</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">isPaid</span>());
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This test knows a lot about the code inside <code>CreateOrder</code>:</p>
+<ul>
+<li><code>findById()</code> is called once.</li>
+<li><code>save()</code> is called twice.</li>
+<li><code>charge()</code> is called once.</li>
+<li>The methods receive exact values.</li>
+</ul>
+<p>Some of this is important. The correct payment method and amount must be used. But does the business care if <code>save()</code> is called twice?</p>
+<p>Maybe I later decide that an unpaid order should not be saved. I remove the first <code>save()</code> and only save the paid order at the end. The result is still one paid order and one payment.</p>
+<p>The test still fails because it expects two calls to <code>save()</code>.</p>
+<p>I improved the code without changing the result, but now I have to change the test. If many tests use the same mock setup, a small refactoring can break many tests.</p>
+<div class="details admonition warning open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf071;</i> The warning sign<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">That is the main problem: the tests tell me that the code changed, not that the feature is broken.</div>
+  </div>
+</div>
+<h2 id="fakes-test-what-the-code-does">Fakes Test What the Code Does</h2>
+<p>A fake implements the same interface as the real adapter, but uses a simpler solution. Instead of storing orders in PostgreSQL, this fake stores them in an array:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#ff79c6">final</span> <span style="color:#ff79c6">class</span> <span style="color:#50fa7b">InMemoryOrderRepository</span> <span style="color:#ff79c6">implements</span> OrderRepository
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#f1fa8c">/** @var array&lt;string, Order&gt; */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">private</span> <span style="color:#ff79c6">array</span> <span style="color:#8be9fd;font-style:italic">$orders</span> <span style="color:#ff79c6">=</span> [];
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">public</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">save</span>(Order <span style="color:#8be9fd;font-style:italic">$order</span>)<span style="color:#ff79c6">:</span> void
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">orders</span>[<span style="color:#8be9fd;font-style:italic">$order</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">id</span>()] <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">clone</span> <span style="color:#8be9fd;font-style:italic">$order</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">public</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">findById</span>(string <span style="color:#8be9fd;font-style:italic">$id</span>)<span style="color:#ff79c6">:</span> <span style="color:#ff79c6">?</span>Order
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">return</span> isset(<span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">orders</span>[<span style="color:#8be9fd;font-style:italic">$id</span>])
+</span></span><span style="display:flex;"><span>            <span style="color:#ff79c6">?</span> <span style="color:#ff79c6">clone</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">orders</span>[<span style="color:#8be9fd;font-style:italic">$id</span>]
+</span></span><span style="display:flex;"><span>            <span style="color:#ff79c6">:</span> <span style="color:#ff79c6">null</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>The fake stores a clone. This is important when <code>Order</code> is mutable. If it stored the same object, changing the order after <code>save()</code> would also change the stored object. A test could then stay green even if the second <code>save()</code> was missing.</p>
+<p>The payment gateway can also have a small fake:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#ff79c6">final</span> <span style="color:#ff79c6">class</span> <span style="color:#50fa7b">InMemoryPaymentGateway</span> <span style="color:#ff79c6">implements</span> PaymentGateway
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#f1fa8c">/** @var list&lt;Payment&gt; */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">private</span> <span style="color:#ff79c6">array</span> <span style="color:#8be9fd;font-style:italic">$payments</span> <span style="color:#ff79c6">=</span> [];
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f1fa8c">/** @var array&lt;string, int&gt; */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">private</span> <span style="color:#ff79c6">array</span> <span style="color:#8be9fd;font-style:italic">$balances</span> <span style="color:#ff79c6">=</span> [];
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">public</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">setBalance</span>(string <span style="color:#8be9fd;font-style:italic">$paymentMethodId</span>, int <span style="color:#8be9fd;font-style:italic">$cents</span>)<span style="color:#ff79c6">:</span> void
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">balances</span>[<span style="color:#8be9fd;font-style:italic">$paymentMethodId</span>] <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$cents</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">public</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">charge</span>(string <span style="color:#8be9fd;font-style:italic">$paymentMethodId</span>, float <span style="color:#8be9fd;font-style:italic">$amount</span>)<span style="color:#ff79c6">:</span> Payment
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$cents</span> <span style="color:#ff79c6">=</span> (int) round(<span style="color:#8be9fd;font-style:italic">$amount</span> <span style="color:#ff79c6">*</span> <span style="color:#bd93f9">100</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">if</span> ((<span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">balances</span>[<span style="color:#8be9fd;font-style:italic">$paymentMethodId</span>] <span style="color:#ff79c6">??</span> <span style="color:#bd93f9">0</span>) <span style="color:#ff79c6">&lt;</span> <span style="color:#8be9fd;font-style:italic">$cents</span>) {
+</span></span><span style="display:flex;"><span>            <span style="color:#ff79c6">throw</span> <span style="color:#ff79c6">new</span> InsufficientFunds();
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">balances</span>[<span style="color:#8be9fd;font-style:italic">$paymentMethodId</span>] <span style="color:#ff79c6">-=</span> <span style="color:#8be9fd;font-style:italic">$cents</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$payment</span> <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> Payment(
+</span></span><span style="display:flex;"><span>            <span style="color:#f1fa8c">&#39;transaction-&#39;</span> <span style="color:#ff79c6">.</span> (count(<span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">payments</span>) <span style="color:#ff79c6">+</span> <span style="color:#bd93f9">1</span>),
+</span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">$amount</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">$paymentMethodId</span>,
+</span></span><span style="display:flex;"><span>        );
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">payments</span>[] <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$payment</span>;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">return</span> <span style="color:#8be9fd;font-style:italic">$payment</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f1fa8c">/** @return list&lt;Payment&gt; */</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">public</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">payments</span>()<span style="color:#ff79c6">:</span> <span style="color:#ff79c6">array</span>
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">return</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">payments</span>;
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Now the test can describe the use case:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#ff79c6">public</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">testItCreatesAndPaysForAnOrder</span>()<span style="color:#ff79c6">:</span> void
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">$customers</span> <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> InMemoryCustomerRepository();
+</span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">$orders</span> <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> InMemoryOrderRepository();
+</span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">$payments</span> <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> InMemoryPaymentGateway();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">$customers</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">save</span>(
+</span></span><span style="display:flex;"><span>        Customer<span style="color:#ff79c6">::</span><span style="color:#50fa7b">withPaymentMethod</span>(<span style="color:#f1fa8c">&#39;customer-1&#39;</span>, <span style="color:#f1fa8c">&#39;payment-method-1&#39;</span>),
+</span></span><span style="display:flex;"><span>    );
+</span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">$payments</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">setBalance</span>(<span style="color:#f1fa8c">&#39;payment-method-1&#39;</span>, <span style="color:#bd93f9">100_00</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">$service</span> <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> CreateOrder(<span style="color:#8be9fd;font-style:italic">$customers</span>, <span style="color:#8be9fd;font-style:italic">$orders</span>, <span style="color:#8be9fd;font-style:italic">$payments</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">$order</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$service</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">execute</span>(<span style="color:#f1fa8c">&#39;customer-1&#39;</span>, [
+</span></span><span style="display:flex;"><span>        [<span style="color:#f1fa8c">&#39;sku&#39;</span> <span style="color:#ff79c6">=&gt;</span> <span style="color:#f1fa8c">&#39;ABC&#39;</span>, <span style="color:#f1fa8c">&#39;price&#39;</span> <span style="color:#ff79c6">=&gt;</span> <span style="color:#bd93f9">49.99</span>, <span style="color:#f1fa8c">&#39;quantity&#39;</span> <span style="color:#ff79c6">=&gt;</span> <span style="color:#bd93f9">2</span>],
+</span></span><span style="display:flex;"><span>    ]);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">$savedOrder</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$orders</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">findById</span>(<span style="color:#8be9fd;font-style:italic">$order</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">id</span>());
+</span></span><span style="display:flex;"><span>    self<span style="color:#ff79c6">::</span><span style="color:#50fa7b">assertNotNull</span>(<span style="color:#8be9fd;font-style:italic">$savedOrder</span>);
+</span></span><span style="display:flex;"><span>    self<span style="color:#ff79c6">::</span><span style="color:#50fa7b">assertTrue</span>(<span style="color:#8be9fd;font-style:italic">$savedOrder</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">isPaid</span>());
+</span></span><span style="display:flex;"><span>    self<span style="color:#ff79c6">::</span><span style="color:#50fa7b">assertSame</span>(<span style="color:#bd93f9">99.98</span>, <span style="color:#8be9fd;font-style:italic">$savedOrder</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">total</span>());
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    self<span style="color:#ff79c6">::</span><span style="color:#50fa7b">assertCount</span>(<span style="color:#bd93f9">1</span>, <span style="color:#8be9fd;font-style:italic">$payments</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">payments</span>());
+</span></span><span style="display:flex;"><span>    self<span style="color:#ff79c6">::</span><span style="color:#50fa7b">assertSame</span>(
+</span></span><span style="display:flex;"><span>        <span style="color:#f1fa8c">&#39;payment-method-1&#39;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$payments</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">payments</span>()[<span style="color:#bd93f9">0</span>]<span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">paymentMethodId</span>(),
+</span></span><span style="display:flex;"><span>    );
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This test checks the result:</p>
+<ul>
+<li>The order was saved.</li>
+<li>The saved order is paid.</li>
+<li>The total is correct.</li>
+<li>The correct payment method was charged once.</li>
+</ul>
+<p>It does not care if <code>save()</code> was called once or twice. I can change the code without changing the test, as long as the use case still works.</p>
+<p>The test also finds real mistakes. It fails if I use the wrong payment method, charge the wrong amount, or forget to save the paid order.</p>
+<h2 id="why-fakes-fit-hexagonal-architecture">Why Fakes Fit Hexagonal Architecture</h2>
+<p>In hexagonal architecture, the application defines ports:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#ff79c6">interface</span> OrderRepository
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">public</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">save</span>(Order <span style="color:#8be9fd;font-style:italic">$order</span>)<span style="color:#ff79c6">:</span> void;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">public</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">findById</span>(string <span style="color:#8be9fd;font-style:italic">$id</span>)<span style="color:#ff79c6">:</span> <span style="color:#ff79c6">?</span>Order;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Different adapters can implement this port:</p>
+<ul>
+<li><code>DoctrineOrderRepository</code> stores orders in a database.</li>
+<li><code>InMemoryOrderRepository</code> stores orders in an array.</li>
+</ul>
+<p>The application does not need to know which adapter it uses. This also makes the in-memory adapter a good choice for application tests.</p>
+<p>I split my tests like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-text" data-lang="text"><span style="display:flex;"><span>Domain tests
+</span></span><span style="display:flex;"><span>  Use real domain objects. Usually no test doubles.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Application tests
+</span></span><span style="display:flex;"><span>  Test complete use cases with in-memory fakes.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Adapter tests
+</span></span><span style="display:flex;"><span>  Test Doctrine with a real database and HTTP adapters with a test server.
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>System tests
+</span></span><span style="display:flex;"><span>  Test a few important paths through the complete application.
+</span></span></code></pre></div><p>The application tests are fast because they do not start external systems. The adapter tests make sure that the production code really works with the database or API.</p>
+<div class="details admonition info open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf05a;</i> Fakes do not replace adapter tests<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Application tests with fakes check the use case. Adapter tests check if the production code really works with the database, filesystem, queue, or API. We need both.</div>
+  </div>
+</div>
+<h2 id="fakes-can-be-wrong-too">Fakes Can Be Wrong Too</h2>
+<p>A fake is not automatically correct. It can behave differently from the real adapter.</p>
+<p>For example, an in-memory repository may:</p>
+<ul>
+<li>forget a unique constraint;</li>
+<li>return the same mutable object;</li>
+<li>sort results differently;</li>
+<li>ignore transactions;</li>
+<li>hide database-specific problems.</li>
+</ul>
+<p>This is why I use the same contract tests for the fake and the real adapter:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#ff79c6">abstract</span> <span style="color:#ff79c6">class</span> <span style="color:#50fa7b">OrderRepositoryContractTest</span> <span style="color:#ff79c6">extends</span> TestCase
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">abstract</span> <span style="color:#ff79c6">protected</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">repository</span>()<span style="color:#ff79c6">:</span> OrderRepository;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">public</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">testSavedOrderCanBeFoundByItsId</span>()<span style="color:#ff79c6">:</span> void
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$repository</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">repository</span>();
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$order</span> <span style="color:#ff79c6">=</span> OrderBuilder<span style="color:#ff79c6">::</span><span style="color:#50fa7b">anOrder</span>()<span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">withId</span>(<span style="color:#f1fa8c">&#39;order-1&#39;</span>)<span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">build</span>();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        <span style="color:#8be9fd;font-style:italic">$repository</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">save</span>(<span style="color:#8be9fd;font-style:italic">$order</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>        self<span style="color:#ff79c6">::</span><span style="color:#50fa7b">assertEquals</span>(<span style="color:#8be9fd;font-style:italic">$order</span>, <span style="color:#8be9fd;font-style:italic">$repository</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">findById</span>(<span style="color:#f1fa8c">&#39;order-1&#39;</span>));
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">public</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">testUnknownOrderIsNotFound</span>()<span style="color:#ff79c6">:</span> void
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        self<span style="color:#ff79c6">::</span><span style="color:#50fa7b">assertNull</span>(
+</span></span><span style="display:flex;"><span>            <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">repository</span>()<span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">findById</span>(<span style="color:#f1fa8c">&#39;missing-order&#39;</span>),
+</span></span><span style="display:flex;"><span>        );
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Both repository tests extend this class:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#ff79c6">final</span> <span style="color:#ff79c6">class</span> <span style="color:#50fa7b">InMemoryOrderRepositoryTest</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">extends</span> OrderRepositoryContractTest
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">protected</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">repository</span>()<span style="color:#ff79c6">:</span> OrderRepository
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">return</span> <span style="color:#ff79c6">new</span> InMemoryOrderRepository();
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#ff79c6">final</span> <span style="color:#ff79c6">class</span> <span style="color:#50fa7b">DoctrineOrderRepositoryTest</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">extends</span> OrderRepositoryContractTest
+</span></span><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#ff79c6">protected</span> <span style="color:#ff79c6">function</span> <span style="color:#50fa7b">repository</span>()<span style="color:#ff79c6">:</span> OrderRepository
+</span></span><span style="display:flex;"><span>    {
+</span></span><span style="display:flex;"><span>        <span style="color:#ff79c6">return</span> self<span style="color:#ff79c6">::</span><span style="color:#50fa7b">getContainer</span>()<span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">get</span>(DoctrineOrderRepository<span style="color:#ff79c6">::</span><span style="color:#50fa7b">class</span>);
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>This makes sure that both implementations follow the same basic rules.</p>
+<p>It does not test everything. Transactions, locking, database constraints, and parallel requests still need tests with the real database.</p>
+<h2 id="why-fakes-become-cheaper-over-time">Why Fakes Become Cheaper Over Time</h2>
+<p>A mock is often faster to write for the first test:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">$repository</span> <span style="color:#ff79c6">=</span> <span style="color:#8be9fd;font-style:italic">$this</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">createMock</span>(OrderRepository<span style="color:#ff79c6">::</span><span style="color:#50fa7b">class</span>);
+</span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">$repository</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">method</span>(<span style="color:#f1fa8c">&#39;findById&#39;</span>)<span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">willReturn</span>(<span style="color:#8be9fd;font-style:italic">$order</span>);
+</span></span></code></pre></div><p>But every new test needs its own setup. After a while, the same expectations are copied into many test files.</p>
+<p>A fake takes more time once:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">$repository</span> <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> InMemoryOrderRepository();
+</span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">$repository</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">save</span>(<span style="color:#8be9fd;font-style:italic">$order</span>);
+</span></span></code></pre></div><p>After that, every test can use it. If the interface changes, I update the fake in one place instead of updating many mock setups.</p>
+<p>Fakes are also easier to debug. They are normal PHP code. I can set a breakpoint in the fake and inspect its state. With a generated PHPUnit mock, I mostly see the answers that I configured in the test.</p>
+<h2 id="when-mocks-make-sense">When Mocks Make Sense</h2>
+<p>There are good reasons to use mocks or spies. I use them when the call itself is the thing I want to test.</p>
+<p>Examples:</p>
+<ul>
+<li>A cache should prevent a second database lookup.</li>
+<li>A retry should stop after three attempts.</li>
+<li>A transaction should be rolled back after an error.</li>
+<li>Legacy code is hard to test in another way.</li>
+<li>A third-party system is too complex to fake in a useful way.</li>
+</ul>
+<p>Even then, a recording fake can sometimes be easier to read:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-php" data-lang="php"><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">$mailer</span> <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">new</span> InMemoryMailer();
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#8be9fd;font-style:italic">$service</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">sendConfirmation</span>(<span style="color:#8be9fd;font-style:italic">$order</span>);
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>self<span style="color:#ff79c6">::</span><span style="color:#50fa7b">assertCount</span>(<span style="color:#bd93f9">1</span>, <span style="color:#8be9fd;font-style:italic">$mailer</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">sentMessages</span>());
+</span></span><span style="display:flex;"><span>self<span style="color:#ff79c6">::</span><span style="color:#50fa7b">assertSame</span>(
+</span></span><span style="display:flex;"><span>    <span style="color:#f1fa8c">&#39;customer@example.com&#39;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#8be9fd;font-style:italic">$mailer</span><span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">sentMessages</span>()[<span style="color:#bd93f9">0</span>]<span style="color:#ff79c6">-&gt;</span><span style="color:#50fa7b">recipient</span>(),
+</span></span><span style="display:flex;"><span>);
+</span></span></code></pre></div><p>This still checks that an email left the application. But it checks the sent message instead of configuring a list of expected method calls before running the test.</p>
+<p>Sometimes a mock is still the simpler choice. The important part is to choose it for a reason, not because every dependency must be mocked.</p>
+<h2 id="what-i-use">What I Use</h2>
+<p>Before I create a test double, I ask:</p>
+<ol>
+<li>
+<p><strong>Can I test this with real domain objects?</strong>
+Then I do not need a test double.</p>
+</li>
+<li>
+<p><strong>Does this port have simple behavior that I can implement in memory?</strong>
+I use a fake and check the result.</p>
+</li>
+<li>
+<p><strong>Am I testing a real adapter?</strong>
+I use the real database, filesystem, queue, or a test server.</p>
+</li>
+<li>
+<p><strong>Is the number or order of calls important?</strong>
+I use a spy or mock and explain the reason in the test name.</p>
+</li>
+<li>
+<p><strong>Would the fake become as complex as the real system?</strong>
+I stop and use the real system or a smaller interface.</p>
+</li>
+</ol>
+<div class="details admonition tip open">
+  <div class="details-summary admonition-title">
+    <i class="icon ">&#xf400;</i> The simplest rule<i class="details-icon fas fa-angle-right fa-fw"></i>
+  </div>
+  <div class="details-content">
+    <div class="admonition-content">Test the result unless the interaction is the result.</div>
+  </div>
+</div>
+<h2 id="how-to-start-replacing-mocks">How to Start Replacing Mocks</h2>
+<p>You do not have to rewrite the complete test suite. Start with one port:</p>
+<ol>
+<li>Pick a repository that is mocked in many tests.</li>
+<li>Write down how it should behave.</li>
+<li>Create a small in-memory implementation in <code>tests/Double/</code>.</li>
+<li>Run the same contract tests against the fake and the real adapter.</li>
+<li>Change one application test to check the result instead of method calls.</li>
+<li>Keep mocks where a call count or call order is a real requirement.</li>
+</ol>
+<p>The first fake may take longer than the first mock. It pays off when the next tests can reuse it.</p>
+<h2 id="conclusion">Conclusion</h2>
+<p>My problem is not that mocks exist. My problem is using mocks for every dependency in every test.</p>
+<p>A test should tell me if a feature is broken. It should not fail only because I moved a method call or changed how the code works inside.</p>
+<p>Fakes help me write tests around complete use cases. They make the state visible, they are easy to debug, and they let me refactor without changing tests that still describe the same behavior.</p>
+<p>Use mocks when the interaction is important. Otherwise, test what the code actually did.</p>
+]]></description><media:thumbnail url="https://blog.dazzlog.de/fakes-vs-mocks.png"/></item></channel></rss>
