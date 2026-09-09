@@ -178,4 +178,4 @@ Some rules remain in skills because they require judgment. Is this issue fully s
 
 The setup is still being refined while it works. I prefer that to designing a perfect factory in isolation. DazzHub keeps producing the awkward cases I need: stale assumptions, concurrent branches, environment failures, review corrections, and commands that succeed for the wrong reason.
 
-The next part of the series covers the thing I needed before allowing more unattended work: one place to see what Claude Code, Pi, and Codex actually did.
+The next part of the series covers the thing I needed before allowing more unattended work: one place to see what Claude Code and Pi actually did.

@@ -1,7 +1,8 @@
 ---
 title: "8 Stages to a Software Factory, and Where I Am Now"
 date: 2026-09-02T17:00:00+02:00
-tags: [ai, ai engineering, software factory, agents, orca, workflow, claude code, pi, codex]
+tags: [ai, ai engineering, software factory, agents, orca, workflow, claude code, pi]
+draft: true
 comments: true
 toc: true
 image: 8-stage-software-factory.png
@@ -63,7 +64,7 @@ The VM has two users with real roles:
 - `dazz` operates the machine and has sudo.
 - `dazztronic` runs Orca, the coding agents, rootless Docker, repositories, and a restricted GitHub identity.
 
-Orca runs Claude Code, Pi, and Codex as children of the runner. Giving Orca a third Unix user would only duplicate credentials while requiring the same repository access. The useful boundary is the runner account.
+Orca runs Claude Code and Pi as children of the runner. Giving Orca a third Unix user would only duplicate credentials while requiring the same repository access. The useful boundary is the runner account.
 
 {{< admonition type=warning title="The real security boundary" >}}
 Anything the `dazztronic` account can do, an agent may eventually do too. I try not to confuse separate agent sessions with separate security boundaries.
@@ -83,7 +84,7 @@ That sounds like convenience until two agents edit the same checkout. Isolation 
 
 ### Several agents in one runtime
 
-Claude Code, Pi, and Codex can live on the same box. I do not need to pretend they are interchangeable. Claude currently does most execution, Pi has been useful as an independent reviewer, and Codex is present but still lacks a fully verified login and tracing path. The runtime lets me assign different jobs without moving the repository or copying context between machines.
+Claude Code and Pi can live on the same box. I do not need to pretend they are interchangeable. Claude currently does most execution, and Pi has been useful as an independent reviewer. The runtime lets me assign different jobs without moving the repository or copying context between machines.
 
 ### Orchestration
 

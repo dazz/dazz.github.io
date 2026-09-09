@@ -1,7 +1,8 @@
 ---
 title: "Orca Is My Agent Development Environment Now"
 date: 2026-08-23T17:00:00+02:00
-tags: [ai, ai engineering, agents, orca, onorca.dev, claude code, pi, codex, software factory, self-hosting, workflow]
+tags: [ai, ai engineering, agents, orca, onorca.dev, claude code, pi, software factory, self-hosting, workflow]
+draft: true
 comments: true
 image: orcaorcaorca.png
 toc: true
@@ -31,7 +32,7 @@ That decision made Orca much more than the richer successor to the setup I had i
 
 ## What Orca adds to coding agents
 
-Orca does not replace GitHub, Git, Docker, Claude Code, Pi, or Codex. It puts them into an environment where several agent sessions can work at once and where I can manage them as work rather than as disconnected command lines.
+Orca does not replace GitHub, Git, Docker, Claude Code, or Pi. It puts them into an environment where several agent sessions can work at once and where I can manage them as work rather than as disconnected command lines.
 
 The parts I use most are these:
 
@@ -74,7 +75,7 @@ The exact commands are wrapped by DazzHub's factory tooling now, but the shape m
 
 ## I do not use one agent for everything
 
-Claude Code is still part of my daily work. Pi runs alongside it and is especially useful when I want a different agent implementation, model, or an independent review. Codex is installed as a third option and I am wiring it into the same conventions gradually rather than pretending that installation means integration.
+Claude Code is still part of my daily work. Pi runs alongside it and is especially useful when I want a different agent implementation, model, or an independent review.
 
 They share a machine, but they do not share identical behavior.
 
@@ -148,7 +149,7 @@ I also enabled Orca's voice feature and let projects share a workspace. An agent
 
 ## Observability matters once agents multiply
 
-With several agents on a server, I also want one place to see what happened across their different session formats. I am adding a self-hosted Langfuse instance to collect traces from Claude Code, Pi, and Codex without replacing those runtimes.
+With several agents on a server, I also want one place to see what happened across their different session formats. I am adding a self-hosted Langfuse instance to collect traces from Claude Code and Pi without replacing those runtimes.
 
 Those traces may contain prompts, tool calls, paths, and secrets, so I treat the observer as sensitive infrastructure rather than a harmless dashboard.
 
@@ -160,7 +161,7 @@ I define what matters. I refine vague issues. I decide which work is safe to run
 
 The difference is that I no longer have to spend my attention on every keystroke or sit beside every running process. The system can carry work while I am away, and it leaves me places to inspect the result.
 
-There are still important boundaries. Not every automation is fully proven end to end. Codex is installed but less integrated than Claude Code and Pi. Central logging has to be checked against real traces, not merely a successful hook installation. Resource limits, API limits, review capacity, and overlapping work remain real constraints. An unattended agent can still do the wrong thing quickly.
+There are still important boundaries. Not every automation is fully proven end to end. Central logging has to be checked against real traces, not merely a successful hook installation. Resource limits, API limits, review capacity, and overlapping work remain real constraints. An unattended agent can still do the wrong thing quickly.
 
 That is why I keep the factory's permissions narrow, isolate worktrees, run deterministic gates, record blocked states, and retain a human merge decision.
 

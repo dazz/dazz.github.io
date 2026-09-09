@@ -1,7 +1,7 @@
 ---
 title: "The Bright Factory Needed Windows"
 date: 2026-09-10T17:00:00+02:00
-tags: [ai, ai engineering, observability, langfuse, agents, orca, claude code, pi, codex, self-hosting]
+tags: [ai, ai engineering, observability, langfuse, agents, orca, claude code, pi, self-hosting]
 image: hero.png
 draft: true
 comments: true
@@ -9,10 +9,10 @@ toc: true
 ---
 
 {{< admonition type=tldr title="TL;DR" >}}
-Claude Code, Pi, and Codex all produced logs, but I had no practical view across them. I self-hosted Langfuse to collect their traces in one place. Pi works end to end, Claude Code works through transcript replay but still needs one live-hook proof, and Codex is installed but not verified. Observability helped, but it also added cost, secrets, and new failure modes.
+Claude Code and Pi both produced logs, but I had no practical view across them. I self-hosted Langfuse to collect their traces in one place. Pi works end to end, while Claude Code works through transcript replay but still needs one live-hook proof. Observability helped, but it also added cost, secrets, and new failure modes.
 {{< /admonition >}}
 
-Claude Code, Pi, and Codex all kept session logs on my agent server. In theory, I could audit every run. In practice, that meant connecting to the machine, finding three different directories, and reading three different JSONL formats.
+Claude Code and Pi both kept session logs on my agent server. In theory, I could audit every run. In practice, that meant connecting to the machine, finding two different directories, and reading two different formats.
 
 I had logs in the same way a box of receipts is accounting.
 
@@ -28,13 +28,12 @@ Stage 7 can look productive while still depending on a human watching the termin
 
 ## Why I Chose Langfuse
 
-All three agents already produce local session data. I did not want to replace their harnesses or route every model call through a new application. Langfuse has integrations that observe the existing sessions:
+Both agents already produce local session data. I did not want to replace their harnesses or route every model call through a new application. Langfuse has integrations that observe the existing sessions:
 
 - the Claude Code integration processes transcript data from `Stop` and `SessionEnd` hooks;
-- a Pi extension listens to Pi lifecycle events;
-- the Codex plugin processes its session rollout through a `Stop` hook.
+- a Pi extension listens to Pi lifecycle events.
 
-Each integration can turn model generations and tool calls into traces grouped by session. That gave me one backend without forcing the three agents to behave as one agent.
+Each integration can turn model generations and tool calls into traces grouped by session. That gave me one backend without forcing the two agents to behave as one agent.
 
 I chose to self-host it on `dazztronic-box`. The point of moving the runtime off my laptop was to create shared infrastructure I control. Sending the audit trail to another service by default would have undermined part of that experiment.
 
@@ -103,25 +102,9 @@ Langfuse provides a migration mode that accepts both protocols. I enabled:
 LANGFUSE_MIGRATION_V4_WRITE_MODE=dual
 ```
 
-After recreating the web and worker containers, a real `pi --print` turn completed and the trace count went from zero to one in ClickHouse. This is the strongest of my three agent integrations because I verified it from actual model turn to stored trace.
+After recreating the web and worker containers, a real `pi --print` turn completed and the trace count went from zero to one in ClickHouse. This is the strongest of my two agent integrations because I verified it from actual model turn to stored trace.
 
 The bridge stays until the Pi integration moves to a v4-native SDK. For me, that is acceptable compatibility debt because it has a name and a clear removal condition.
-
-## Codex: Installed Is Not Verified
-
-The official Codex observability plugin is installed, and hook support is enabled in `~/.codex/config.toml`. The command-line flag that appeared to enable hooks only applied to that one invocation, so I had to persist the feature setting myself.
-
-The integration still lacks an end-to-end result. Codex requires a one-time interactive trust review before it runs the hook. The server also has no working Codex authentication yet, so a test model call fails with 401 before a completed turn can emit a `Stop` event.
-
-I could call the installation “wired” and move on. The useful status is more precise:
-
-- plugin installed;
-- configuration present;
-- hook not trusted yet;
-- no authenticated real turn;
-- no trace verified.
-
-Observability work has made me much less tolerant of words such as “configured” and “working.” They are not the same checkpoint.
 
 ## The Incident Inside the Observability Work
 
@@ -139,7 +122,7 @@ Tracing increases the amount of sensitive context collected. Tool arguments, pro
 
 ## What I Can See, and What I Still Cannot
 
-The Langfuse stack runs locally and has accepted real traces. Pi is verified end to end. Claude Code's transcript replay works with the environment fix, while the automatic hook path still needs one final proof. Codex remains installed but unverified.
+The Langfuse stack runs locally and has accepted real traces. Pi is verified end to end. Claude Code's transcript replay works with the environment fix, while the automatic hook path still needs one final proof.
 
 The stack also has an unresolved warning. The Langfuse worker logs recurring Redis socket timeouts even though Redis answers `PING` and real ingestion succeeds. I left it open rather than converting “did not break my test” into “harmless.” Real multi-agent traffic will show whether it drops jobs or only reports noisy blocking reads.
 

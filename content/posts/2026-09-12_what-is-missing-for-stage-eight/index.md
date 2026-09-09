@@ -28,7 +28,7 @@ A job running every hour is only a timer. Autonomy starts when the system can se
 
 The Stage 8 description in Upsun's [eight-stage maturity model](https://upsun.com/blog/8-stages-ai-engineering-maturity/) combines shared infrastructure, scheduled sandboxed runs, centralized traces, recurring jobs, automated eval gates, and escalation.
 
-My setup already satisfies part of the infrastructure requirement. Claude Code, Pi, and Codex run on `dazztronic-box` through Orca. Their work stays on the server in isolated worktrees rather than on my laptop. Langfuse provides the beginning of a central trace store.
+My setup already satisfies part of the infrastructure requirement. Claude Code and Pi run on `dazztronic-box` through Orca. Their work stays on the server in isolated worktrees rather than on my laptop. Langfuse provides the beginning of a central trace store.
 
 The remaining gap has two large parts:
 
@@ -175,7 +175,7 @@ The current Groomer only works on issues that already exist. Nothing creates a c
 
 ## Observability Still Has Holes
 
-Langfuse is running, and real Pi traces arrive. The Claude Code integration has one final live-hook verification outstanding. Codex is installed but lacks an authenticated end-to-end trace. The Langfuse worker emits recurring Redis timeout messages whose impact is unknown.
+Langfuse is running, and real Pi traces arrive. The Claude Code integration has one final live-hook verification outstanding. The Langfuse worker emits recurring Redis timeout messages whose impact is unknown.
 
 The observer also shares the runner account and rootless Docker daemon with the observed agents. An agent can stop Langfuse. That is acceptable for my current single-user experiment. It is a poor boundary for a service expected to explain a compromised or misbehaving run.
 
