@@ -1083,10 +1083,18 @@ sequenceDiagram
 
 </div>
 
-<script type="module">
-    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-    mermaid.initialize({ startOnLoad: true, theme: "dark" });
+
+<script defer src="/vendor/mermaid/mermaid.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        if (window.mermaid) {
+            mermaid.initialize({ startOnLoad: true, theme: "dark" });
+        }
+    });
 </script>
+
+
+
 <h2 id="why-is-it-a-problem-running-two-containers">Why is it a problem running two containers?</h2>
 <p>Running multiple containers isn&rsquo;t inherently problematic. Some hosting platforms limit multi-container deployments, pushing developers toward single-container solutions. But this isn&rsquo;t a technical limitation — it&rsquo;s often a constraint of hosting.</p>
 <h3 id="build-time-dependency-between-containers">Build-time dependency between containers</h3>
@@ -1132,10 +1140,8 @@ sequenceDiagram
 
 </div>
 
-<script type="module">
-    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-    mermaid.initialize({ startOnLoad: true, theme: "dark" });
-</script>
+
+
 <p>What you see here is that when you execute the <code>docker stop</code> command, Docker initiates a graceful shutdown process
 for the specified container. It first sends the <code>SIGTERM</code> signal to the main process inside the container, allowing the application to perform necessary cleanup operations. Docker then waits for a default grace period of 10 seconds. If the process does not terminate within this timeframe, Docker sends the <code>SIGKILL</code> signal to forcefully stop the container.</p>
 <h3 id="the-role-of-s6-overlay">The Role of s6-overlay</h3>
@@ -1533,10 +1539,8 @@ svc-nginx --> svc-php-fpm
 
 </div>
 
-<script type="module">
-    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-    mermaid.initialize({ startOnLoad: true, theme: "dark" });
-</script>
+
+
 ]]></description><media:thumbnail url="https://blog.dazzlog.de/s6-cli.webp"/></item><item><title>Build your own s6-overlay base image</title><link>https://blog.dazzlog.de/posts/2024-08-19_base-image-with-s6-overlay/</link><pubDate>Mon, 19 Aug 2024 23:42:23 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2024-08-19_base-image-with-s6-overlay/</guid><description><![CDATA[<p>S6-overlay is a container-focused process manager that offers end-to-end management of the container&rsquo;s lifecycle, from initialization to graceful shutdown.</p>
 <p>To make use of s6-overlay we need to add the binaries to our container by adding, extracting and then moving them to the directory where they are expected.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">ADD</span> https://github.com/just-containers/s6-overlay/releases/download/3.2.0.0/s6-overlay-noarch.tar.xz /tmp  
@@ -2062,32 +2066,74 @@ beings how to interact in a future compatible way.</p>
 <ul>
 <li>Logo: <a href="https://de.freepik.com/vektoren-kostenlos/niedlich-astronaut-arbeitende-mit-computer-karikatur-vektor-symbol-illustration-wissenschafts-technologie-ikonen-konzept-lokalisierter-erstklassiger-vektor-flacher-cartoon-stil_22750865.htm#query=space%20logo&amp;position=19&amp;from_view=search&amp;track=sph">Bild von catalyststuff auf Freepik</a></li>
 </ul>
-]]></description></item><item><title>impressum</title><link>https://blog.dazzlog.de/impressum/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog.dazzlog.de/impressum/</guid><description><![CDATA[<h2 id="angaben-gemäß--5-tmg">Angaben gemäß § 5 TMG</h2>
-<p>Anne Seitz</p>
-<p>Tempelhofer Ufer 1</p>
-<p>10961 Berlin</p>
-<h3 id="kontakt">Kontakt:</h3>
+]]></description></item><item><title>Datenschutz</title><link>https://blog.dazzlog.de/datenschutz/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog.dazzlog.de/datenschutz/</guid><description><![CDATA[<h2 id="1-verantwortliche-stelle">1. Verantwortliche Stelle</h2>
+<p>Verantwortlich für die Datenverarbeitung auf dieser Website ist:</p>
+<p>Anne Seitz<br>
+Tempelhofer Ufer 1<br>
+10961 Berlin<br>
+E-Mail: <a href="mailto:dazzlog@gmail.com">dazzlog@gmail.com</a></p>
+<h2 id="2-hosting-über-github-pages">2. Hosting über GitHub Pages</h2>
+<p>Diese Website wird über <strong>GitHub Pages</strong>, einen Dienst der GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, USA, bereitgestellt.</p>
+<p>Beim Aufruf der Website verarbeitet GitHub technisch erforderliche Verbindungsdaten. Dazu können insbesondere IP-Adresse, Datum und Uhrzeit des Zugriffs, aufgerufene Adresse, übertragene Datenmenge, Referrer sowie Browser- und Betriebssysteminformationen gehören. Auf die konkrete Verarbeitung und Speicherdauer dieser Serverdaten durch GitHub haben wir keinen unmittelbaren Einfluss.</p>
+<p>Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse besteht in der sicheren und zuverlässigen Bereitstellung dieser Website. Bei einer Übermittlung in die USA stützt GitHub den Datentransfer nach eigenen Angaben unter anderem auf das EU-US Data Privacy Framework und die Standardvertragsklauseln der Europäischen Kommission.</p>
+<p>Weitere Informationen enthält die <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement">Datenschutzerklärung von GitHub</a>.</p>
+<h2 id="3-einwilligungsverwaltung">3. Einwilligungsverwaltung</h2>
+<p>Wir verwenden die lokal ausgelieferte Software <strong>Vanilla CookieConsent</strong>, um deine Datenschutzauswahl zu verwalten. Dafür wird das technisch notwendige Cookie <code>dazzlog_consent</code> gesetzt. Es enthält die ausgewählten Kategorien sowie zur Verwaltung der Auswahl erforderliche Angaben wie Zeitstempel, Sprache und eine zufällig erzeugte Einwilligungs-ID.</p>
+<p>Das Cookie wird ausschließlich von dieser Website gesetzt, nicht an den Anbieter der Software übermittelt und nach 180 Tagen gelöscht. Rechtsgrundlagen sind § 25 Abs. 2 Nr. 2 TDDDG und, soweit personenbezogene Daten verarbeitet werden, Art. 6 Abs. 1 lit. c und f DSGVO. Unser berechtigtes Interesse besteht darin, deine Auswahl zu speichern und einwilligungspflichtige Dienste entsprechend zu steuern.</p>
+<p>Du kannst deine Auswahl jederzeit über <strong>Cookie-Einstellungen</strong> im Footer ändern.</p>
+<h2 id="4-google-analytics">4. Google Analytics</h2>
+<p>Sofern du in die Kategorie <strong>Statistik</strong> einwilligst, verwendet diese Website Google Analytics 4. Anbieter ist die Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland. Google Analytics wird vor deiner Einwilligung weder geladen noch ausgeführt.</p>
+<p>Google Analytics hilft uns zu verstehen, wie der Blog genutzt wird. Dabei können insbesondere folgende Daten verarbeitet werden:</p>
+<ul>
+<li>aufgerufene Seiten und Zeitpunkt des Aufrufs,</li>
+<li>ungefähre geografische Region,</li>
+<li>Referrer,</li>
+<li>Browser-, Geräte- und Betriebssysteminformationen,</li>
+<li>eine pseudonyme Kennung zur Unterscheidung von Besuchen.</li>
+</ul>
+<p>Google Analytics setzt insbesondere die Cookies <code>_ga</code> und <code>_ga_*</code>. Wir haben deren maximale Laufzeit auf 180 Tage begrenzt. Die Speicherdauer der daraus erzeugten Ereignis- und Nutzungsdaten richtet sich zusätzlich nach den in Google Analytics hinterlegten Aufbewahrungseinstellungen und dem Zweck der jeweiligen Auswertung.</p>
+<p>Wir haben Google Signals und Signale zur Anzeigenpersonalisierung in der Einbindung deaktiviert. Dennoch kann nicht ausgeschlossen werden, dass Daten durch Google Ireland Limited an Google LLC in den USA oder andere Google-Unternehmen übermittelt werden. Google stützt solche Übermittlungen nach eigenen Angaben unter anderem auf das EU-US Data Privacy Framework und die Standardvertragsklauseln der Europäischen Kommission.</p>
+<p>Rechtsgrundlagen sind deine Einwilligung nach § 25 Abs. 1 TDDDG für das Speichern beziehungsweise Auslesen von Informationen auf deinem Endgerät sowie Art. 6 Abs. 1 lit. a DSGVO für die anschließende Datenverarbeitung. Du kannst die Einwilligung jederzeit über <strong>Cookie-Einstellungen</strong> im Footer mit Wirkung für die Zukunft widerrufen. Beim Widerruf werden die von dieser Website erreichbaren Google-Analytics-Cookies gelöscht und weitere Analytics-Aufrufe unterbunden.</p>
+<p>Weitere Informationen:</p>
+<ul>
+<li><a href="https://policies.google.com/privacy">Datenschutz bei Google</a></li>
+<li><a href="https://policies.google.com/technologies/partner-sites">Datennutzung durch Google bei Diensten von Partnern</a></li>
+<li><a href="https://support.google.com/analytics/answer/12017362">Google Analytics und Datenschutz</a></li>
+</ul>
+<h2 id="5-externe-links">5. Externe Links</h2>
+<p>Diese Website enthält Links zu externen Angeboten. Beim bloßen Anzeigen unserer Seiten werden durch diese Links keine Daten an die verlinkten Anbieter übertragen. Erst wenn du einem externen Link folgst, gelten die Datenschutzbestimmungen des jeweiligen Anbieters.</p>
+<h2 id="6-kontaktaufnahme">6. Kontaktaufnahme</h2>
+<p>Wenn du per E-Mail Kontakt aufnimmst, verarbeiten wir die von dir übermittelten Angaben zur Bearbeitung deiner Anfrage. Rechtsgrundlage ist je nach Inhalt Art. 6 Abs. 1 lit. b oder f DSGVO. Die Daten werden gelöscht, sobald sie für die Bearbeitung nicht mehr erforderlich sind und keine gesetzlichen Aufbewahrungspflichten entgegenstehen.</p>
+<h2 id="7-deine-rechte">7. Deine Rechte</h2>
+<p>Du hast im Rahmen der gesetzlichen Voraussetzungen insbesondere das Recht auf:</p>
+<ul>
+<li>Auskunft über deine verarbeiteten personenbezogenen Daten,</li>
+<li>Berichtigung unrichtiger Daten,</li>
+<li>Löschung oder Einschränkung der Verarbeitung,</li>
+<li>Datenübertragbarkeit,</li>
+<li>Widerspruch gegen Verarbeitungen auf Grundlage berechtigter Interessen,</li>
+<li>Widerruf erteilter Einwilligungen mit Wirkung für die Zukunft.</li>
+</ul>
+<p>Außerdem hast du das Recht, dich bei einer Datenschutzaufsichtsbehörde zu beschweren. Zuständig ist insbesondere die Berliner Beauftragte für Datenschutz und Informationsfreiheit.</p>
+<h2 id="8-änderungen-dieser-datenschutzerklärung">8. Änderungen dieser Datenschutzerklärung</h2>
+<p>Wir passen diese Datenschutzerklärung an, wenn sich die Website, die eingesetzten Dienste oder die rechtlichen Anforderungen ändern.</p>
+]]></description></item><item><title>Impressum</title><link>https://blog.dazzlog.de/impressum/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog.dazzlog.de/impressum/</guid><description><![CDATA[<h2 id="angaben-gemäß--5-ddg">Angaben gemäß § 5 DDG</h2>
+<p>Anne Seitz<br>
+Tempelhofer Ufer 1<br>
+10961 Berlin</p>
+<h3 id="kontakt">Kontakt</h3>
 <p>E-Mail: <a href="mailto:dazzlog@gmail.com">dazzlog@gmail.com</a></p>
-<h2 id="verantwortlich-für-den-inhalt-nach--55-abs-2-rstv">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV:</h2>
-<p>Anne Seitz</p>
-<p>Tempelhofer Ufer 1</p>
-<p>10961 Berlin</p>
-<h2 id="haftungsausschluss">Haftungsausschluss:</h2>
-<h3 id="haftung-für-inhalte">Haftung für Inhalte</h3>
-<p>Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werden wir diese Inhalte umgehend entfernen.</p>
-<h3 id="haftung-für-links">Haftung für Links</h3>
-<p>Unser Angebot enthält Links zu externen Webseiten Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar. Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Links umgehend entfernen.</p>
-<h3 id="urheberrecht">Urheberrecht</h3>
-<p>Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet. Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitten wir um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werden wir derartige Inhalte umgehend entfernen.</p>
-<h3 id="datenschutz">Datenschutz</h3>
-<p>Die Nutzung unserer Webseite ist in der Regel ohne Angabe personenbezogener Daten möglich. Soweit auf unseren Seiten personenbezogene Daten (beispielsweise Name, Anschrift oder eMail-Adressen) erhoben werden, erfolgt dies, soweit möglich, stets auf freiwilliger Basis. Diese Daten werden ohne Ihre ausdrückliche Zustimmung nicht an Dritte weitergegeben.
-Wir weisen darauf hin, dass die Datenübertragung im Internet (z.B. bei der Kommunikation per E-Mail) Sicherheitslücken aufweisen kann. Ein lückenloser Schutz der Daten vor dem Zugriff durch Dritte ist nicht möglich.
-Der Nutzung von im Rahmen der Impressumspflicht veröffentlichten Kontaktdaten durch Dritte zur Übersendung von nicht ausdrücklich angeforderter Werbung und Informationsmaterialien wird hiermit ausdrücklich widersprochen. Die Betreiber der Seiten behalten sich ausdrücklich rechtliche Schritte im Falle der unverlangten Zusendung von Werbeinformationen, etwa durch Spam-Mails, vor.</p>
-<h3 id="google-analytics">Google Analytics</h3>
-<p>Diese Website benutzt Google Analytics, einen Webanalysedienst der Google Inc. (&lsquo;&lsquo;Google&rsquo;&rsquo;). Google Analytics verwendet sog. &lsquo;&lsquo;Cookies&rsquo;&rsquo;, Textdateien, die auf Ihrem Computer gespeichert werden und die eine Analyse der Benutzung der Website durch Sie ermöglicht. Die durch den Cookie erzeugten Informationen über Ihre Benutzung dieser Website (einschließlich Ihrer IP-Adresse) wird an einen Server von Google in den USA übertragen und dort gespeichert. Google wird diese Informationen benutzen, um Ihre Nutzung der Website auszuwerten, um Reports über die Websiteaktivitäten für die Websitebetreiber zusammenzustellen und um weitere mit der Websitenutzung und der Internetnutzung verbundene Dienstleistungen zu erbringen. Auch wird Google diese Informationen gegebenenfalls an Dritte übertragen, sofern dies gesetzlich vorgeschrieben oder soweit Dritte diese Daten im Auftrag von Google verarbeiten. Google wird in keinem Fall Ihre IP-Adresse mit anderen Daten der Google in Verbindung bringen. Sie können die Installation der Cookies durch eine entsprechende Einstellung Ihrer Browser Software verhindern; wir weisen Sie jedoch darauf hin, dass Sie in diesem Fall gegebenenfalls nicht sämtliche Funktionen dieser Website voll umfänglich nutzen können. Durch die Nutzung dieser Website erklären Sie sich mit der Bearbeitung der über Sie erhobenen Daten durch Google in der zuvor beschriebenen Art und Weise und zu dem zuvor benannten Zweck einverstanden.</p>
-<h3 id="google-adsense">Google AdSense</h3>
-<p>Diese Website benutzt Google Adsense, einen Webanzeigendienst der Google Inc., USA (&lsquo;&lsquo;Google&rsquo;&rsquo;). Google Adsense verwendet sog. &lsquo;&lsquo;Cookies&rsquo;&rsquo; (Textdateien), die auf Ihrem Computer gespeichert werden und die eine Analyse der Benutzung der Website durch Sie ermöglicht. Google Adsense verwendet auch sog. &lsquo;&lsquo;Web Beacons&rsquo;&rsquo; (kleine unsichtbare Grafiken) zur Sammlung von Informationen. Durch die Verwendung des Web Beacons können einfache Aktionen wie der Besucherverkehr auf der Webseite aufgezeichnet und gesammelt werden. Die durch den Cookie und/oder Web Beacon erzeugten Informationen über Ihre Benutzung dieser Website (einschließlich Ihrer IP-Adresse) werden an einen Server von Google in den USA übertragen und dort gespeichert. Google wird diese Informationen benutzen, um Ihre Nutzung der Website im Hinblick auf die Anzeigen auszuwerten, um Reports über die Websiteaktivitäten und Anzeigen für die Websitebetreiber zusammenzustellen und um weitere mit der Websitenutzung und der Internetnutzung verbundene Dienstleistungen zu erbringen. Auch wird Google diese Informationen gegebenenfalls an Dritte übertragen, sofern dies gesetzlich vorgeschrieben oder soweit Dritte diese Daten im Auftrag von Google verarbeiten. Google wird in keinem Fall Ihre IP-Adresse mit anderen Daten der Google in Verbindung bringen. Das Speichern von Cookies auf Ihrer Festplatte und die Anzeige von Web Beacons können Sie verhindern, indem Sie in Ihren Browser-Einstellungen &lsquo;&lsquo;keine Cookies akzeptieren&rsquo;&rsquo; wählen (Im MS Internet-Explorer unter &lsquo;&lsquo;Extras &gt; Internetoptionen &gt; Datenschutz &gt; Einstellung&rsquo;&rsquo;; im Firefox unter &lsquo;&lsquo;Extras &gt; Einstellungen &gt; Datenschutz &gt; Cookies&rsquo;&rsquo;); wir weisen Sie jedoch darauf hin, dass Sie in diesem Fall gegebenenfalls nicht sämtliche Funktionen dieser Website voll umfänglich nutzen können. Durch die Nutzung dieser Website erklären Sie sich mit der Bearbeitung der über Sie erhobenen Daten durch Google in der zuvor beschriebenen Art und Weise und zu dem zuvor benannten Zweck einverstanden.</p>
-<p>Website Impressum erstellt durch impressum-generator.de von der Kanzlei Hasselbach</p>
+<h2 id="verantwortlich-für-den-inhalt-gemäß--18-abs-2-mstv">Verantwortlich für den Inhalt gemäß § 18 Abs. 2 MStV</h2>
+<p>Anne Seitz<br>
+Tempelhofer Ufer 1<br>
+10961 Berlin</p>
+<h2 id="haftung-für-inhalte">Haftung für Inhalte</h2>
+<p>Die Inhalte dieser Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte kann jedoch keine Gewähr übernommen werden. Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Bei Bekanntwerden von Rechtsverletzungen werden entsprechende Inhalte umgehend entfernt.</p>
+<h2 id="haftung-für-links">Haftung für Links</h2>
+<p>Diese Website enthält Links zu externen Websites Dritter, auf deren Inhalte kein Einfluss besteht. Für diese fremden Inhalte ist stets der jeweilige Anbieter oder Betreiber verantwortlich. Bei Bekanntwerden von Rechtsverletzungen werden entsprechende Links umgehend entfernt.</p>
+<h2 id="urheberrecht">Urheberrecht</h2>
+<p>Die durch die Betreiberin erstellten Inhalte und Werke auf dieser Website unterliegen dem deutschen Urheberrecht. Downloads und Kopien sind nur für den privaten, nicht kommerziellen Gebrauch gestattet, soweit nicht ausdrücklich eine andere Lizenz angegeben ist. Inhalte Dritter werden als solche gekennzeichnet. Bei Bekanntwerden einer Urheberrechtsverletzung werden entsprechende Inhalte umgehend entfernt.</p>
+<p>Informationen zur Verarbeitung personenbezogener Daten enthält die <a href="/datenschutz/">Datenschutzerklärung</a>.</p>
 ]]></description></item><item><title>talks</title><link>https://blog.dazzlog.de/talks/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://blog.dazzlog.de/talks/</guid><description><![CDATA[<h2 id="2025">2025</h2>
 <ul>
 <li><a href="https://www.meetup.com/sfugcgn">Symfony UG Cologne</a> – <a href="https://www.meetup.com/de-DE/sfugcgn/events/308227980/">Running Symfony in a Multi-Process Container</a></li>

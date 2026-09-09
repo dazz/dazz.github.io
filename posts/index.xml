@@ -1083,10 +1083,18 @@ sequenceDiagram
 
 </div>
 
-<script type="module">
-    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-    mermaid.initialize({ startOnLoad: true, theme: "dark" });
+
+<script defer src="/vendor/mermaid/mermaid.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        if (window.mermaid) {
+            mermaid.initialize({ startOnLoad: true, theme: "dark" });
+        }
+    });
 </script>
+
+
+
 <h2 id="why-is-it-a-problem-running-two-containers">Why is it a problem running two containers?</h2>
 <p>Running multiple containers isn&rsquo;t inherently problematic. Some hosting platforms limit multi-container deployments, pushing developers toward single-container solutions. But this isn&rsquo;t a technical limitation — it&rsquo;s often a constraint of hosting.</p>
 <h3 id="build-time-dependency-between-containers">Build-time dependency between containers</h3>
@@ -1132,10 +1140,8 @@ sequenceDiagram
 
 </div>
 
-<script type="module">
-    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-    mermaid.initialize({ startOnLoad: true, theme: "dark" });
-</script>
+
+
 <p>What you see here is that when you execute the <code>docker stop</code> command, Docker initiates a graceful shutdown process
 for the specified container. It first sends the <code>SIGTERM</code> signal to the main process inside the container, allowing the application to perform necessary cleanup operations. Docker then waits for a default grace period of 10 seconds. If the process does not terminate within this timeframe, Docker sends the <code>SIGKILL</code> signal to forcefully stop the container.</p>
 <h3 id="the-role-of-s6-overlay">The Role of s6-overlay</h3>
@@ -1533,10 +1539,8 @@ svc-nginx --> svc-php-fpm
 
 </div>
 
-<script type="module">
-    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-    mermaid.initialize({ startOnLoad: true, theme: "dark" });
-</script>
+
+
 ]]></description><media:thumbnail url="https://blog.dazzlog.de/s6-cli.webp"/></item><item><title>Build your own s6-overlay base image</title><link>https://blog.dazzlog.de/posts/2024-08-19_base-image-with-s6-overlay/</link><pubDate>Mon, 19 Aug 2024 23:42:23 +0100</pubDate><guid>https://blog.dazzlog.de/posts/2024-08-19_base-image-with-s6-overlay/</guid><description><![CDATA[<p>S6-overlay is a container-focused process manager that offers end-to-end management of the container&rsquo;s lifecycle, from initialization to graceful shutdown.</p>
 <p>To make use of s6-overlay we need to add the binaries to our container by adding, extracting and then moving them to the directory where they are expected.</p>
 <div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="display:flex;"><span><span style="color:#ff79c6">ADD</span> https://github.com/just-containers/s6-overlay/releases/download/3.2.0.0/s6-overlay-noarch.tar.xz /tmp  
