@@ -3,8 +3,6 @@ title: "The Factory Looked Good Until It Had to Work"
 date: 2026-09-07T17:00:00+02:00
 tags: [ai, ai engineering, software factory, agents, orca, workflow, deno, testing, dazzhub]
 image: hero.png
-draft: true
-comments: true
 toc: true
 ---
 

@@ -1,7 +1,7 @@
 ---
 title: "Orca Is My Agent Development Environment Now"
 date: 2026-08-23T17:00:00+02:00
-tags: [ai, ai engineering, agents, orca, onorca.dev, claude code, pi, software factory, self-hosting, workflow]
+tags: [ai, ai engineering, agents, orca, claude code, pi, software factory, self-hosting, workflow]
 image: orcaorcaorca.png
 toc: true
 ---
