@@ -1,6 +1,6 @@
 ---
 title: "The Bright Factory Needed Windows"
-date: 2026-09-10T17:00:00+02:00
+date: 2026-09-15T17:00:00+02:00
 tags: [ai, ai engineering, observability, langfuse, agents, orca, claude code, pi, self-hosting]
 image: hero.png
 draft: true

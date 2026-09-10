@@ -1,6 +1,6 @@
 ---
 title: "What I Still Need Before I Call This an Autonomous Factory"
-date: 2026-09-12T17:00:00+02:00
+date: 2026-09-18T17:00:00+02:00
 tags: [ai, ai engineering, software factory, autonomous agents, orca, workflow, evals, guardrails, dazzhub]
 image: hero.png
 draft: true
