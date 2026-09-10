@@ -6,7 +6,9 @@ draft: true
 toc: true
 ---
 
-I am watching Patrick Debois’ [“Coding Agents Don't Scale Themselves. Neither Do Your Teams.”](https://youtu.be/zCJtYuqwm7E) for the third time. I keep coming back to the distance between someone finding a useful way to work with AI and a company learning how to use it together.
+I am watching Patrick Debois’ [“Coding Agents Don't Scale Themselves. Neither Do Your Teams.”](https://youtu.be/zCJtYuqwm7E) for the third time. He describes a familiar transformation programme: hackathons, lunch-and-learns, a shared Slack channel. We know these formats from Agile and DevOps. Yet a company can run all of them and still depend on a handful of people maintaining private AI workflows. That gap is what keeps me watching.
+
+For AI-assisted work, that includes shared context, tools, and checks that influence what agents produce. Debois offers a way to develop that infrastructure around the people already experimenting. That is the part I want to explore with my company and clients.
 
 That distance exists beyond development. A colleague may have found a useful workflow for research, customer communication, or documentation. Someone else may still be wondering which parts of their work they would trust a machine to do. Sharing a prompt does not necessarily help them cross that gap. The person using it may carry years of judgment that never made it into the instructions.
 
@@ -16,9 +18,11 @@ Debois speaks about coding agents and engineering organisations. He describes di
 
 ## After the hackathon, what happens to the learning?
 
-Debois names a familiar rollout: a hackathon, a lunch-and-learn, a shared Slack channel, a champions programme. He calls these generic transformation activities. We could use the same formats to introduce Agile or DevOps.
+Debois criticises the idea of educating people and [letting “a thousand flowers bloom”](https://www.youtube.com/watch?v=zCJtYuqwm7E&t=874). Earlier, he describes the practical consequence: one person publishes a skill, another forks it, and others struggle to decide which version to use or who maintains it.
 
-I would keep opportunities to learn together. A workshop gives people time to experiment. A chat gives them somewhere to ask for help. But I can see why those activities alone leave a gap. After someone demonstrates a useful workflow, who helps another person use it? Who updates it when the tool changes? Where do the lessons from an unsuccessful attempt go?
+I would keep the workshops and conversations. The missing part is a route from an experiment to a supported workflow. A Slack message can help someone discover a useful skill; it does not tell them whether their copy still contains the current authentication rules.
+
+I do not read this as a claim that Agile or DevOps succeeded through workshops alone. DevOps also needed shared delivery infrastructure. With agents, we have additional things to maintain: instructions, context, and tools through which our standards influence generated work. Sharing an explanation of a practice and maintaining the components that apply it are different responsibilities.
 
 A colleague can share their prompt and still spend the next week explaining everything around it. They know which source material to select, which claims to distrust, and which result needs another pass. The person trying the prompt for the first time does not necessarily have that knowledge.
 
@@ -26,7 +30,7 @@ Debois proposes giving team leads and platform people a mandate to develop share
 
 ## The shift: improve how the result gets produced
 
-The part of the talk I keep returning to is Debois’ advice to improve the system when an agent does something it should not.
+Debois advises developers to [improve the system](https://www.youtube.com/watch?v=zCJtYuqwm7E&t=326) when an agent does something it should not. For me, this connects the technical work on a harness to the organisational question of what we share.
 
 If I keep reshaping the output until it matches what I wanted, I may get a usable result. I have left the conditions that produced the unwanted behaviour unchanged. On the next run, I can end up doing the same work again.
 
@@ -36,11 +40,11 @@ That connects with my own experience. In [“When Scripts Turn into a System”]
 
 Looking back at that experience through Debois’ argument, the question becomes where the restriction belongs. A comment communicates my intention. A permission boundary can prevent the action. Those give me different kinds of protection, even if both begin with the same lesson about what the agent should be allowed to do.
 
-For a team, the benefit extends beyond my next session. If we use the same improved workflow, a colleague can benefit from the correction without first repeating my experience.
+Debois describes [the multiplier he wants to see](https://www.youtube.com/watch?v=zCJtYuqwm7E&t=587): one improvement to a shared system benefits the people using it. In my example, a restriction confined to my setup protects only my work. If we incorporate it into a maintained execution environment that other teams adopt, they can benefit without first repeating my experience. The improvement reaches them through shared infrastructure, rather than depending on everyone remembering my incident report.
 
 I see the broader shift in the talk like this:
 
-| Where we often begin | What we can develop together |
+| **The solo approach** | **The shared system approach** |
 |---|---|
 | Personal prompts and workarounds | Shared context with examples and review criteria |
 | Repeatedly correcting unwanted output | Improving the workflow that produces it |
@@ -52,7 +56,7 @@ Debois expects the underlying agent technology to become more widely available, 
 
 ## Five steps towards a shared AI practice
 
-The five steps below are my way of applying Debois’ ideas, including beyond engineering. They are not a numbered framework he presents in the talk. I would treat them as a gradual way to learn, rather than stages every department has to complete. How much work we eventually delegate remains a decision for each workflow.
+The five steps below are my way of developing that shared infrastructure with the people who will use it, including beyond engineering. They are not a numbered framework Debois presents in the talk. I would treat them as a gradual way to learn, rather than stages every department has to complete. How much work we eventually delegate remains a decision for each workflow.
 
 ### 1. Start with the people who know the work
 
@@ -76,7 +80,7 @@ Consider a hypothetical workflow for drafting customer replies. Sharing the inst
 
 In engineering, we can express some of that judgment through tests, linters, and tool permissions. In another department, we might start with source requirements, a review checklist, and an approval step. I would use the form that helps people do the work, rather than introduce harness terminology everywhere.
 
-Some decisions will remain with experienced people. Writing down the repeatable parts helps us see where their involvement still matters.
+Near the end of the talk, Debois places the company's “moat” in the knowledge captured in skills, context, and harnesses. I connect that to decisions like these: the domain rules that make a result acceptable for this business. Maintaining them gives other people and agents something to work from as tools change. Some decisions will remain with experienced people; making the repeatable parts explicit helps us see where their involvement still matters.
 
 ### 3. Give shared workflows a home
 
@@ -86,7 +90,9 @@ For example, imagine two developers have built a useful AI-assisted code review 
 
 Without that support, the original author can become an unofficial help desk. They answer setup questions, explain exceptions, and repair the workflow when something changes, alongside their existing work. I would like sharing an improvement to come with a way to distribute its maintenance too.
 
-Debois calls the supported options “paved roads”. Platform or Developer Experience teams can provide maintained components instead of leaving each team to build its own. He allows several paths, with teams choosing what fits. I would carry that flexibility into the wider company: a marketing workflow and a finance workflow need different expertise and review boundaries, even if they use some of the same tools.
+Debois calls the supported options “paved roads”. Platform or Developer Experience teams can maintain the shared components, with several paths for different needs. For our review workflow, I would start with a versioned repository containing the instructions and test cases, a discoverable entry in an internal catalogue, and a review process for changes. Another team could adopt a known version and contribute improvements, instead of copying a snippet from chat.
+
+I would carry that flexibility into the wider company: marketing and finance need different domain knowledge and review boundaries, even if they use some of the same tools.
 
 Support also includes a conversation about expectations. If management treats each time-saving experiment as an immediate commitment to higher output, people may become reluctant to share unfinished work or difficulties. I would want colleagues to know what we are trying to learn and how we will discuss changes to their roles. We may not have all the answers yet, but those questions belong in the introduction of the workflow.
 
@@ -130,4 +136,4 @@ I would want a developer to find a supported workflow and contribute improvement
 
 Leadership and platform support give that exchange continuity. They can provide ownership, maintenance time, and the infrastructure through which teams publish, find, and improve these capabilities. The people experimenting contribute their experience; they do not have to carry adoption across the company on their own. Colleagues joining later bring domain knowledge and new cases that can improve the shared approach in turn.
 
-That is what I take from Debois after the third viewing. The progress of a few people can become accessible to others, and those others can help develop it further. In my consulting work, I want to help teams establish that contribution path alongside their coding workflow. The boundary to work out is which capabilities we can maintain together and which need to stay close to a particular team’s domain. A shared registry gives us somewhere to put them; the ongoing work is making them useful enough to adopt and straightforward enough to improve.
+After the third viewing, I come back to what happens after the workshop. A developer discovers a better way to work, and shared infrastructure gives that improvement a route to other teams. They can contribute what they learn in return. That is Debois’ multiplier as I understand it, and the contribution path I want to help establish in my consulting work. We still have to decide which capabilities we can maintain together and which belong close to a team’s domain. I would judge the shared approach by whether another team can use it and feed an improvement back, beyond the original author's demo.
